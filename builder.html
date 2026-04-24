@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Birthday Card Builder</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Syne:wght@400;600;700;800&display=swap');
+
+  :root {
+    --bg: #0d0d0d;
+    --surface: #141414;
+    --border: #2a2a2a;
+    --border-dim: #1e1e1e;
+    --text: #e8e8e6;
+    --text-dim: #444;
+    --text-mid: #888;
+    --accent: #e8e8e6;
+    --mono: 'Courier Prime', 'Courier New', monospace;
+    --display: 'Syne', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--display);
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 48px 20px;
+  }
+
+  .builder {
+    width: 680px;
+  }
+
+  /* header */
+  .builder-header {
+    margin-bottom: 40px;
+  }
+
+  .builder-title {
+    font-size: 42px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+
+  .builder-sub {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 0.06em;
+  }
+
+  /* section */
+  .section {
+    border: 0.5px solid var(--border);
+    margin-bottom: 1px;
+  }
+
+  .section-label {
+    font-family: var(--mono);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: var(--text-dim);
+    background: var(--surface);
+    border-bottom: 0.5px solid var(--border);
+    padding: 8px 16px;
+    text-transform: uppercase;
+  }
+
+  .section-body {
+    padding: 18px 16px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+
+  .section-body.single { grid-template-columns: 1fr; }
+
+  /* field */
+  .field { display: flex; flex-direction: column; gap: 5px; }
+
+  .field-label {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+  }
+
+  .field-label span {
+    color: var(--text-mid);
+    margin-left: 6px;
+  }
+
+  .field-input {
+    font-family: var(--mono);
+    font-size: 12px;
+    background: var(--bg);
+    color: var(--text);
+    border: 0.5px solid var(--border);
+    padding: 9px 12px;
+    outline: none;
+    letter-spacing: 0.02em;
+    width: 100%;
+    transition: border-color 0.12s;
+  }
+  .field-input:focus { border-color: #555; }
+  .field-input::placeholder { color: var(--text-dim); }
+
+  /* device preview strip */
+  .device-strip {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: var(--border);
+    margin-top: 14px;
+  }
+
+  .device-tile {
+    background: var(--bg);
+    padding: 10px 12px;
+    cursor: default;
+    transition: background 0.12s;
+  }
+
+  .device-tile.active { background: var(--surface); }
+
+  .device-tile-name {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--text-dim);
+    letter-spacing: 0.06em;
+    margin-bottom: 4px;
+  }
+
+  .device-tile-days {
+    font-family: var(--display);
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--text-dim);
+    transition: color 0.12s;
+  }
+
+  .device-tile.active .device-tile-name { color: var(--text-mid); }
+  .device-tile.active .device-tile-days { color: var(--text); }
+
+  .device-tile-unit {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--text-dim);
+    margin-top: 2px;
+  }
+
+  /* output */
+  .output-section {
+    margin-top: 24px;
+    border: 0.5px solid var(--border);
+  }
+
+  .output-label {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    color: var(--text-dim);
+    background: var(--surface);
+    border-bottom: 0.5px solid var(--border);
+    padding: 8px 16px;
+    text-transform: uppercase;
+  }
+
+  .output-url {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-mid);
+    padding: 14px 16px;
+    word-break: break-all;
+    line-height: 1.7;
+    min-height: 52px;
+    border-bottom: 0.5px solid var(--border);
+  }
+
+  .output-url .param-key { color: var(--text-dim); }
+  .output-url .param-val { color: var(--text); }
+
+  .output-actions {
+    display: flex;
+    gap: 0;
+  }
+
+  .action-btn {
+    font-family: var(--display);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    background: transparent;
+    color: var(--text-mid);
+    border: none;
+    border-right: 0.5px solid var(--border);
+    padding: 12px 20px;
+    cursor: pointer;
+    transition: color 0.12s, background 0.12s;
+    flex: 1;
+    text-align: center;
+  }
+  .action-btn:last-child { border-right: none; }
+  .action-btn:hover { color: var(--text); background: var(--surface); }
+  .action-btn.primary { color: var(--text); }
+
+  /* toast */
+  .toast {
+    position: fixed;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    color: var(--text-dim);
+    background: var(--surface);
+    border: 0.5px solid var(--border);
+    padding: 9px 18px;
+    opacity: 0;
+    transition: opacity 0.2s;
+    pointer-events: none;
+  }
+  .toast.show { opacity: 1; }
+
+  /* age stats strip */
+  .age-strip {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-dim);
+    margin-top: 10px;
+    letter-spacing: 0.08em;
+    line-height: 1.9;
+  }
+
+  .age-strip span { color: var(--text-mid); }
+
+  hr.divider {
+    border: none;
+    border-top: 0.5px solid var(--border);
+    margin: 32px 0;
+  }
+</style>
+</head>
+<body>
+
+<div class="builder">
+
+  <div class="builder-header">
+    <div class="builder-title">Card Builder</div>
+    <div class="builder-sub">// generate a birthday card URL</div>
+  </div>
+
+  <!-- recipient -->
+  <div class="section">
+    <div class="section-label">recipient</div>
+    <div class="section-body">
+      <div class="field">
+        <div class="field-label">?name <span>string, default: Mika</span></div>
+        <input class="field-input" id="f-name" type="text" placeholder="Mika" value="">
+      </div>
+      <div class="field">
+        <div class="field-label">?age <span>integer, default: 30</span></div>
+        <input class="field-input" id="f-age" type="number" placeholder="30" min="1" max="150" value="">
+      </div>
+    </div>
+    <div id="age-preview" class="age-strip" style="padding: 0 16px 16px; display:none"></div>
+  </div>
+
+  <!-- gift -->
+  <div class="section">
+    <div class="section-label">gift amount</div>
+    <div class="section-body single">
+      <div class="field">
+        <div class="field-label">?amount <span>€ — drives device + runtime calculation</span></div>
+        <input class="field-input" id="f-amount" type="number" placeholder="50" min="0" step="0.01" value="">
+      </div>
+    </div>
+    <div class="device-strip" id="device-strip" style="margin: 0 0 0 0; border-top: 0.5px solid var(--border)">
+      <div class="device-tile" id="dt-fridge">
+        <div class="device-tile-name">fridge@bc101</div>
+        <div class="device-tile-days" id="dd-fridge">—</div>
+        <div class="device-tile-unit">Tage · 45W</div>
+      </div>
+      <div class="device-tile" id="dt-router">
+        <div class="device-tile-name">router+switch</div>
+        <div class="device-tile-days" id="dd-router">—</div>
+        <div class="device-tile-unit">Tage · 18W</div>
+      </div>
+      <div class="device-tile" id="dt-server">
+        <div class="device-tile-name">nutc@bc101</div>
+        <div class="device-tile-days" id="dd-server">—</div>
+        <div class="device-tile-unit">Tage · 80W</div>
+      </div>
+      <div class="device-tile" id="dt-laser">
+        <div class="device-tile-name">lasercutter</div>
+        <div class="device-tile-days" id="dd-laser">—</div>
+        <div class="device-tile-unit">Tage · 800W</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- extras -->
+  <div class="section">
+    <div class="section-label">extras</div>
+    <div class="section-body">
+      <div class="field">
+        <div class="field-label">?from <span>optional sender name</span></div>
+        <input class="field-input" id="f-from" type="text" placeholder="bitcircus101" value="">
+      </div>
+      <div class="field">
+        <div class="field-label">?meme <span>image URL or ./filename.jpg</span></div>
+        <input class="field-input" id="f-meme" type="text" placeholder="https://... or ./meme.jpg" value="">
+      </div>
+    </div>
+  </div>
+
+  <!-- output -->
+  <div class="output-section">
+    <div class="output-label">generated URL</div>
+    <div class="output-url" id="output-url">—</div>
+    <div class="output-actions">
+      <button class="action-btn primary" onclick="openCard()">[ open card ]</button>
+      <button class="action-btn" onclick="copyUrl()">[ copy URL ]</button>
+      <button class="action-btn" onclick="resetAll()">[ reset ]</button>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast">// URL copied to clipboard</div>
+
+<script>
+const PRICE_PER_KWH = 0.30;
+const DEVICES = [
+  { id: 'fridge', watt: 45,  threshold: 0   },
+  { id: 'router', watt: 18,  threshold: 20  },
+  { id: 'server', watt: 80,  threshold: 50  },
+  { id: 'laser',  watt: 800, threshold: 150 },
+];
+
+function computeDays(amount, watt) {
+  return (amount / PRICE_PER_KWH) / (watt * 24 / 1000);
+}
+
+function formatDays(n) {
+  if (!isFinite(n) || n <= 0) return '—';
+  if (n >= 365) return (n / 365).toFixed(1) + 'y';
+  return Math.round(n) + '';
+}
+
+function toHex(n) { return '0x' + n.toString(16).toUpperCase().padStart(2, '0'); }
+function toBin(n)  { return '0b' + n.toString(2).padStart(8, '0'); }
+
+function getValues() {
+  return {
+    name:   document.getElementById('f-name').value.trim(),
+    age:    parseInt(document.getElementById('f-age').value, 10) || null,
+    amount: document.getElementById('f-amount').value !== '' ? parseFloat(document.getElementById('f-amount').value) : null,
+    from:   document.getElementById('f-from').value.trim(),
+    meme:   document.getElementById('f-meme').value.trim(),
+  };
+}
+
+function buildUrl(vals) {
+  var base = window.location.href.replace('builder.html', 'index.html').split('?')[0];
+  // handle case where builder is at root
+  base = base.endsWith('/') ? base + 'index.html' : base.replace(/\/[^/]*$/, '/index.html');
+  var p = new URLSearchParams();
+  if (vals.name)          p.set('name',   vals.name);
+  if (vals.age)           p.set('age',    String(vals.age));
+  if (vals.amount !== null) p.set('amount', String(vals.amount));
+  if (vals.meme)          p.set('meme',   vals.meme);
+  if (vals.from)          p.set('from',   vals.from);
+  var qs = p.toString();
+  return qs ? base + '?' + qs : base;
+}
+
+function renderUrl(url, vals) {
+  var base   = url.split('?')[0];
+  var qs     = url.includes('?') ? url.split('?')[1] : '';
+  if (!qs) { document.getElementById('output-url').textContent = base; return; }
+  var html   = '<span style="color:var(--text-mid)">' + base + '?</span>';
+  qs.split('&').forEach(function(pair, i) {
+    var parts = pair.split('=');
+    var key   = parts[0];
+    var val   = decodeURIComponent(parts.slice(1).join('='));
+    if (i > 0) html += '<span class="param-key">&amp;</span>';
+    html += '<span class="param-key">' + key + '=</span><span class="param-val">' + val + '</span>';
+  });
+  document.getElementById('output-url').innerHTML = html;
+}
+
+function updateDeviceStrip(amount) {
+  var selectedId = null;
+  if (amount !== null && isFinite(amount) && amount >= 0) {
+    var best = DEVICES[0];
+    DEVICES.forEach(function(d) {
+      if (amount >= d.threshold && computeDays(amount, d.watt) >= 30) best = d;
+    });
+    selectedId = best.id;
+  }
+  DEVICES.forEach(function(d) {
+    var days = (amount !== null && isFinite(amount) && amount > 0)
+      ? computeDays(amount, d.watt) : null;
+    document.getElementById('dd-' + d.id).textContent = days !== null ? formatDays(days) : '—';
+    document.getElementById('dt-' + d.id).classList.toggle('active', d.id === selectedId);
+  });
+}
+
+function updateAgeStrip(age) {
+  var el = document.getElementById('age-preview');
+  if (!age || age <= 0) { el.style.display = 'none'; return; }
+  el.style.display = '';
+  el.innerHTML =
+    toHex(age) + '  <span>' + toBin(age) + '</span>  //  ' +
+    age + ' × 365 = <span>' + (age * 365) + ' days</span>  //  ' +
+    'v' + age + '.0 <span>LTS</span>';
+}
+
+function update() {
+  var vals = getValues();
+  updateDeviceStrip(vals.amount);
+  updateAgeStrip(vals.age);
+  var url  = buildUrl(vals);
+  renderUrl(url, vals);
+}
+
+function openCard() {
+  var vals = getValues();
+  window.open(buildUrl(vals), '_blank');
+}
+
+function copyUrl() {
+  var vals = getValues();
+  navigator.clipboard.writeText(buildUrl(vals)).then(function() {
+    var t = document.getElementById('toast');
+    t.classList.add('show');
+    setTimeout(function() { t.classList.remove('show'); }, 2200);
+  });
+}
+
+function resetAll() {
+  ['f-name', 'f-age', 'f-amount', 'f-from', 'f-meme'].forEach(function(id) {
+    document.getElementById(id).value = '';
+  });
+  update();
+}
+
+// wire up all inputs
+['f-name', 'f-age', 'f-amount', 'f-from', 'f-meme'].forEach(function(id) {
+  document.getElementById(id).addEventListener('input', update);
+});
+
+update();
+</script>
+</body>
+</html>
