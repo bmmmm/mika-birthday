@@ -14,6 +14,15 @@
     --text-mid: #555555;
     --mono: 'Courier New', Courier, monospace;
     --display: system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+    /* Shared type scale */
+    --fs-micro:   0.6875rem;
+    --fs-caption: 0.75rem;
+    --fs-small:   0.8125rem;
+    --fs-body:    0.875rem;
+    --fs-input:   1rem;
+    --fs-heading: 1.5rem;
+    --fs-title:   clamp(2.5rem, 8vw, 3.75rem);
   }
 
   html { font-size: 16px; }
@@ -35,7 +44,7 @@
 
   .title {
     font-family: var(--display);
-    font-size: clamp(2rem, 10vw, 4rem);
+    font-size: var(--fs-title);
     font-weight: 800;
     letter-spacing: -0.04em;
     line-height: 1;
@@ -43,14 +52,14 @@
   }
 
   .sub {
-    font-size: 0.875rem;
+    font-size: var(--fs-body);
     color: var(--text-mid);
     letter-spacing: 0.06em;
     margin-bottom: 40px;
   }
 
   .sep {
-    font-size: 0.8125rem;
+    font-size: var(--fs-small);
     color: var(--text-dim);
     letter-spacing: 0.04em;
     margin: 32px 0;
@@ -59,7 +68,7 @@
   }
 
   .section-label {
-    font-size: 0.8125rem;
+    font-size: var(--fs-small);
     color: var(--text-mid);
     letter-spacing: 0.08em;
     text-transform: uppercase;
@@ -74,7 +83,7 @@
   .token-input {
     flex: 1;
     font-family: var(--mono);
-    font-size: 1rem;
+    font-size: var(--fs-input);
     background: var(--surface);
     color: var(--text);
     border: 0.5px solid var(--border);
@@ -86,11 +95,11 @@
     transition: border-color 0.12s;
   }
   .token-input:focus { border-color: var(--text-mid); }
-  .token-input::placeholder { color: var(--text-dim); font-size: 0.9375rem; }
+  .token-input::placeholder { color: var(--text-dim); }
 
   .token-btn {
     font-family: var(--mono);
-    font-size: 0.9375rem;
+    font-size: var(--fs-input);
     background: var(--surface);
     color: var(--text);
     border: 0.5px solid var(--border);
@@ -104,7 +113,7 @@
   .token-btn:hover { border-color: var(--text-mid); background: var(--border); }
 
   .token-err {
-    font-size: 0.8125rem;
+    font-size: var(--fs-small);
     color: #e05555;
     letter-spacing: 0.04em;
     min-height: 18px;
@@ -122,7 +131,7 @@
     align-items: center;
     gap: 14px;
     font-family: var(--mono);
-    font-size: 0.9375rem;
+    font-size: var(--fs-input);
     color: var(--text-mid);
     border: 0.5px solid var(--border);
     padding: 18px 20px;
@@ -135,11 +144,11 @@
     text-decoration: none;
   }
   .build-btn:hover { border-color: var(--text-mid); color: var(--text); }
-  .build-btn-icon { font-size: 1.5rem; opacity: 0.6; }
+  .build-btn-icon { font-size: var(--fs-heading); opacity: 0.6; }
 
   .footer {
     font-family: var(--mono);
-    font-size: 0.8125rem;
+    font-size: var(--fs-small);
     color: var(--text-dim);
     text-align: center;
     margin-top: 52px;
@@ -188,12 +197,13 @@
     // hacked w/ <span style="color:#e53935">♥</span> by <a href="https://bitcircus101.de" target="_blank">bitcircus101.de</a>
     &nbsp;·&nbsp; <a href="https://bitcircus101.de/donations" target="_blank">plzzz donate kkthx</a>
     &nbsp;·&nbsp; <a href="https://github.com/bmmmm/mika-birthday" target="_blank">github</a>
+    &nbsp;·&nbsp; <span class="site-version">v0.0.0-dev</span>
   </div>
 
 </div>
 
 <script>
-var THEME_DECODE = { s:'simple', l:'light', a:'amber', m:'matrix', b:'blueprint', p:'paper', n:'neon', o:'dos', r:'brutalist', i:'ink' };
+var THEME_DECODE = { l:'light', a:'amber', m:'matrix', b:'blueprint', p:'paper', n:'neon', o:'dos', r:'brutalist', i:'ink' };
 var QUOTE_DECODE = { s:'sachlich', n:'nerd', v:'cli', e:'existentiell', w:'langweilig', b:'birthday_run', g:'git_log', k:'kernel_panic', u:'uptime', '4':'404' };
 
 function decodePositional(str) {
