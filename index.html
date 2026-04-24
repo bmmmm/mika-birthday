@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Happy Birthday</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&display=swap');
 
   :root {
     --bg: #0d0d0d;
@@ -15,7 +15,8 @@
     --text: #e8e8e6;
     --text-dim: #444;
     --text-mid: #888;
-    --mono: 'JetBrains Mono', 'Courier New', monospace;
+    --mono: 'Courier Prime', 'Courier New', monospace;
+    --display: 'Syne', sans-serif;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -23,7 +24,7 @@
   body {
     background: var(--bg);
     color: var(--text);
-    font-family: var(--mono);
+    font-family: var(--display);
     min-height: 100vh;
     display: flex;
     align-items: center;
@@ -43,6 +44,7 @@
     padding: 10px 20px;
     display: flex;
     justify-content: space-between;
+    font-family: var(--mono);
     font-size: 10px;
     color: var(--text-dim);
     letter-spacing: 0.05em;
@@ -57,10 +59,11 @@
   }
 
   .headline {
-    font-size: 52px;
-    font-weight: 700;
-    line-height: 1.05;
-    letter-spacing: -0.02em;
+    font-family: var(--display);
+    font-size: 56px;
+    font-weight: 800;
+    line-height: 1.0;
+    letter-spacing: -0.03em;
     margin-bottom: 6px;
   }
 
@@ -84,8 +87,8 @@
     margin: 28px 0;
   }
 
-  .binary { font-size: 11px; color: var(--text-dim); letter-spacing: 0.15em; margin-bottom: 6px; }
-  .comment { font-size: 10px; color: var(--text-dim); margin-bottom: 28px; }
+  .binary { font-family: var(--mono); font-size: 11px; color: var(--text-dim); letter-spacing: 0.1em; margin-bottom: 6px; }
+  .comment { font-family: var(--mono); font-size: 10px; color: var(--text-dim); margin-bottom: 28px; }
 
   .stats {
     display: grid;
@@ -101,30 +104,36 @@
   }
 
   .stat-label {
+    font-family: var(--display);
     color: var(--text-dim);
-    font-size: 10px;
-    letter-spacing: 0.08em;
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
     margin-bottom: 6px;
+    text-transform: uppercase;
   }
 
   .stat-value {
+    font-family: var(--mono);
     color: var(--text);
     font-size: 18px;
-    font-weight: 600;
+    font-weight: 700;
     letter-spacing: -0.01em;
   }
 
   .stat-unit {
+    font-family: var(--display);
     font-size: 10px;
     color: var(--text-mid);
     margin-left: 4px;
     font-weight: 400;
   }
 
-  .stat-sub { font-size: 10px; color: var(--text-dim); margin-top: 4px; }
+  .stat-sub { font-family: var(--mono); font-size: 10px; color: var(--text-dim); margin-top: 4px; }
 
   .device-badge {
     display: inline-block;
+    font-family: var(--mono);
     font-size: 10px;
     color: var(--text-mid);
     border: 0.5px solid var(--border);
@@ -147,19 +156,27 @@
 
   .meme-label {
     position: absolute; top: 10px; left: 14px;
-    font-size: 10px; color: var(--text-dim); letter-spacing: 0.05em;
+    font-family: var(--mono); font-size: 10px; color: var(--text-dim); letter-spacing: 0.05em;
     z-index: 1;
   }
 
   .meme-label-br {
     position: absolute; bottom: 10px; right: 14px;
-    font-size: 10px; color: var(--text-dim); letter-spacing: 0.05em;
+    font-family: var(--mono); font-size: 10px; color: var(--text-dim); letter-spacing: 0.05em;
     z-index: 1;
   }
 
-  .meme-placeholder { text-align: center; color: var(--text-dim); }
+  .meme-placeholder {
+    text-align: center;
+    color: var(--text-dim);
+    cursor: pointer;
+    padding: 40px;
+    transition: color 0.15s;
+  }
+  .meme-placeholder:hover { color: var(--text-mid); }
   .meme-placeholder .crosshair { font-size: 32px; margin-bottom: 8px; opacity: 0.3; }
-  .meme-placeholder p { font-size: 11px; letter-spacing: 0.1em; }
+  .meme-placeholder p { font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; }
+  .meme-placeholder .upload-hint { font-family: var(--display); font-size: 10px; margin-top: 6px; opacity: 0.5; }
 
   .meme-img { width: 100%; max-height: 360px; object-fit: contain; display: block; }
 
@@ -188,11 +205,12 @@
   }
 
   .fridge-block .big-num {
-    font-size: 48px;
-    font-weight: 700;
+    font-family: var(--display);
+    font-size: 52px;
+    font-weight: 800;
     color: var(--text);
     display: block;
-    letter-spacing: -0.03em;
+    letter-spacing: -0.04em;
     line-height: 1;
     margin: 8px 0 4px;
   }
@@ -205,8 +223,9 @@
   }
 
   .btn {
-    font-family: var(--mono);
+    font-family: var(--display);
     font-size: 11px;
+    font-weight: 600;
     letter-spacing: 0.08em;
     background: transparent;
     color: var(--text-mid);
@@ -239,6 +258,7 @@
     padding: 10px 20px;
     display: flex;
     justify-content: space-between;
+    font-family: var(--mono);
     font-size: 10px;
     color: var(--text-dim);
     background: var(--surface);
@@ -347,6 +367,7 @@
       <div class="meme-placeholder" id="meme-placeholder">
         <div class="crosshair">⊕</div>
         <p>INSERT MEME HERE</p>
+        <p class="upload-hint">click to select file</p>
       </div>
     </div>
 
@@ -585,7 +606,34 @@ function copyLink() {
   });
 }
 
+function setupMemeUpload() {
+  const placeholder = document.getElementById('meme-placeholder');
+  if (!placeholder) return;
+
+  const fileInput = document.createElement('input');
+  fileInput.type    = 'file';
+  fileInput.accept  = 'image/*';
+  fileInput.style.display = 'none';
+  document.body.appendChild(fileInput);
+
+  placeholder.addEventListener('click', function () { fileInput.click(); });
+
+  fileInput.addEventListener('change', function (e) {
+    var file = e.target.files[0];
+    if (!file) return;
+    var objectUrl = URL.createObjectURL(file);
+    var img = document.createElement('img');
+    img.className = 'meme-img';
+    img.alt       = 'meme';
+    img.src       = objectUrl;
+    placeholder.style.display = 'none';
+    document.querySelector('.meme-container').appendChild(img);
+    document.getElementById('meme-label').textContent = '[ img_src: ' + file.name + ' ]';
+  });
+}
+
 render();
+setupMemeUpload();
 </script>
 </body>
 </html>
