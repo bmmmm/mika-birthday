@@ -37,10 +37,14 @@
     display: flex;
     gap: 20px;
     align-items: flex-start;
+    width: 100%;
+    max-width: 1000px;
   }
 
   .card {
     width: 720px;
+    min-width: 0;
+    flex: 1 1 auto;
     border: 0.5px solid var(--border);
     position: relative;
   }
@@ -432,6 +436,7 @@
   .side-panel {
     width: 240px;
     flex-shrink: 0;
+    flex-grow: 0;
     border: 0.5px solid var(--border);
     background: var(--surface);
     font-family: var(--mono);
@@ -534,6 +539,31 @@
   }
   .attribution a:hover { text-decoration: underline; }
 
+  /* ── PRINT QR (hidden on screen) ───────────────── */
+  .print-qr {
+    display: none;
+  }
+
+  /* ── RESPONSIVE ─────────────────────────────────── */
+  @media (max-width: 1020px) {
+    .page-wrapper {
+      flex-direction: column;
+      align-items: center;
+    }
+    .card {
+      width: 100%;
+      max-width: 720px;
+      flex: none;
+    }
+    .side-panel {
+      width: 100%;
+      max-width: 720px;
+    }
+    .cfg-themes {
+      grid-template-columns: repeat(5, 1fr);
+    }
+  }
+
   /* ── PRINT ─────────────────────────────────────── */
   @media print {
     body {
@@ -551,11 +581,34 @@
       --text-mid: #555;
     }
     .share-row, .btn, .toast, .attribution, .side-panel { display: none !important; }
-    .cursor::after { display: none !important; }
+    .page-wrapper { flex-direction: column; }
     .card { width: 100%; border: 0.5px solid #ccc; }
+    .cursor::after { display: none !important; }
     .body { padding: 32px 40px; margin: 12px; }
     .headline { font-size: 40px; }
     .fridge-block .big-num { font-size: 36px; }
+    .print-qr {
+      display: flex !important;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 14px;
+      margin-top: 28px;
+      padding-top: 16px;
+      border-top: 0.5px solid #ccc;
+    }
+    .print-qr-text {
+      text-align: right;
+      font-family: 'Courier Prime', monospace;
+      font-size: 9px;
+      color: #555;
+      line-height: 1.7;
+      letter-spacing: 0.06em;
+    }
+    .print-qr img {
+      width: 100px;
+      height: 100px;
+      display: block;
+    }
   }
 </style>
 </head>
@@ -645,6 +698,15 @@
       <span class="big-num cursor" id="days-display">—</span>
       mit Strom versorgt ist.<br>
       <span style="font-size:11px; color: var(--text-dim);">// timestamp: <span id="ts-display">—</span> UTC — danke für deine Existenz.</span>
+    </div>
+
+    <div class="print-qr" id="print-qr">
+      <div class="print-qr-text">
+        // scan to view<br>
+        interactive version<br>
+        incl. gifs + animations
+      </div>
+      <img id="qr-img" src="" alt="QR" width="100" height="100">
     </div>
 
     <div class="share-row">
@@ -955,20 +1017,30 @@ function render() {
       : 'bitcircus101 \u2014 Dorotheenstra\u00dfe 101, 53111 Bonn';
   document.getElementById('footer-right').textContent =
     ts.slice(0, 10) + ' UTC // v' + age + '.0.0';
+
+  var qrImg = document.getElementById('qr-img');
+  if (qrImg) {
+    var shareUrl = buildShareUrl();
+    qrImg.src = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + encodeURIComponent(shareUrl);
+  }
 }
 
-function copyLink() {
-  const p   = getParams();
-  const url = new URL(window.location.href);
+function buildShareUrl() {
+  var p   = getParams();
+  var url = new URL(window.location.href);
   url.search = '';
   url.searchParams.set('name', p.name);
   url.searchParams.set('age',  String(p.age));
-  if (p.amount !== null)        url.searchParams.set('amount', String(p.amount));
-  if (p.meme)                   url.searchParams.set('meme',   p.meme);
-  if (p.from)                   url.searchParams.set('from',   p.from);
+  if (p.amount !== null)             url.searchParams.set('amount', String(p.amount));
+  if (p.meme && !p.meme.startsWith('blob:')) url.searchParams.set('meme', p.meme);
+  if (p.from)                        url.searchParams.set('from',   p.from);
   if (p.theme && p.theme !== 'dark') url.searchParams.set('theme', p.theme);
   url.searchParams.set('locked', '1');
-  navigator.clipboard.writeText(url.toString()).then(function () {
+  return url.toString();
+}
+
+function copyLink() {
+  navigator.clipboard.writeText(buildShareUrl()).then(function () {
     var t = document.getElementById('toast');
     t.classList.add('show');
     setTimeout(function () { t.classList.remove('show'); }, 2500);
