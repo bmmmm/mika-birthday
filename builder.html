@@ -670,9 +670,9 @@ function buildToken(cardUrl) {
     ? '~' + (sp.get('text') || '')
     : (TOKEN_QUOTE[rawQ] || '');
   var device = sp.get('device') || '';
-  // blob: URLs are temporary browser objects and can't be encoded
+  // blob:/data: URLs can't be encoded in tokens (local/embedded)
   var rawMeme = sp.get('meme') || '';
-  var meme    = (rawMeme && !rawMeme.startsWith('blob:')) ? encodeURIComponent(rawMeme) : '';
+  var meme    = (rawMeme && !rawMeme.startsWith('blob:') && !rawMeme.startsWith('data:')) ? encodeURIComponent(rawMeme) : '';
 
   var fields = [name, age, amount, from, theme, quoteField, device, meme];
   while (fields.length && fields[fields.length - 1] === '') fields.pop();
