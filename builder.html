@@ -222,6 +222,47 @@
     text-transform: uppercase;
   }
 
+  .output-token-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 16px;
+    border-bottom: 0.5px solid var(--border);
+    border-top: 0.5px solid var(--border);
+    background: var(--bg);
+  }
+  .output-token-label {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    flex-shrink: 0;
+  }
+  .output-token-val {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-mid);
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    letter-spacing: 0.04em;
+  }
+  .output-token-copy {
+    font-family: var(--mono);
+    font-size: 9px;
+    background: transparent;
+    color: var(--text-dim);
+    border: 0.5px solid var(--border);
+    padding: 4px 10px;
+    cursor: pointer;
+    letter-spacing: 0.06em;
+    flex-shrink: 0;
+    transition: color 0.1s, border-color 0.1s;
+  }
+  .output-token-copy:hover { color: var(--text); border-color: var(--text-mid); }
+
   .output-url {
     font-family: var(--mono);
     font-size: 11px;
@@ -402,6 +443,11 @@
   <div class="output-section">
     <div class="output-label">generated URL</div>
     <div class="output-url" id="output-url">—</div>
+    <div class="output-token-row" id="token-row" style="display:none">
+      <span class="output-token-label">token</span>
+      <span class="output-token-val" id="output-token">—</span>
+      <button class="output-token-copy" onclick="copyToken()">[ ⊕ copy ]</button>
+    </div>
     <div class="output-actions">
       <button class="action-btn primary" onclick="openCard()">[ open card ]</button>
       <button class="action-btn" onclick="openPlain()">[ open plain ]</button>
@@ -602,6 +648,12 @@ function buildUrl(vals) {
   return qs ? base + '?' + qs : base;
 }
 
+function buildToken(cardUrl) {
+  var qs = cardUrl.split('?')[1] || '';
+  if (!qs) return '';
+  return btoa(qs).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+}
+
 function renderUrl(url) {
   var base = url.split('?')[0];
   var qs   = url.includes('?') ? url.split('?')[1] : '';
@@ -631,7 +683,26 @@ function update() {
   var vals = getValues();
   updateDeviceStrip(vals.amount);
   updateAgeStrip(vals.age);
-  renderUrl(buildUrl(vals));
+  var url   = buildUrl(vals);
+  renderUrl(url);
+  var token = buildToken(url);
+  var tokenRow = document.getElementById('token-row');
+  var tokenEl  = document.getElementById('output-token');
+  if (token) {
+    tokenRow.style.display = '';
+    tokenEl.textContent    = token;
+  } else {
+    tokenRow.style.display = 'none';
+  }
+}
+
+function copyToken() {
+  var token = document.getElementById('output-token').textContent;
+  navigator.clipboard.writeText(token).then(function () {
+    var t = document.getElementById('toast');
+    t.classList.add('show');
+    setTimeout(function () { t.classList.remove('show'); }, 2000);
+  });
 }
 
 // ── actions ──────────────────────────────────────────────────────────────────
