@@ -26,19 +26,14 @@
     font-family: var(--display);
     min-height: 100vh;
     display: flex;
-    align-items: flex-start;
-    justify-content: center;
-    padding: 48px 20px;
+    flex-direction: column;
+    align-items: center;
+    padding: 48px 20px 0;
   }
 
-  .builder {
-    width: 680px;
-  }
+  .builder { width: 680px; }
 
-  /* header */
-  .builder-header {
-    margin-bottom: 40px;
-  }
+  .builder-header { margin-bottom: 40px; }
 
   .builder-title {
     font-size: 42px;
@@ -55,7 +50,6 @@
     letter-spacing: 0.06em;
   }
 
-  /* section */
   .section {
     border: 0.5px solid var(--border);
     margin-bottom: 1px;
@@ -79,10 +73,8 @@
     grid-template-columns: 1fr 1fr;
     gap: 14px;
   }
-
   .section-body.single { grid-template-columns: 1fr; }
 
-  /* field */
   .field { display: flex; flex-direction: column; gap: 5px; }
 
   .field-label {
@@ -91,11 +83,7 @@
     color: var(--text-dim);
     letter-spacing: 0.1em;
   }
-
-  .field-label span {
-    color: var(--text-mid);
-    margin-left: 6px;
-  }
+  .field-label span { color: var(--text-mid); margin-left: 6px; }
 
   .field-input {
     font-family: var(--mono);
@@ -112,23 +100,28 @@
   .field-input:focus { border-color: #555; }
   .field-input::placeholder { color: var(--text-dim); }
 
-  /* device preview strip */
+  /* device strip */
   .device-strip {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
     gap: 1px;
     background: var(--border);
-    margin-top: 14px;
+    border-top: 0.5px solid var(--border);
   }
 
   .device-tile {
     background: var(--bg);
     padding: 10px 12px;
-    cursor: default;
+    cursor: pointer;
     transition: background 0.12s;
+    user-select: none;
   }
-
+  .device-tile:hover { background: var(--surface); }
   .device-tile.active { background: var(--surface); }
+  .device-tile.pinned {
+    background: var(--surface);
+    outline: 1.5px solid var(--text-mid);
+    outline-offset: -1.5px;
+  }
 
   .device-tile-name {
     font-family: var(--mono);
@@ -137,6 +130,8 @@
     letter-spacing: 0.06em;
     margin-bottom: 4px;
   }
+  .device-tile.active .device-tile-name,
+  .device-tile.pinned .device-tile-name { color: var(--text-mid); }
 
   .device-tile-days {
     font-family: var(--display);
@@ -146,15 +141,68 @@
     color: var(--text-dim);
     transition: color 0.12s;
   }
-
-  .device-tile.active .device-tile-name { color: var(--text-mid); }
-  .device-tile.active .device-tile-days { color: var(--text); }
+  .device-tile.active .device-tile-days,
+  .device-tile.pinned .device-tile-days { color: var(--text); }
 
   .device-tile-unit {
     font-family: var(--mono);
     font-size: 9px;
     color: var(--text-dim);
     margin-top: 2px;
+  }
+
+  .device-tile-pin {
+    font-family: var(--mono);
+    font-size: 8px;
+    color: var(--text-mid);
+    margin-top: 4px;
+    letter-spacing: 0.06em;
+  }
+
+  /* age strip */
+  .age-strip {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-dim);
+    margin-top: 10px;
+    letter-spacing: 0.08em;
+    line-height: 1.9;
+  }
+  .age-strip span { color: var(--text-mid); }
+
+  /* theme picker */
+  .theme-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 3px;
+  }
+
+  .theme-tile {
+    border: 0.5px solid;
+    padding: 10px 8px 8px;
+    cursor: pointer;
+    position: relative;
+    transition: opacity 0.12s;
+    user-select: none;
+  }
+  .theme-tile:hover { opacity: 0.82; }
+  .theme-tile.active { outline: 2px solid var(--text); outline-offset: 1px; }
+
+  .theme-palette {
+    font-family: monospace;
+    font-size: 8px;
+    line-height: 1.15;
+    letter-spacing: 0;
+    white-space: pre;
+    margin-bottom: 6px;
+  }
+
+  .theme-tile-name {
+    font-family: var(--mono);
+    font-size: 8px;
+    letter-spacing: 0.08em;
+    opacity: 0.65;
+    text-transform: lowercase;
   }
 
   /* output */
@@ -184,14 +232,10 @@
     min-height: 52px;
     border-bottom: 0.5px solid var(--border);
   }
-
   .output-url .param-key { color: var(--text-dim); }
   .output-url .param-val { color: var(--text); }
 
-  .output-actions {
-    display: flex;
-    gap: 0;
-  }
+  .output-actions { display: flex; gap: 0; }
 
   .action-btn {
     font-family: var(--display);
@@ -202,7 +246,7 @@
     color: var(--text-mid);
     border: none;
     border-right: 0.5px solid var(--border);
-    padding: 12px 20px;
+    padding: 12px 16px;
     cursor: pointer;
     transition: color 0.12s, background 0.12s;
     flex: 1;
@@ -211,6 +255,21 @@
   .action-btn:last-child { border-right: none; }
   .action-btn:hover { color: var(--text); background: var(--surface); }
   .action-btn.primary { color: var(--text); }
+
+  /* footer */
+  .site-footer {
+    width: 680px;
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--text-dim);
+    text-align: center;
+    padding: 24px 0 32px;
+    letter-spacing: 0.06em;
+    border-top: 0.5px solid var(--border);
+    margin-top: 28px;
+  }
+  .site-footer a { color: var(--text-mid); text-decoration: none; }
+  .site-footer a:hover { text-decoration: underline; }
 
   /* toast */
   .toast {
@@ -230,64 +289,6 @@
     pointer-events: none;
   }
   .toast.show { opacity: 1; }
-
-  /* age stats strip */
-  .age-strip {
-    font-family: var(--mono);
-    font-size: 10px;
-    color: var(--text-dim);
-    margin-top: 10px;
-    letter-spacing: 0.08em;
-    line-height: 1.9;
-  }
-
-  .age-strip span { color: var(--text-mid); }
-
-  hr.divider {
-    border: none;
-    border-top: 0.5px solid var(--border);
-    margin: 32px 0;
-  }
-
-  /* theme picker */
-  .theme-grid {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 3px;
-  }
-
-  .theme-tile {
-    border: 0.5px solid;
-    padding: 12px 10px 10px;
-    cursor: pointer;
-    position: relative;
-    transition: opacity 0.12s;
-    user-select: none;
-  }
-  .theme-tile:hover { opacity: 0.82; }
-  .theme-tile.active { outline: 2px solid var(--text); outline-offset: 1px; }
-
-  .theme-preview-hbd {
-    font-size: 22px;
-    font-weight: 700;
-    line-height: 1;
-    margin-bottom: 3px;
-  }
-
-  .theme-preview-code {
-    font-size: 9px;
-    letter-spacing: 0.05em;
-    opacity: 0.7;
-  }
-
-  .theme-tile-name {
-    font-family: var(--mono);
-    font-size: 8px;
-    letter-spacing: 0.1em;
-    margin-top: 8px;
-    opacity: 0.6;
-    text-transform: lowercase;
-  }
 </style>
 </head>
 <body>
@@ -324,28 +325,7 @@
         <input class="field-input" id="f-amount" type="number" placeholder="50" min="0" step="0.01" value="">
       </div>
     </div>
-    <div class="device-strip" id="device-strip" style="margin: 0 0 0 0; border-top: 0.5px solid var(--border)">
-      <div class="device-tile" id="dt-fridge">
-        <div class="device-tile-name">fridge@bc101</div>
-        <div class="device-tile-days" id="dd-fridge">—</div>
-        <div class="device-tile-unit">Tage · 45W</div>
-      </div>
-      <div class="device-tile" id="dt-router">
-        <div class="device-tile-name">router+switch</div>
-        <div class="device-tile-days" id="dd-router">—</div>
-        <div class="device-tile-unit">Tage · 18W</div>
-      </div>
-      <div class="device-tile" id="dt-server">
-        <div class="device-tile-name">nutc@bc101</div>
-        <div class="device-tile-days" id="dd-server">—</div>
-        <div class="device-tile-unit">Tage · 80W</div>
-      </div>
-      <div class="device-tile" id="dt-laser">
-        <div class="device-tile-name">lasercutter</div>
-        <div class="device-tile-days" id="dd-laser">—</div>
-        <div class="device-tile-unit">Tage · 800W</div>
-      </div>
-    </div>
+    <div id="device-strip"></div>
   </div>
 
   <!-- extras -->
@@ -385,6 +365,10 @@
 
 </div>
 
+<footer class="site-footer">
+  // hacked w/ <span style="color:#e53935">♥</span> by <a href="https://bitcircus101.de" target="_blank">bitcircus101.de</a>
+</footer>
+
 <div class="toast" id="toast">// URL copied to clipboard</div>
 
 <script src="config.js"></script>
@@ -403,20 +387,43 @@ const THEMES = {
   ink:       { label: 'Ink',       vars: { '--bg': '#1a1410', '--surface': '#221c16', '--border': '#3a3028', '--text': '#e8d5b0', '--text-dim': '#4a3c2c', '--text-mid': '#8a7258' }, display: "'Arial Black', Impact, sans-serif",                mono: "'Courier New', Courier, monospace" },
 };
 
-var currentTheme = 'dark';
+var currentTheme  = 'dark';
+var currentDevice = null;
+
+var PRICE_PER_KWH = SETTINGS.pricePerKwh;
+var DEVICES = [];
+
+// ── theme palette ────────────────────────────────────────────────────────────
+function buildPalette(t) {
+  // 5 columns (surface → border → text-dim → text-mid → text), heights 1–5
+  var colors  = ['--surface', '--border', '--text-dim', '--text-mid', '--text'];
+  var heights = [1, 2, 3, 4, 5];
+  var maxH    = 5;
+  var rows    = [];
+  for (var r = maxH; r >= 1; r--) {
+    var row = '';
+    colors.forEach(function (key, i) {
+      row += heights[i] >= r
+        ? '<span style="color:' + t.vars[key] + '">██</span>'
+        : '  ';
+    });
+    rows.push(row);
+  }
+  return '<div class="theme-palette">' + rows.join('\n') + '</div>';
+}
 
 function buildThemeGrid() {
   var grid = document.getElementById('theme-grid');
   Object.keys(THEMES).forEach(function (id) {
     var t    = THEMES[id];
     var tile = document.createElement('div');
-    tile.className    = 'theme-tile' + (id === 'dark' ? ' active' : '');
+    tile.className         = 'theme-tile' + (id === currentTheme ? ' active' : '');
+    tile.dataset.themeId   = id;
     tile.style.background  = t.vars['--bg'];
     tile.style.borderColor = t.vars['--border'];
     tile.innerHTML =
-      '<div class="theme-preview-hbd" style="font-family:' + t.display + ';color:' + t.vars['--text'] + '">Hbd</div>' +
-      '<div class="theme-preview-code" style="font-family:' + t.mono + ';color:' + t.vars['--text-mid'] + '">0x1E</div>' +
-      '<div class="theme-tile-name" style="color:' + t.vars['--text-dim'] + '">' + t.label + '</div>';
+      buildPalette(t) +
+      '<div class="theme-tile-name" style="color:' + t.vars['--text-mid'] + '">' + t.label + '</div>';
     tile.addEventListener('click', function () {
       currentTheme = id;
       document.querySelectorAll('.theme-tile').forEach(function (el) { el.classList.remove('active'); });
@@ -427,9 +434,54 @@ function buildThemeGrid() {
   });
 }
 
-var PRICE_PER_KWH = SETTINGS.pricePerKwh;
-var DEVICES = [];
+// ── device strip ─────────────────────────────────────────────────────────────
+function buildDeviceStrip() {
+  var strip = document.getElementById('device-strip');
+  strip.className = 'device-strip';
+  strip.style.gridTemplateColumns = 'repeat(' + DEVICES.length + ', 1fr)';
+  strip.innerHTML = '';
+  DEVICES.forEach(function (d) {
+    var tile = document.createElement('div');
+    tile.className = 'device-tile';
+    tile.id        = 'dt-' + d.id;
+    tile.innerHTML =
+      '<div class="device-tile-name">' + d.shortName + '</div>' +
+      '<div class="device-tile-days" id="dd-' + d.id + '">—</div>' +
+      '<div class="device-tile-unit">Tage · ' + d.watt + 'W</div>' +
+      '<div class="device-tile-pin" id="dp-' + d.id + '"></div>';
+    tile.addEventListener('click', function () {
+      currentDevice = currentDevice === d.id ? null : d.id;
+      update();
+    });
+    strip.appendChild(tile);
+  });
+}
 
+function updateDeviceStrip(amount) {
+  var autoId = null;
+  if (amount !== null && isFinite(amount) && amount > 0) {
+    var best = DEVICES[0];
+    DEVICES.forEach(function (d) {
+      if (amount >= d.threshold && computeDays(amount, d.watt) >= SETTINGS.minDays) best = d;
+    });
+    autoId = best ? best.id : null;
+  }
+  DEVICES.forEach(function (d) {
+    var days  = (amount !== null && isFinite(amount) && amount > 0) ? computeDays(amount, d.watt) : null;
+    var dayEl = document.getElementById('dd-' + d.id);
+    var pinEl = document.getElementById('dp-' + d.id);
+    var tile  = document.getElementById('dt-' + d.id);
+    if (!tile) return;
+    var isPinned = currentDevice === d.id;
+    var isAuto   = !currentDevice && d.id === autoId;
+    if (dayEl) dayEl.textContent = days !== null ? formatDays(days) : '—';
+    if (pinEl) pinEl.textContent = isPinned ? '[ pinned ]' : (isAuto ? '[ auto ]' : '');
+    tile.classList.toggle('active', isAuto && !isPinned);
+    tile.classList.toggle('pinned', isPinned);
+  });
+}
+
+// ── helpers ──────────────────────────────────────────────────────────────────
 function computeDays(amount, watt) {
   return (amount / PRICE_PER_KWH) / (watt * 24 / 1000);
 }
@@ -443,6 +495,7 @@ function formatDays(n) {
 function toHex(n) { return '0x' + n.toString(16).toUpperCase().padStart(2, '0'); }
 function toBin(n)  { return '0b' + n.toString(2).padStart(8, '0'); }
 
+// ── values & URL ─────────────────────────────────────────────────────────────
 function getValues() {
   return {
     name:   document.getElementById('f-name').value.trim(),
@@ -455,25 +508,25 @@ function getValues() {
 
 function buildUrl(vals) {
   var base = window.location.href.replace('builder.html', 'index.html').split('?')[0];
-  // handle case where builder is at root
   base = base.endsWith('/') ? base + 'index.html' : base.replace(/\/[^/]*$/, '/index.html');
   var p = new URLSearchParams();
-  if (vals.name)             p.set('name',   vals.name);
-  if (vals.age)              p.set('age',    String(vals.age));
-  if (vals.amount !== null)  p.set('amount', String(vals.amount));
-  if (vals.meme)             p.set('meme',   vals.meme);
-  if (vals.from)             p.set('from',   vals.from);
+  if (vals.name)            p.set('name',   vals.name);
+  if (vals.age)             p.set('age',    String(vals.age));
+  if (vals.amount !== null) p.set('amount', String(vals.amount));
+  if (vals.meme)            p.set('meme',   vals.meme);
+  if (vals.from)            p.set('from',   vals.from);
   if (currentTheme !== 'dark') p.set('theme', currentTheme);
+  if (currentDevice)        p.set('device', currentDevice);
   var qs = p.toString();
   return qs ? base + '?' + qs : base;
 }
 
-function renderUrl(url, vals) {
-  var base   = url.split('?')[0];
-  var qs     = url.includes('?') ? url.split('?')[1] : '';
+function renderUrl(url) {
+  var base = url.split('?')[0];
+  var qs   = url.includes('?') ? url.split('?')[1] : '';
   if (!qs) { document.getElementById('output-url').textContent = base; return; }
-  var html   = '<span style="color:var(--text-mid)">' + base + '?</span>';
-  qs.split('&').forEach(function(pair, i) {
+  var html = '<span style="color:var(--text-mid)">' + base + '?</span>';
+  qs.split('&').forEach(function (pair, i) {
     var parts = pair.split('=');
     var key   = parts[0];
     var val   = decodeURIComponent(parts.slice(1).join('='));
@@ -481,23 +534,6 @@ function renderUrl(url, vals) {
     html += '<span class="param-key">' + key + '=</span><span class="param-val">' + val + '</span>';
   });
   document.getElementById('output-url').innerHTML = html;
-}
-
-function updateDeviceStrip(amount) {
-  var selectedId = null;
-  if (amount !== null && isFinite(amount) && amount >= 0) {
-    var best = DEVICES[0];
-    DEVICES.forEach(function(d) {
-      if (amount >= d.threshold && computeDays(amount, d.watt) >= SETTINGS.minDays) best = d;
-    });
-    selectedId = best.id;
-  }
-  DEVICES.forEach(function(d) {
-    var days = (amount !== null && isFinite(amount) && amount > 0)
-      ? computeDays(amount, d.watt) : null;
-    document.getElementById('dd-' + d.id).textContent = days !== null ? formatDays(days) : '—';
-    document.getElementById('dt-' + d.id).classList.toggle('active', d.id === selectedId);
-  });
 }
 
 function updateAgeStrip(age) {
@@ -514,48 +550,45 @@ function update() {
   var vals = getValues();
   updateDeviceStrip(vals.amount);
   updateAgeStrip(vals.age);
-  var url  = buildUrl(vals);
-  renderUrl(url, vals);
+  renderUrl(buildUrl(vals));
 }
 
-function openCard() {
-  var vals = getValues();
-  window.open(buildUrl(vals), '_blank');
-}
+// ── actions ──────────────────────────────────────────────────────────────────
+function openCard() { window.open(buildUrl(getValues()), '_blank'); }
 
 function openPlain() {
-  var vals = getValues();
-  var url  = buildUrl(vals).replace(/\/index\.html/, '/plain.html');
-  var u    = new URL(url);
+  var url = buildUrl(getValues()).replace(/\/index\.html/, '/plain.html');
+  var u   = new URL(url);
   u.searchParams.delete('theme');
   window.open(u.toString(), '_blank');
 }
 
 function copyUrl() {
-  var vals = getValues();
-  navigator.clipboard.writeText(buildUrl(vals)).then(function() {
+  navigator.clipboard.writeText(buildUrl(getValues())).then(function () {
     var t = document.getElementById('toast');
     t.classList.add('show');
-    setTimeout(function() { t.classList.remove('show'); }, 2200);
+    setTimeout(function () { t.classList.remove('show'); }, 2200);
   });
 }
 
 function resetAll() {
-  ['f-name', 'f-age', 'f-amount', 'f-from', 'f-meme'].forEach(function(id) {
+  ['f-name', 'f-age', 'f-amount', 'f-from', 'f-meme'].forEach(function (id) {
     document.getElementById(id).value = '';
   });
-  currentTheme = 'dark';
-  document.querySelectorAll('.theme-tile').forEach(function(el, i) {
-    el.classList.toggle('active', i === 0);
+  currentTheme  = 'dark';
+  currentDevice = null;
+  document.querySelectorAll('.theme-tile').forEach(function (el) {
+    el.classList.toggle('active', el.dataset.themeId === 'dark');
   });
   update();
 }
 
-// wire up all inputs
-['f-name', 'f-age', 'f-amount', 'f-from', 'f-meme'].forEach(function(id) {
+// ── wire inputs ───────────────────────────────────────────────────────────────
+['f-name', 'f-age', 'f-amount', 'f-from', 'f-meme'].forEach(function (id) {
   document.getElementById(id).addEventListener('input', update);
 });
 
+// ── init ─────────────────────────────────────────────────────────────────────
 (async function () {
   try {
     var ids = await fetch('./devices/index.json').then(function (r) { return r.json(); });
@@ -566,6 +599,7 @@ function resetAll() {
     console.warn('devices load failed:', e);
   }
   buildThemeGrid();
+  buildDeviceStrip();
   update();
 })();
 </script>
