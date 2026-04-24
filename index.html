@@ -413,6 +413,25 @@
   }
   .meme-container:hover .meme-change-hint { opacity: 1; }
 
+  .meme-remove-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: var(--bg);
+    border: 0.5px solid var(--border);
+    color: var(--text-mid);
+    font-family: var(--mono);
+    font-size: 9px;
+    padding: 4px 9px;
+    cursor: pointer;
+    z-index: 3;
+    opacity: 0;
+    transition: opacity 0.15s, color 0.1s;
+    letter-spacing: 0.06em;
+  }
+  .meme-container:hover .meme-remove-btn { opacity: 1; }
+  .meme-remove-btn:hover { color: #e05555; border-color: #e05555; }
+
   /* ── SIDE PANEL ────────────────────────────────── */
   .side-panel {
     width: 240px;
@@ -1126,8 +1145,15 @@ function render() {
 
   // clear previous meme content before re-render
   const _mc = document.querySelector('.meme-container');
-  _mc.querySelectorAll('.meme-img, .meme-change-hint').forEach(function (el) { el.remove(); });
-  document.getElementById('meme-placeholder').style.display = '';
+  _mc.querySelectorAll('.meme-img, .meme-change-hint, .meme-remove-btn').forEach(function (el) { el.remove(); });
+
+  // themed placeholder
+  const _ph   = document.getElementById('meme-placeholder');
+  const _phd  = THEME_PLACEHOLDERS[theme] || THEME_PLACEHOLDERS.dark;
+  _ph.innerHTML = '<div class="crosshair">' + esc(_phd.icon) + '</div>'
+    + '<p>' + esc(_phd.line1) + '</p>'
+    + '<p class="upload-hint">' + esc(_phd.line2) + '</p>';
+  _ph.style.display = '';
 
   // meme / device photo
   const memeOrDevice = meme || (device.img ? device.img : null);
@@ -1142,7 +1168,7 @@ function render() {
     img.onerror       = function () {
       placeholder.style.display = '';
       img.remove();
-      container.querySelectorAll('.meme-change-hint').forEach(function (el) { el.remove(); });
+      container.querySelectorAll('.meme-change-hint, .meme-remove-btn').forEach(function (el) { el.remove(); });
     };
     placeholder.style.display = 'none';
     img.src = memeOrDevice;
@@ -1153,6 +1179,12 @@ function render() {
       hint.textContent = '[ click to change ]';
       hint.addEventListener('click', openMemePicker);
       container.appendChild(hint);
+
+      const rmBtn     = document.createElement('button');
+      rmBtn.className = 'meme-remove-btn';
+      rmBtn.textContent = '[ ✕ remove ]';
+      rmBtn.addEventListener('click', function (e) { e.stopPropagation(); removeMeme(); });
+      container.appendChild(rmBtn);
     }
   }
 
@@ -1219,6 +1251,20 @@ function buildShareUrl() {
 }
 
 var TOKEN_THEME = { simple:'s', light:'l', amber:'a', matrix:'m', blueprint:'b', paper:'p', neon:'n', dos:'o', brutalist:'r', ink:'i' };
+
+var THEME_PLACEHOLDERS = {
+  dark:      { icon: '⊕', line1: 'INSERT MEME HERE',    line2: 'click to select file' },
+  simple:    { icon: '⊕', line1: 'INSERT MEME HERE',    line2: 'click to select file' },
+  light:     { icon: '⊕', line1: 'INSERT MEME HERE',    line2: 'click to select file' },
+  amber:     { icon: '█', line1: 'LOAD IMAGE.exe',       line2: 'press any key to continue' },
+  matrix:    { icon: '>_', line1: 'awaiting upload...',  line2: '> paste url or drop file' },
+  blueprint: { icon: '◫', line1: 'IMAGE PLACEHOLDER',   line2: 'ref: see attachment A-1' },
+  paper:     { icon: '✂', line1: 'paste image here',    line2: 'or click to browse' },
+  neon:      { icon: '◈', line1: 'DROP YOUR VIBE',      line2: '× drag · click · glow ×' },
+  dos:       { icon: 'C:\\>', line1: 'IMAGE NOT FOUND', line2: 'press any key...' },
+  brutalist: { icon: '■', line1: 'NO IMAGE.',           line2: 'CLICK TO ADD ONE.' },
+  ink:       { icon: '◎', line1: 'image goes here',     line2: 'click to add' },
+};
 var TOKEN_QUOTE = { sachlich:'s', nerd:'n', cli:'v', existentiell:'e', langweilig:'w', birthday_run:'b', git_log:'g', kernel_panic:'k', uptime:'u', '404':'4' };
 
 function buildToken() {
@@ -1430,6 +1476,14 @@ function applyConfig() {
 }
 
 // ── meme picker ─────────────────────────────────────────────────────────────
+function removeMeme() {
+  var url = new URL(window.location.href);
+  url.searchParams.delete('meme');
+  history.replaceState(null, '', url.toString());
+  render();
+  setupSidePanel();
+}
+
 function openMemePicker() {
   document.getElementById('meme-picker-overlay').style.display = 'flex';
   var saved = sessionStorage.getItem('giphyKey') || '';
