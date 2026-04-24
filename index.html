@@ -1091,6 +1091,7 @@ function getParams() {
     device:     p.get('device') || null,
     quote:      p.get('quote')  || 'classic',
     customText: p.get('text')   || null,
+    scale:      Math.min(2, Math.max(0.5, parseFloat(p.get('scale') || '1') || 1)),
   };
 }
 
@@ -1167,7 +1168,8 @@ function esc(s) {
 }
 
 function render() {
-  const { name, amount, meme, from, age, theme, device: deviceOverride, quote, customText, locked } = getParams();
+  const { name, amount, meme, from, age, theme, device: deviceOverride, quote, customText, locked, scale } = getParams();
+  document.querySelector('.card').style.zoom = scale !== 1 ? scale : '';
   applyTheme(theme);
   if (theme !== 'uwu') {
     console.log('%c✨ psst... try ?theme=uwu ✨', 'color:#ff6eb4;font-family:monospace;font-size:13px');
