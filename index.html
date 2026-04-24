@@ -633,6 +633,38 @@
     line-height: 1.6;
   }
 
+  /* ── SCALE SLIDERS (side panel) ────────────────── */
+  .cfg-scale-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .cfg-scale-slider {
+    flex: 1;
+    -webkit-appearance: none;
+    height: 2px;
+    background: var(--border);
+    outline: none;
+    cursor: pointer;
+  }
+  .cfg-scale-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 12px;
+    height: 12px;
+    background: var(--text-mid);
+    cursor: pointer;
+    transition: transform 0.1s;
+  }
+  .cfg-scale-slider::-webkit-slider-thumb:hover { transform: scale(1.3); }
+  .cfg-scale-val {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    color: var(--text);
+    min-width: 3ch;
+    text-align: right;
+    flex-shrink: 0;
+  }
+
   /* ── BUILD HINT ────────────────────────────────── */
   .sneaky-hint {
     display: none;
@@ -996,6 +1028,22 @@
     <div style="display:flex;gap:4px;">
       <button class="cfg-msg-btn" id="cfg-meme-browse" style="flex:1;margin-bottom:0">[ ⊕ browse / upload / gif ]</button>
       <button class="cfg-msg-btn" id="cfg-meme-remove" style="display:none;color:#e05555;flex-shrink:0;margin-bottom:0">[ ✕ ]</button>
+    </div>
+
+    <div class="cfg-section-label">scale</div>
+    <div class="cfg-field">
+      <div class="cfg-label">card text</div>
+      <div class="cfg-scale-row">
+        <input type="range" class="cfg-scale-slider" id="idx-card-scale" min="70" max="150" step="5" value="100">
+        <span class="cfg-scale-val" id="idx-card-scale-val">100%</span>
+      </div>
+    </div>
+    <div class="cfg-field">
+      <div class="cfg-label">UI zoom</div>
+      <div class="cfg-scale-row">
+        <input type="range" class="cfg-scale-slider" id="idx-ui-scale" min="75" max="135" step="5" value="100">
+        <span class="cfg-scale-val" id="idx-ui-scale-val">100%</span>
+      </div>
     </div>
 
     <div class="cfg-section-label">style</div>
@@ -1524,6 +1572,21 @@ function setupSidePanel() {
     }
   }
   if (_memeRemEl) _memeRemEl.style.display = p.meme ? '' : 'none';
+  // scale sliders — sync values every render
+  var _cardScaleEl   = document.getElementById('idx-card-scale');
+  var _cardScaleVal  = document.getElementById('idx-card-scale-val');
+  var _uiScaleEl     = document.getElementById('idx-ui-scale');
+  var _uiScaleValEl  = document.getElementById('idx-ui-scale-val');
+  if (_cardScaleEl) {
+    var _cs = Math.round(p.scale * 100);
+    _cardScaleEl.value = _cs;
+    if (_cardScaleVal) _cardScaleVal.textContent = _cs + '%';
+  }
+  var _storedUiScale = parseInt(localStorage.getItem('idxUiScale') || '100', 10);
+  if (_uiScaleEl) {
+    _uiScaleEl.value = _storedUiScale;
+    if (_uiScaleValEl) _uiScaleValEl.textContent = _storedUiScale + '%';
+  }
   if (!_memeUrlEl._bound) {
     if (_memeUrlEl) {
       _memeUrlEl._bound = true;
@@ -1541,6 +1604,30 @@ function setupSidePanel() {
     }
     if (_memeBrwEl) _memeBrwEl.addEventListener('click', openMemePicker);
     if (_memeRemEl) _memeRemEl.addEventListener('click', removeMeme);
+
+    // card scale slider
+    if (_cardScaleEl) {
+      _cardScaleEl.addEventListener('input', function () {
+        var pct = parseInt(this.value, 10);
+        if (_cardScaleVal) _cardScaleVal.textContent = pct + '%';
+        var scale = (pct / 100).toFixed(2);
+        document.querySelector('.card').style.fontSize = pct !== 100 ? scale + 'rem' : '';
+        var u = new URL(window.location.href);
+        if (pct !== 100) u.searchParams.set('scale', scale);
+        else             u.searchParams.delete('scale');
+        history.replaceState(null, '', u.toString());
+        updateTokenDisplay();
+      });
+    }
+    // UI scale slider
+    if (_uiScaleEl) {
+      _uiScaleEl.addEventListener('input', function () {
+        var pct = parseInt(this.value, 10);
+        if (_uiScaleValEl) _uiScaleValEl.textContent = pct + '%';
+        document.documentElement.style.fontSize = (16 * pct / 100) + 'px';
+        localStorage.setItem('idxUiScale', pct);
+      });
+    }
   }
 
   // message tiles
@@ -1950,6 +2037,11 @@ function setupMemeUpload() {
     MESSAGES = await fetch('./messages.json').then(function (r) { return r.json(); });
   } catch (e) {
     console.warn('messages load failed:', e);
+  }
+  // restore UI scale from localStorage
+  var _savedUiScale = parseInt(localStorage.getItem('idxUiScale') || '100', 10);
+  if (_savedUiScale !== 100) {
+    document.documentElement.style.fontSize = (16 * _savedUiScale / 100) + 'px';
   }
   render();
   setupMemeUpload();
