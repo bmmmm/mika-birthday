@@ -603,6 +603,7 @@
 
   /* ── PRINT ─────────────────────────────────────── */
   @media print {
+    @page { size: A4 portrait; margin: 12mm; }
     body {
       background: #fff !important;
       color: #111 !important;
@@ -621,7 +622,8 @@
     }
     .toast, .attribution, .side-panel { display: none !important; }
     .page-wrapper { flex-direction: column; }
-    .card { width: 100%; border: 0.5px solid #ccc; }
+    .card { width: 100%; border: 0.5px solid #ccc; zoom: 0.82; }
+    .meme-img { max-height: 160px !important; object-fit: contain; }
     .cursor::after { display: none !important; }
     .body { padding: 32px 40px; margin: 12px; }
     .headline { font-size: 40px; }
@@ -964,6 +966,11 @@ function render() {
   const ts     = new Date().toISOString().replace('T', ' ').slice(0, 19);
 
   document.title = 'Happy Birthday ' + name + ' \u2014 ' + age;
+
+  var _printTitle = 'happy-birthday-' + name.toLowerCase().replace(/\s+/g, '-') + '-v' + age;
+  var _screenTitle = document.title;
+  window.onbeforeprint = function () { document.title = _printTitle; };
+  window.onafterprint  = function () { document.title = _screenTitle; };
 
   // meta-bar
   document.getElementById('meta-recipient').textContent = 'recipient: ' + name;
