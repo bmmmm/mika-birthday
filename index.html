@@ -166,9 +166,10 @@
   }
 
   .meme-label {
-    position: absolute; top: 10px; left: 14px;
     font-family: var(--mono); font-size: 10px; color: var(--text-dim); letter-spacing: 0.05em;
-    z-index: 1;
+    margin-top: -22px;
+    margin-bottom: 10px;
+    padding: 0 2px;
   }
 
   .meme-label-br {
@@ -714,7 +715,6 @@
 
     <!-- meme -->
     <div class="meme-container">
-      <div class="meme-label" id="meme-label">[ img_src: — ]</div>
       <div class="meme-label-br">[ format: dank | quality: high ]</div>
       <div class="corner tl"></div><div class="corner tr"></div>
       <div class="corner bl"></div><div class="corner br"></div>
@@ -724,6 +724,7 @@
         <p class="upload-hint">click to select file</p>
       </div>
     </div>
+    <div class="meme-label" id="meme-label">[ img_src: — ]</div>
 
     <div class="device-badge" id="device-badge">device: —</div>
 
