@@ -512,6 +512,51 @@
   .cfg-device-watt { color: var(--text-dim); font-size: 9px; }
   .cfg-device-days { color: var(--text); font-weight: 700; min-width: 32px; text-align: right; }
 
+  .cfg-msg-btn {
+    background: var(--bg);
+    border: 0.5px solid var(--border);
+    color: var(--text-mid);
+    font-family: var(--mono);
+    font-size: 9px;
+    padding: 5px 8px;
+    cursor: pointer;
+    text-align: left;
+    width: 100%;
+    letter-spacing: 0.04em;
+    transition: border-color 0.1s, color 0.1s;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 2px;
+  }
+  .cfg-msg-btn:hover { border-color: var(--text-mid); color: var(--text); }
+  .cfg-msg-btn.active { border-color: var(--text); color: var(--text); }
+  .cfg-checkbox-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--text-dim);
+    cursor: pointer;
+    margin-top: 4px;
+  }
+  .cfg-msg-textarea {
+    background: var(--bg);
+    border: 0.5px solid var(--border);
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 10px;
+    padding: 6px 8px;
+    width: 100%;
+    resize: vertical;
+    min-height: 72px;
+    outline: none;
+    line-height: 1.5;
+    margin-top: 4px;
+  }
+  .cfg-msg-textarea:focus { border-color: var(--text-mid); }
+
   .cfg-apply {
     background: var(--bg);
     border: 0.5px solid var(--border);
@@ -753,6 +798,15 @@
       <div class="cfg-themes" id="cfg-themes"></div>
     </div>
     <hr class="cfg-divider">
+    <div class="cfg-field">
+      <div class="cfg-label">message</div>
+      <div id="cfg-msgs"></div>
+      <label class="cfg-checkbox-row">
+        <input type="checkbox" id="cfg-customize"> customize
+      </label>
+      <textarea class="cfg-msg-textarea" id="cfg-custom-text" style="display:none" placeholder="write your own...&#10;use {name}, {age}, {binary}, {hex}"></textarea>
+    </div>
+    <hr class="cfg-divider">
     <button class="cfg-apply" onclick="copyLink()">[ copy shareable link ]</button>
     <button class="cfg-apply" onclick="window.print()">[ print / save as PDF ]</button>
     <button class="cfg-apply" onclick="applyConfig()">[ apply changes ]</button>
@@ -837,7 +891,8 @@ function applyTheme(name) {
 }
 
 var PRICE_PER_KWH = SETTINGS.pricePerKwh;
-var DEVICES = [];
+var DEVICES   = [];
+var MESSAGES  = [];
 
 function getParams() {
   const p = new URLSearchParams(window.location.search);
@@ -849,10 +904,23 @@ function getParams() {
     meme:   p.get('meme')  || null,
     from:   p.get('from')  || null,
     age:    rawAge !== null ? (parseInt(rawAge, 10) || 30) : 30,
-    theme:  p.get('theme')  || 'dark',
-    locked: p.get('locked') === '1',
-    device: p.get('device') || null,
+    theme:      p.get('theme')  || 'dark',
+    locked:     p.get('locked') === '1',
+    device:     p.get('device') || null,
+    quote:      p.get('quote')  || 'classic',
+    customText: p.get('text')   || null,
   };
+}
+
+function interpolateMessage(text, name, age) {
+  var binary = age.toString(2);
+  var hex    = toHex(age);
+  return esc(text)
+    .replace(/\{name\}/g,   '<strong>' + esc(name) + '</strong>')
+    .replace(/\{age\}/g,    '<strong>' + age + '</strong>')
+    .replace(/\{binary\}/g, '<strong>' + binary + '</strong>')
+    .replace(/\{hex\}/g,    '<strong>' + hex + '</strong>')
+    .replace(/\n/g, '<br>');
 }
 
 function toHex(n) {
@@ -917,7 +985,7 @@ function esc(s) {
 }
 
 function render() {
-  const { name, amount, meme, from, age, theme, device: deviceOverride } = getParams();
+  const { name, amount, meme, from, age, theme, device: deviceOverride, quote, customText } = getParams();
   applyTheme(theme);
   if (theme !== 'uwu') {
     console.log('%c✨ psst... try ?theme=uwu ✨', 'color:#ff6eb4;font-family:monospace;font-size:13px');
@@ -1011,10 +1079,14 @@ function render() {
   }
 
   // message
-  document.getElementById('message-block').innerHTML =
-    'Mit dieser Karte. Und deinem Geburtstag.<br>' +
-    'Der schlichten Tatsache, dass du \u2014 vor genau <strong>' + age + ' Jahren</strong> \u2014 geboren wurdest.<br>' +
-    '<strong>' + age.toString(2) + '</strong> Happy B-Day, <strong>' + esc(name) + '</strong>.';
+  var msgHtml = '';
+  if (quote === 'custom' && customText) {
+    msgHtml = interpolateMessage(customText, name, age);
+  } else {
+    var msgObj = MESSAGES.find(function (m) { return m.id === quote; }) || MESSAGES[0];
+    if (msgObj) msgHtml = interpolateMessage(msgObj.text, name, age);
+  }
+  document.getElementById('message-block').innerHTML = msgHtml;
 
   // footer
   document.getElementById('footer-left').textContent =
@@ -1042,6 +1114,8 @@ function buildShareUrl() {
   if (p.from)                        url.searchParams.set('from',   p.from);
   if (p.theme && p.theme !== 'dark') url.searchParams.set('theme', p.theme);
   if (p.device)                      url.searchParams.set('device', p.device);
+  if (p.quote && p.quote !== 'classic') url.searchParams.set('quote', p.quote);
+  if (p.quote === 'custom' && p.customText) url.searchParams.set('text', p.customText);
   url.searchParams.set('locked', '1');
   return url.toString();
 }
@@ -1055,8 +1129,10 @@ function copyLink() {
 }
 
 // ── side panel ─────────────────────────────────────────────────────────────
-var _cfgTheme  = 'dark';
-var _cfgDevice = null;
+var _cfgTheme     = 'dark';
+var _cfgDevice    = null;
+var _cfgQuote     = 'classic';
+var _cfgCustomize = false;
 
 function setupSidePanel() {
   var p = getParams();
@@ -1064,8 +1140,10 @@ function setupSidePanel() {
     document.getElementById('side-panel').style.display = 'none';
     return;
   }
-  _cfgTheme  = p.theme  || 'dark';
-  _cfgDevice = p.device || null;
+  _cfgTheme     = p.theme  || 'dark';
+  _cfgDevice    = p.device || null;
+  _cfgQuote     = p.quote  || 'classic';
+  _cfgCustomize = p.quote === 'custom';
 
   document.getElementById('cfg-name').value   = p.name;
   document.getElementById('cfg-age').value    = p.age;
@@ -1104,6 +1182,41 @@ function setupSidePanel() {
       var amt = parseFloat(this.value);
       renderDeviceTiles(isNaN(amt) ? null : amt);
     });
+  }
+
+  // message tiles
+  var msgGrid = document.getElementById('cfg-msgs');
+  if (msgGrid) {
+    msgGrid.innerHTML = '';
+    MESSAGES.forEach(function (m) {
+      var btn = document.createElement('button');
+      btn.className   = 'cfg-msg-btn' + (m.id === _cfgQuote ? ' active' : '');
+      btn.textContent = m.label;
+      btn.addEventListener('click', function () {
+        _cfgQuote     = m.id;
+        _cfgCustomize = false;
+        document.getElementById('cfg-customize').checked = false;
+        document.getElementById('cfg-custom-text').style.display = 'none';
+        msgGrid.querySelectorAll('.cfg-msg-btn').forEach(function (b) {
+          b.classList.toggle('active', b === btn);
+        });
+        applyConfig();
+      });
+      msgGrid.appendChild(btn);
+    });
+  }
+
+  // customize checkbox + textarea
+  var customizeEl  = document.getElementById('cfg-customize');
+  var customTextEl = document.getElementById('cfg-custom-text');
+  if (customizeEl && customTextEl) {
+    customizeEl.checked             = _cfgCustomize;
+    customTextEl.style.display      = _cfgCustomize ? '' : 'none';
+    if (_cfgCustomize && p.customText) customTextEl.value = p.customText;
+    customizeEl.onchange = function () {
+      _cfgCustomize          = this.checked;
+      customTextEl.style.display = _cfgCustomize ? '' : 'none';
+    };
   }
 }
 
@@ -1147,6 +1260,15 @@ function applyConfig() {
   else                                   url.searchParams.delete('theme');
   if (_cfgDevice) url.searchParams.set('device', _cfgDevice);
   else            url.searchParams.delete('device');
+  if (_cfgCustomize) {
+    var ct = document.getElementById('cfg-custom-text').value.trim();
+    if (ct) { url.searchParams.set('quote', 'custom'); url.searchParams.set('text', ct); }
+    else    { url.searchParams.delete('quote'); url.searchParams.delete('text'); }
+  } else {
+    if (_cfgQuote && _cfgQuote !== 'classic') url.searchParams.set('quote', _cfgQuote);
+    else url.searchParams.delete('quote');
+    url.searchParams.delete('text');
+  }
   url.searchParams.delete('locked');
   history.replaceState(null, '', url.toString());
   render();
@@ -1301,6 +1423,11 @@ function setupMemeUpload() {
     }));
   } catch (e) {
     console.warn('devices load failed:', e);
+  }
+  try {
+    MESSAGES = await fetch('./messages.json').then(function (r) { return r.json(); });
+  } catch (e) {
+    console.warn('messages load failed:', e);
   }
   render();
   setupMemeUpload();

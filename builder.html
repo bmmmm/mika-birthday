@@ -271,6 +271,41 @@
   .site-footer a { color: var(--text-mid); text-decoration: none; }
   .site-footer a:hover { text-decoration: underline; }
 
+  /* message grid */
+  .msg-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3px;
+    margin-bottom: 8px;
+  }
+  .msg-tile {
+    font-family: var(--mono);
+    font-size: 9px;
+    padding: 7px 10px;
+    cursor: pointer;
+    border: 0.5px solid var(--border);
+    background: var(--bg);
+    color: var(--text-dim);
+    text-align: left;
+    letter-spacing: 0.04em;
+    transition: border-color 0.1s, color 0.1s;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .msg-tile:hover { border-color: var(--text-mid); color: var(--text-mid); }
+  .msg-tile.active { border-color: var(--text); color: var(--text); }
+  .msg-customize-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--text-dim);
+    cursor: pointer;
+    margin-top: 6px;
+  }
+
   /* toast */
   .toast {
     position: fixed;
@@ -351,6 +386,18 @@
     </div>
   </div>
 
+  <!-- message -->
+  <div class="section">
+    <div class="section-label">message</div>
+    <div class="section-body single" style="padding:12px 12px 14px">
+      <div class="msg-grid" id="msg-grid"></div>
+      <label class="msg-customize-row">
+        <input type="checkbox" id="f-customize"> customize text
+      </label>
+      <textarea class="field-input" id="f-custom-text" placeholder="write your own...&#10;{name}, {age}, {binary}, {hex} are available" style="display:none;margin-top:8px;min-height:80px;resize:vertical;line-height:1.6" spellcheck="false"></textarea>
+    </div>
+  </div>
+
   <!-- output -->
   <div class="output-section">
     <div class="output-label">generated URL</div>
@@ -391,9 +438,35 @@ const THEMES = {
 
 var currentTheme  = 'dark';
 var currentDevice = null;
+var currentQuote  = 'classic';
+var customizeMsg  = false;
 
 var PRICE_PER_KWH = SETTINGS.pricePerKwh;
-var DEVICES = [];
+var DEVICES  = [];
+var MESSAGES = [];
+
+// ── message grid ─────────────────────────────────────────────────────────────
+function buildMsgGrid() {
+  var grid = document.getElementById('msg-grid');
+  grid.innerHTML = '';
+  MESSAGES.forEach(function (m) {
+    var tile = document.createElement('button');
+    tile.className        = 'msg-tile' + (m.id === currentQuote ? ' active' : '');
+    tile.dataset.msgId    = m.id;
+    tile.textContent      = m.label;
+    tile.title            = m.text;
+    tile.addEventListener('click', function () {
+      currentQuote = m.id;
+      customizeMsg = false;
+      document.getElementById('f-customize').checked = false;
+      document.getElementById('f-custom-text').style.display = 'none';
+      document.querySelectorAll('.msg-tile').forEach(function (el) { el.classList.remove('active'); });
+      tile.classList.add('active');
+      update();
+    });
+    grid.appendChild(tile);
+  });
+}
 
 // ── theme palette ────────────────────────────────────────────────────────────
 function buildPalette(t) {
@@ -519,6 +592,12 @@ function buildUrl(vals) {
   if (vals.from)            p.set('from',   vals.from);
   if (currentTheme !== 'dark') p.set('theme', currentTheme);
   if (currentDevice)        p.set('device', currentDevice);
+  if (customizeMsg) {
+    var ct = document.getElementById('f-custom-text').value.trim();
+    if (ct) { p.set('quote', 'custom'); p.set('text', ct); }
+  } else if (currentQuote !== 'classic') {
+    p.set('quote', currentQuote);
+  }
   var qs = p.toString();
   return qs ? base + '?' + qs : base;
 }
@@ -579,8 +658,16 @@ function resetAll() {
   });
   currentTheme  = 'dark';
   currentDevice = null;
+  currentQuote  = 'classic';
+  customizeMsg  = false;
+  document.getElementById('f-customize').checked = false;
+  document.getElementById('f-custom-text').style.display = 'none';
+  document.getElementById('f-custom-text').value = '';
   document.querySelectorAll('.theme-tile').forEach(function (el) {
     el.classList.toggle('active', el.dataset.themeId === 'dark');
+  });
+  document.querySelectorAll('.msg-tile').forEach(function (el) {
+    el.classList.toggle('active', el.dataset.msgId === 'classic');
   });
   update();
 }
@@ -589,6 +676,12 @@ function resetAll() {
 ['f-name', 'f-age', 'f-amount', 'f-from', 'f-meme'].forEach(function (id) {
   document.getElementById(id).addEventListener('input', update);
 });
+document.getElementById('f-customize').addEventListener('change', function () {
+  customizeMsg = this.checked;
+  document.getElementById('f-custom-text').style.display = customizeMsg ? '' : 'none';
+  update();
+});
+document.getElementById('f-custom-text').addEventListener('input', update);
 
 // ── init ─────────────────────────────────────────────────────────────────────
 (async function () {
@@ -600,8 +693,14 @@ function resetAll() {
   } catch (e) {
     console.warn('devices load failed:', e);
   }
+  try {
+    MESSAGES = await fetch('./messages.json').then(function (r) { return r.json(); });
+  } catch (e) {
+    console.warn('messages load failed:', e);
+  }
   buildThemeGrid();
   buildDeviceStrip();
+  buildMsgGrid();
   update();
 })();
 </script>
