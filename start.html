@@ -185,16 +185,45 @@
 </div>
 
 <script>
+var THEME_DECODE = { s:'simple', l:'light', a:'amber', m:'matrix', b:'blueprint', p:'paper', n:'neon', o:'dos', r:'brutalist', i:'ink' };
+var QUOTE_DECODE = { s:'sachlich', n:'nerd', v:'cli', e:'existentiell', w:'langweilig', b:'birthday_run', g:'git_log', k:'kernel_panic', u:'uptime', '4':'404' };
+
+function decodePositional(str) {
+  var f = str.split('|');
+  var p = new URLSearchParams();
+  if (f[0]) p.set('name',   f[0]);
+  if (f[1]) p.set('age',    f[1]);
+  if (f[2]) p.set('amount', f[2]);
+  if (f[3]) p.set('from',   f[3]);
+  if (f[4]) p.set('theme',  THEME_DECODE[f[4]] || f[4]);
+  if (f[5]) {
+    if (f[5].charAt(0) === '~') {
+      p.set('quote', 'custom');
+      if (f[5].length > 1) p.set('text', f[5].slice(1));
+    } else {
+      p.set('quote', QUOTE_DECODE[f[5]] || f[5]);
+    }
+  }
+  if (f[6]) p.set('device', f[6]);
+  if (f[7]) p.set('meme', decodeURIComponent(f[7]));
+  return p.toString();
+}
+
 function openFromToken() {
-  var raw = document.getElementById('token-input').value.trim();
+  var raw = document.getElementById('token-input').value;
   var err = document.getElementById('token-err');
   err.textContent = '';
-  if (!raw) { err.textContent = '// token cannot be empty'; return; }
+  // strip all whitespace and dot-separators; keep base64url chars
+  var stripped = raw.replace(/[\s\.]/g, '');
+  if (!stripped) { err.textContent = '// token cannot be empty'; return; }
   try {
-    var padded = raw.replace(/-/g, '+').replace(/_/g, '/');
+    var padded = stripped.replace(/-/g, '+').replace(/_/g, '/');
     while (padded.length % 4) padded += '=';
-    var qs = atob(padded);
-    if (!qs || !qs.includes('=')) throw new Error('invalid');
+    var decoded = decodeURIComponent(escape(atob(padded)));
+    var qs = decoded.includes('|')
+      ? decodePositional(decoded)      // new compact format
+      : decoded.includes('=') ? decoded : null; // old query-string format
+    if (!qs) throw new Error('invalid');
     window.location.href = 'index.html?' + qs + '&locked=1';
   } catch (e) {
     err.textContent = '// invalid token — check the code and try again';
