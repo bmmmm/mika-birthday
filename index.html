@@ -577,6 +577,25 @@
     margin: 2px 0;
   }
 
+  /* ── SNEAKY HINT ───────────────────────────────── */
+  .sneaky-hint {
+    display: none;
+    font-family: var(--mono);
+    font-size: 8px;
+    color: var(--text-dim);
+    text-align: center;
+    padding: 5px 20px 7px;
+    letter-spacing: 0.08em;
+    opacity: 0.55;
+    border-top: 0.5px solid var(--border-dim);
+  }
+  .sneaky-hint a { color: inherit; text-decoration: none; }
+  .sneaky-hint a:hover { opacity: 1; text-decoration: underline; }
+
+  @media print {
+    .sneaky-hint { display: block !important; }
+  }
+
   /* ── ATTRIBUTION ───────────────────────────────── */
   .attribution {
     font-family: var(--mono);
@@ -764,6 +783,7 @@
     <span id="footer-left">bitcircus101 — Dorotheenstraße 101, 53111 Bonn</span>
     <span id="footer-right">—</span>
   </div>
+  <div class="sneaky-hint" id="sneaky-hint">// liked this card? → <a href="start.html">build your own at bitcircus101.de</a></div>
 
 </div>
 
@@ -986,7 +1006,7 @@ function esc(s) {
 }
 
 function render() {
-  const { name, amount, meme, from, age, theme, device: deviceOverride, quote, customText } = getParams();
+  const { name, amount, meme, from, age, theme, device: deviceOverride, quote, customText, locked } = getParams();
   applyTheme(theme);
   if (theme !== 'uwu') {
     console.log('%c✨ psst... try ?theme=uwu ✨', 'color:#ff6eb4;font-family:monospace;font-size:13px');
@@ -1096,6 +1116,8 @@ function render() {
       : SETTINGS.location;
   document.getElementById('footer-right').textContent =
     ts.slice(0, 10) + ' UTC // v' + age + '.0.0';
+
+  document.getElementById('sneaky-hint').style.display = locked ? 'block' : 'none';
 
   var qrImg = document.getElementById('qr-img');
   if (qrImg) {
