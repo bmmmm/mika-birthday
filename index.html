@@ -464,6 +464,14 @@
     outline: none;
   }
   .cfg-input:focus { border-color: var(--text-mid); }
+  .cfg-input.invalid { border-color: #e05555; }
+  .cfg-err {
+    font-size: 9px;
+    color: #e05555;
+    font-family: var(--mono);
+    letter-spacing: 0.06em;
+    min-height: 12px;
+  }
   .cfg-themes {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -557,40 +565,36 @@
   }
   .cfg-msg-textarea:focus { border-color: var(--text-mid); }
 
-  .cfg-apply {
-    background: var(--bg);
-    border: 0.5px solid var(--border);
-    color: var(--text);
-    font-family: var(--mono);
-    font-size: 11px;
-    padding: 7px 10px;
-    cursor: pointer;
-    text-align: left;
-    letter-spacing: 0.04em;
-    width: 100%;
-    margin-top: 4px;
+  .cfg-section-label {
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    padding-bottom: 5px;
+    border-bottom: 0.5px solid var(--border);
+    margin-bottom: -2px;
   }
-  .cfg-apply:hover { border-color: var(--text-mid); }
-  .cfg-divider {
-    border: none;
-    border-top: 0.5px solid var(--border);
-    margin: 2px 0;
+  .cfg-hint {
+    font-size: 9px;
+    color: var(--text-dim);
+    font-family: var(--mono);
+    letter-spacing: 0.05em;
   }
 
-  /* ── SNEAKY HINT ───────────────────────────────── */
+  /* ── BUILD HINT ────────────────────────────────── */
   .sneaky-hint {
     display: none;
     font-family: var(--mono);
-    font-size: 8px;
-    color: var(--text-dim);
+    font-size: 11px;
+    color: var(--text-mid);
     text-align: center;
-    padding: 5px 20px 7px;
-    letter-spacing: 0.08em;
-    opacity: 0.55;
-    border-top: 0.5px solid var(--border-dim);
+    padding: 10px 20px 12px;
+    letter-spacing: 0.06em;
+    border-top: 0.5px solid var(--border);
+    background: var(--surface);
   }
-  .sneaky-hint a { color: inherit; text-decoration: none; }
-  .sneaky-hint a:hover { opacity: 1; text-decoration: underline; }
+  .sneaky-hint a { color: var(--text); text-decoration: underline; text-underline-offset: 3px; }
+  .sneaky-hint a:hover { opacity: 0.75; }
 
   @media print {
     .sneaky-hint { display: block !important; }
@@ -612,6 +616,60 @@
     text-underline-offset: 3px;
   }
   .attribution a:hover { text-decoration: underline; }
+
+  /* ── BOTTOM BAR (card-level sticky footer) ──────── */
+  .bottom-bar {
+    position: sticky;
+    bottom: 0;
+    background: var(--bg);
+    border-top: 0.5px solid var(--border);
+    font-family: var(--mono);
+    display: flex;
+    align-items: stretch;
+    z-index: 10;
+  }
+  .bottom-bar-token {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 16px;
+    border-right: 0.5px solid var(--border);
+    flex: 1;
+    min-width: 0;
+  }
+  .bottom-bar-token-label {
+    font-size: 9px;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    flex-shrink: 0;
+  }
+  .bottom-bar-token-val {
+    font-size: 10px;
+    color: var(--text);
+    letter-spacing: 0.04em;
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+  }
+  .bottom-bar-btn {
+    background: none;
+    border: none;
+    border-left: 0.5px solid var(--border);
+    color: var(--text-mid);
+    font-family: var(--mono);
+    font-size: 10px;
+    padding: 11px 16px;
+    cursor: pointer;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+    transition: color 0.1s, background 0.1s;
+    line-height: 1;
+  }
+  .bottom-bar-btn:hover { color: var(--text); background: var(--surface); }
+  .bottom-bar-btn.token-copy { border-left: none; padding-left: 0; color: var(--text-dim); font-size: 9px; }
 
   /* ── PRINT QR (hidden on screen) ───────────────── */
   .print-qr {
@@ -649,6 +707,7 @@
       -webkit-print-color-adjust: exact;
     }
     .toast, .attribution, .side-panel { display: none !important; }
+    .bottom-bar { display: none !important; }
     .page-wrapper { flex-direction: column; }
     .card { width: 100%; zoom: 0.75; }
     .meme-container { min-height: 0 !important; }
@@ -783,54 +842,62 @@
     <span id="footer-left">bitcircus101 — Dorotheenstraße 101, 53111 Bonn</span>
     <span id="footer-right">—</span>
   </div>
-  <div class="sneaky-hint" id="sneaky-hint">// liked this card? → <a href="start.html">build your own at bitcircus101.de</a></div>
+  <div class="sneaky-hint" id="sneaky-hint">// liked this card? → build your own: <a href="https://bmmmm.github.io/mika-birthday/start.html">bmmmm.github.io/mika-birthday</a></div>
+
+  <div class="bottom-bar" id="bottom-bar">
+    <div class="bottom-bar-token">
+      <span class="bottom-bar-token-label">token</span>
+      <span class="bottom-bar-token-val" id="bottom-token-val">—</span>
+      <button class="bottom-bar-btn token-copy" onclick="copyToken()">[ ⊕ copy ]</button>
+    </div>
+    <button class="bottom-bar-btn" onclick="copyLink()">[ ↗ share card ]</button>
+    <button class="bottom-bar-btn" onclick="copyEditorLink()">[ ✎ share editor ]</button>
+    <button class="bottom-bar-btn" onclick="window.print()">[ ⎙ print ]</button>
+  </div>
 
 </div>
 
 <div class="side-panel" id="side-panel">
   <div class="side-panel-header">// config.sh</div>
   <div class="side-panel-body">
+
+    <div class="cfg-section-label">recipient</div>
     <div class="cfg-field">
       <div class="cfg-label">name</div>
       <input class="cfg-input" id="cfg-name" type="text" spellcheck="false">
     </div>
     <div class="cfg-field">
       <div class="cfg-label">age</div>
-      <input class="cfg-input" id="cfg-age" type="number" min="0" max="999">
-    </div>
-    <div class="cfg-field">
-      <div class="cfg-label">amount (€)</div>
-      <input class="cfg-input" id="cfg-amount" type="number" min="0" step="0.01" placeholder="—">
+      <input class="cfg-input" id="cfg-age" type="number" min="1" max="120">
+      <div class="cfg-err" id="cfg-age-err"></div>
     </div>
     <div class="cfg-field">
       <div class="cfg-label">from</div>
       <input class="cfg-input" id="cfg-from" type="text" spellcheck="false">
     </div>
-    <hr class="cfg-divider">
+
+    <div class="cfg-section-label">gift</div>
+    <div class="cfg-field">
+      <div class="cfg-label">amount (€)</div>
+      <input class="cfg-input" id="cfg-amount" type="number" min="0" step="0.01" placeholder="—">
+      <div class="cfg-err" id="cfg-amount-err"></div>
+    </div>
     <div class="cfg-field">
       <div class="cfg-label">device</div>
       <div class="cfg-devices" id="cfg-devices"></div>
-      <div style="font-size:9px;color:var(--text-dim);margin-top:4px;font-family:var(--mono)">// click to override auto-select</div>
+      <div class="cfg-hint" style="margin-top:3px">// click to override auto-select</div>
     </div>
-    <hr class="cfg-divider">
-    <div class="cfg-field">
-      <div class="cfg-label">theme</div>
-      <div class="cfg-themes" id="cfg-themes"></div>
-    </div>
-    <hr class="cfg-divider">
-    <div class="cfg-field">
-      <div class="cfg-label">message</div>
-      <div id="cfg-msgs"></div>
-      <label class="cfg-checkbox-row">
-        <input type="checkbox" id="cfg-customize"> customize
-      </label>
-      <textarea class="cfg-msg-textarea" id="cfg-custom-text" style="display:none" placeholder="write your own...&#10;use {name}, {age}, {binary}, {hex}"></textarea>
-    </div>
-    <hr class="cfg-divider">
-    <button class="cfg-apply" onclick="copyLink()">[ ↗ share card ]</button>
-    <button class="cfg-apply" onclick="copyEditorLink()">[ ✎ share editor ]</button>
-    <button class="cfg-apply" onclick="window.print()">[ ⎙ print card ]</button>
-    <div style="font-size:9px;color:var(--text-dim);font-family:var(--mono);margin-top:2px">// ░░ QR auto-included on print/PDF</div>
+
+    <div class="cfg-section-label">style</div>
+    <div class="cfg-themes" id="cfg-themes"></div>
+
+    <div class="cfg-section-label">message</div>
+    <div id="cfg-msgs"></div>
+    <label class="cfg-checkbox-row">
+      <input type="checkbox" id="cfg-customize"> customize
+    </label>
+    <textarea class="cfg-msg-textarea" id="cfg-custom-text" style="display:none" placeholder="write your own...&#10;use {name}, {age}, {binary}, {hex}"></textarea>
+
   </div>
 </div>
 <div class="toast" id="toast">// link copied to clipboard</div>
@@ -841,7 +908,7 @@
   // hacked w/ <span style="color:#e53935">♥</span> by <a href="https://bitcircus101.de" target="_blank">bitcircus101.de</a>
   &nbsp;·&nbsp; <a href="https://bitcircus101.de/donations" target="_blank">plzzz donate kkthx</a>
   &nbsp;·&nbsp; <a href="https://github.com/bmmmm/mika-birthday" target="_blank">github</a>
-  &nbsp;·&nbsp; <a href="start.html">build a card</a>
+  &nbsp;·&nbsp; <a href="https://bmmmm.github.io/mika-birthday/start.html" target="_blank">bmmmm.github.io/mika-birthday</a>
 </div>
 
 <!-- meme picker modal -->
@@ -1125,6 +1192,8 @@ function render() {
     var shareUrl = buildShareUrl();
     qrImg.src = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + encodeURIComponent(shareUrl);
   }
+
+  updateTokenDisplay();
 }
 
 function buildShareUrl() {
@@ -1142,6 +1211,47 @@ function buildShareUrl() {
   if (p.quote === 'custom' && p.customText) url.searchParams.set('text', p.customText);
   url.searchParams.set('locked', '1');
   return url.toString();
+}
+
+var TOKEN_THEME = { simple:'s', light:'l', amber:'a', matrix:'m', blueprint:'b', paper:'p', neon:'n', dos:'o', brutalist:'r', ink:'i' };
+var TOKEN_QUOTE = { sachlich:'s', nerd:'n', cli:'v', existentiell:'e', langweilig:'w', birthday_run:'b', git_log:'g', kernel_panic:'k', uptime:'u', '404':'4' };
+
+function buildToken() {
+  var p = getParams();
+  var name = p.name || '';
+  var age  = p.age ? String(p.age) : '';
+  if (!name && !age) return '';
+  var amount     = p.amount !== null ? String(p.amount) : '';
+  var from       = p.from || '';
+  var theme      = TOKEN_THEME[p.theme] || '';
+  var rawQ       = p.quote || '';
+  var quoteField = rawQ === 'custom'
+    ? '~' + (p.customText || '')
+    : (TOKEN_QUOTE[rawQ] || '');
+  var device  = p.device || '';
+  var rawMeme = p.meme || '';
+  var meme    = (rawMeme && !rawMeme.startsWith('blob:')) ? encodeURIComponent(rawMeme) : '';
+  var fields  = [name, age, amount, from, theme, quoteField, device, meme];
+  while (fields.length && fields[fields.length - 1] === '') fields.pop();
+  var raw = fields.join('|');
+  var b64 = btoa(unescape(encodeURIComponent(raw)))
+    .replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+  return b64.match(/.{1,4}/g).join('.');
+}
+
+function updateTokenDisplay() {
+  var tok = buildToken();
+  var val = tok || '—';
+  var a = document.getElementById('bottom-token-val');
+  if (a) a.textContent = val;
+}
+
+function copyToken() {
+  var tok = buildToken();
+  if (!tok) { showToast('// nothing to copy'); return; }
+  navigator.clipboard.writeText(tok).then(function () {
+    showToast('// token copied');
+  });
 }
 
 function copyLink() {
@@ -1175,6 +1285,7 @@ function setupSidePanel() {
   var p = getParams();
   if (p.locked) {
     document.getElementById('side-panel').style.display = 'none';
+    document.getElementById('bottom-bar').style.display = 'none';
     return;
   }
   _cfgTheme     = p.theme  || 'dark';
@@ -1207,6 +1318,7 @@ function setupSidePanel() {
         b.classList.toggle('active', b === btn);
         b.style.outline = b === btn ? '1.5px solid ' + t.vars['--text'] : '';
       });
+      applyConfig();
     });
     grid.appendChild(btn);
   });
@@ -1470,11 +1582,38 @@ function setupMemeUpload() {
   setupMemeUpload();
   setupSidePanel();
 
+  function validateAge(val) {
+    var n = parseInt(val, 10);
+    if (val === '' || isNaN(n)) return '// age required';
+    if (n < 1)   return '// must be ≥ 1';
+    if (n > 120) return '// max age is 120';
+    return '';
+  }
+  function validateAmount(val) {
+    if (val === '') return '';
+    var n = parseFloat(val);
+    if (isNaN(n) || n < 0) return '// must be a positive number';
+    return '';
+  }
+  function setFieldError(inputId, errId, msg) {
+    var el  = document.getElementById(inputId);
+    var err = document.getElementById(errId);
+    if (!el || !err) return;
+    err.textContent = msg;
+    el.classList.toggle('invalid', msg !== '');
+  }
+
   // live-update text inputs with debounce (themes/devices already update instantly)
   var _applyTimer = null;
   ['cfg-name', 'cfg-age', 'cfg-amount', 'cfg-from'].forEach(function (id) {
     var el = document.getElementById(id);
-    if (el) el.addEventListener('input', function () {
+    if (!el) return;
+    el.addEventListener('input', function () {
+      if (id === 'cfg-age')    setFieldError('cfg-age',    'cfg-age-err',    validateAge(el.value));
+      if (id === 'cfg-amount') setFieldError('cfg-amount', 'cfg-amount-err', validateAmount(el.value));
+      var ageErr = validateAge(document.getElementById('cfg-age').value);
+      var amtErr = validateAmount(document.getElementById('cfg-amount').value);
+      if (ageErr || amtErr) return;
       clearTimeout(_applyTimer);
       _applyTimer = setTimeout(applyConfig, 400);
     });
