@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Happy Birthday</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;700&family=Playfair+Display:wght@700;900&family=Share+Tech+Mono&family=Syne:wght@400;600;700;800&family=Unbounded:wght@700;900&family=VT323&display=swap');
 
   :root {
     --bg: #0d0d0d;
@@ -589,6 +589,27 @@
 </div>
 
 <script>
+const THEMES = {
+  dark:      { label: 'Dark',      vars: { '--bg': '#0d0d0d', '--surface': '#141414', '--border': '#2a2a2a', '--border-dim': '#1e1e1e', '--text': '#e8e8e6', '--text-dim': '#444',    '--text-mid': '#888'    }, display: "'Syne', sans-serif",              mono: "'Courier Prime', 'Courier New', monospace"    },
+  light:     { label: 'Light',     vars: { '--bg': '#f8f8f6', '--surface': '#f0f0ee', '--border': '#d8d8d6', '--border-dim': '#e4e4e2', '--text': '#111110', '--text-dim': '#bbb',    '--text-mid': '#666'    }, display: "'Syne', sans-serif",              mono: "'Courier Prime', 'Courier New', monospace"    },
+  amber:     { label: 'Amber',     vars: { '--bg': '#0c0700', '--surface': '#150d00', '--border': '#2a1e00', '--border-dim': '#1e1400', '--text': '#d4870a', '--text-dim': '#3d2600', '--text-mid': '#7a5500' }, display: "'Syne', sans-serif",              mono: "'Courier Prime', 'Courier New', monospace"    },
+  matrix:    { label: 'Matrix',    vars: { '--bg': '#000000', '--surface': '#001200', '--border': '#003800', '--border-dim': '#002000', '--text': '#00e840', '--text-dim': '#004010', '--text-mid': '#00a030' }, display: "'Share Tech Mono', monospace",     mono: "'Share Tech Mono', monospace"                 },
+  blueprint: { label: 'Blueprint', vars: { '--bg': '#001830', '--surface': '#00203e', '--border': '#1a3a5c', '--border-dim': '#0e2840', '--text': '#a8d4f0', '--text-dim': '#1a3a5c', '--text-mid': '#4a88b8' }, display: "'Syne', sans-serif",              mono: "'IBM Plex Mono', 'Courier New', monospace"    },
+  paper:     { label: 'Paper',     vars: { '--bg': '#f5f0e8', '--surface': '#ede8de', '--border': '#c8bfaa', '--border-dim': '#d8d0be', '--text': '#2c2418', '--text-dim': '#b8aa90', '--text-mid': '#7a6a54' }, display: "'Playfair Display', Georgia, serif", mono: "'Courier Prime', 'Courier New', monospace"   },
+  neon:      { label: 'Neon',      vars: { '--bg': '#07000f', '--surface': '#0e0018', '--border': '#2d0045', '--border-dim': '#1a0028', '--text': '#ff2d78', '--text-dim': '#2d0025', '--text-mid': '#aa0055' }, display: "'Syne', sans-serif",              mono: "'Courier Prime', 'Courier New', monospace"    },
+  dos:       { label: 'DOS',       vars: { '--bg': '#000080', '--surface': '#0000aa', '--border': '#5555ff', '--border-dim': '#2222cc', '--text': '#ffffff', '--text-dim': '#5555ff', '--text-mid': '#aaaaaa' }, display: "'VT323', monospace",               mono: "'VT323', monospace"                            },
+  brutalist: { label: 'Brutalist', vars: { '--bg': '#ffffff', '--surface': '#f0f0f0', '--border': '#000000', '--border-dim': '#444444', '--text': '#000000', '--text-dim': '#999999', '--text-mid': '#333333' }, display: "'Archivo Black', sans-serif",      mono: "'Courier Prime', 'Courier New', monospace"    },
+  ink:       { label: 'Ink',       vars: { '--bg': '#1a1410', '--surface': '#221c16', '--border': '#3a3028', '--border-dim': '#2a2420', '--text': '#e8d5b0', '--text-dim': '#4a3c2c', '--text-mid': '#8a7258' }, display: "'Unbounded', sans-serif",          mono: "'Courier Prime', 'Courier New', monospace"    },
+};
+
+function applyTheme(name) {
+  var theme = THEMES[name] || THEMES.dark;
+  var root  = document.documentElement;
+  Object.keys(theme.vars).forEach(function (k) { root.style.setProperty(k, theme.vars[k]); });
+  root.style.setProperty('--display', theme.display);
+  root.style.setProperty('--mono',    theme.mono);
+}
+
 const PRICE_PER_KWH = 0.30;
 
 const DEVICES = [
@@ -627,11 +648,12 @@ function getParams() {
   const rawAmount = p.get('amount');
   const rawAge    = p.get('age');
   return {
-    name:   p.get('name') || 'Mika',
+    name:   p.get('name')  || 'Mika',
     amount: rawAmount !== null ? parseFloat(rawAmount) : null,
-    meme:   p.get('meme') || null,
-    from:   p.get('from') || null,
+    meme:   p.get('meme')  || null,
+    from:   p.get('from')  || null,
     age:    rawAge !== null ? (parseInt(rawAge, 10) || 30) : 30,
+    theme:  p.get('theme') || 'dark',
   };
 }
 
@@ -693,7 +715,8 @@ function esc(s) {
 }
 
 function render() {
-  const { name, amount, meme, from, age } = getParams();
+  const { name, amount, meme, from, age, theme } = getParams();
+  applyTheme(theme);
   const device = pickDevice(amount);
   const days   = amount !== null ? computeDays(amount, device) : null;
   const ts     = new Date().toISOString().replace('T', ' ').slice(0, 19);
@@ -782,9 +805,10 @@ function copyLink() {
   url.search = '';
   url.searchParams.set('name', p.name);
   url.searchParams.set('age',  String(p.age));
-  if (p.amount !== null) url.searchParams.set('amount', String(p.amount));
-  if (p.meme)            url.searchParams.set('meme',   p.meme);
-  if (p.from)            url.searchParams.set('from',   p.from);
+  if (p.amount !== null)        url.searchParams.set('amount', String(p.amount));
+  if (p.meme)                   url.searchParams.set('meme',   p.meme);
+  if (p.from)                   url.searchParams.set('from',   p.from);
+  if (p.theme && p.theme !== 'dark') url.searchParams.set('theme', p.theme);
   navigator.clipboard.writeText(url.toString()).then(function () {
     var t = document.getElementById('toast');
     t.classList.add('show');
