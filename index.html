@@ -17,6 +17,7 @@
     --display: system-ui, -apple-system, 'Segoe UI', sans-serif;
   }
 
+  html { font-size: 16px; }
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
   body {
@@ -54,7 +55,7 @@
     display: flex;
     justify-content: space-between;
     font-family: var(--mono);
-    font-size: 14px;
+    font-size: 0.875rem;
     color: var(--text-dim);
     letter-spacing: 0.05em;
     flex-wrap: wrap;
@@ -69,7 +70,7 @@
 
   .headline {
     font-family: var(--display);
-    font-size: 56px;
+    font-size: 3.5rem;
     font-weight: 800;
     line-height: 1.0;
     letter-spacing: -0.03em;
@@ -78,7 +79,7 @@
 
   .age-badge {
     display: inline-block;
-    font-size: 24px;
+    font-size: 1.5rem;
     font-weight: 700;
     font-family: var(--mono);
     color: var(--text);
@@ -98,8 +99,8 @@
     margin: 28px 0;
   }
 
-  .binary { font-family: var(--mono); font-size: 24px; color: var(--text-dim); letter-spacing: 0.1em; margin-bottom: 6px; }
-  .comment { font-family: var(--mono); font-size: 24px; color: var(--text-dim); margin-bottom: 28px; }
+  .binary { font-family: var(--mono); font-size: 1.5rem; color: var(--text-dim); letter-spacing: 0.1em; margin-bottom: 6px; }
+  .comment { font-family: var(--mono); font-size: 1.5rem; color: var(--text-dim); margin-bottom: 28px; }
 
   .stats {
     display: grid;
@@ -117,7 +118,7 @@
   .stat-label {
     font-family: var(--display);
     color: var(--text-dim);
-    font-size: 16px;
+    font-size: 1rem;
     font-weight: 600;
     letter-spacing: 0.1em;
     margin-bottom: 6px;
@@ -127,25 +128,25 @@
   .stat-value {
     font-family: var(--mono);
     color: var(--text);
-    font-size: 30px;
+    font-size: 1.875rem;
     font-weight: 700;
     letter-spacing: -0.01em;
   }
 
   .stat-unit {
     font-family: var(--display);
-    font-size: 17px;
+    font-size: 1.0625rem;
     color: var(--text-mid);
     margin-left: 4px;
     font-weight: 400;
   }
 
-  .stat-sub { font-family: var(--mono); font-size: 15px; color: var(--text-dim); margin-top: 4px; }
+  .stat-sub { font-family: var(--mono); font-size: 0.9375rem; color: var(--text-dim); margin-top: 4px; }
 
   .device-badge {
     display: inline-block;
     font-family: var(--mono);
-    font-size: 17px;
+    font-size: 1.0625rem;
     color: var(--text-mid);
     border: 0.5px solid var(--border);
     padding: 3px 10px;
@@ -166,7 +167,7 @@
   }
 
   .meme-label {
-    font-family: var(--mono); font-size: 14px; color: var(--text-dim); letter-spacing: 0.05em;
+    font-family: var(--mono); font-size: 0.875rem; color: var(--text-dim); letter-spacing: 0.05em;
     margin-top: -22px;
     margin-bottom: 10px;
     padding: 0 2px;
@@ -174,7 +175,7 @@
 
   .meme-label-br {
     position: absolute; bottom: 10px; right: 14px;
-    font-family: var(--mono); font-size: 14px; color: var(--text-dim); letter-spacing: 0.05em;
+    font-family: var(--mono); font-size: 0.875rem; color: var(--text-dim); letter-spacing: 0.05em;
     z-index: 1;
   }
 
@@ -186,9 +187,9 @@
     transition: color 0.15s;
   }
   .meme-placeholder:hover { color: var(--text-mid); }
-  .meme-placeholder .crosshair { font-size: 48px; margin-bottom: 8px; opacity: 0.3; }
-  .meme-placeholder p { font-family: var(--mono); font-size: 20px; letter-spacing: 0.1em; }
-  .meme-placeholder .upload-hint { font-family: var(--display); font-size: 18px; margin-top: 6px; opacity: 0.5; }
+  .meme-placeholder .crosshair { font-size: 3rem; margin-bottom: 8px; opacity: 0.3; }
+  .meme-placeholder p { font-family: var(--mono); font-size: 1.25rem; letter-spacing: 0.1em; }
+  .meme-placeholder .upload-hint { font-family: var(--display); font-size: 1.125rem; margin-top: 6px; opacity: 0.5; }
 
   .meme-img { width: 100%; max-height: 360px; object-fit: contain; display: block; }
 
@@ -199,7 +200,7 @@
   .corner.br { bottom: 0; right: 0; border-bottom: 0.5px solid var(--border); border-right: 0.5px solid var(--border); }
 
   .message {
-    font-size: 24px;
+    font-size: 1.5rem;
     color: var(--text-mid);
     line-height: 2;
     margin-bottom: 20px;
@@ -211,14 +212,14 @@
     border-left: 1px solid var(--border);
     padding: 14px 20px;
     margin: 20px 0;
-    font-size: 22px;
+    font-size: 1.375rem;
     color: var(--text-mid);
     line-height: 1.9;
   }
 
   .fridge-block .big-num {
     font-family: var(--display);
-    font-size: 78px;
+    font-size: 4.875rem;
     font-weight: 800;
     color: var(--text);
     display: block;
@@ -233,7 +234,7 @@
     left: 50%;
     transform: translateX(-50%);
     font-family: var(--mono);
-    font-size: 16px;
+    font-size: 1rem;
     letter-spacing: 0.08em;
     color: var(--text-dim);
     background: var(--surface);
@@ -253,7 +254,7 @@
     display: flex;
     justify-content: space-between;
     font-family: var(--mono);
-    font-size: 15px;
+    font-size: 0.9375rem;
     color: var(--text-dim);
     background: var(--surface);
     letter-spacing: 0.04em;
@@ -300,7 +301,7 @@
 
   .meme-tab {
     font-family: var(--mono);
-    font-size: 24px;
+    font-size: 1.5rem;
     letter-spacing: 0.06em;
     background: transparent;
     color: var(--text-dim);
@@ -315,7 +316,7 @@
 
   .meme-picker-close {
     font-family: var(--display);
-    font-size: 24px;
+    font-size: 1.5rem;
     font-weight: 400;
     margin-left: auto;
     background: transparent;
@@ -348,20 +349,20 @@
     gap: 8px;
   }
   .upload-drop-area:hover { border-color: #555; color: var(--text-mid); }
-  .upload-drop-area .drop-icon { font-size: 42px; opacity: 0.35; }
-  .upload-drop-area p { font-family: var(--mono); font-size: 24px; letter-spacing: 0.08em; }
+  .upload-drop-area .drop-icon { font-size: 2.625rem; opacity: 0.35; }
+  .upload-drop-area p { font-family: var(--mono); font-size: 1.5rem; letter-spacing: 0.08em; }
 
   /* staged upload */
   .upload-stage-preview { display: flex; justify-content: center; padding: 12px 0 8px; }
   .upload-stage-preview img { max-width: 100%; max-height: 140px; object-fit: contain; border: 0.5px solid var(--border); display: block; }
-  .upload-stage-info { font-family: var(--mono); font-size: 24px; color: var(--text-dim); letter-spacing: 0.04em; padding: 4px 0 10px; line-height: 1.8; }
+  .upload-stage-info { font-family: var(--mono); font-size: 1.5rem; color: var(--text-dim); letter-spacing: 0.04em; padding: 4px 0 10px; line-height: 1.8; }
   .upload-stage-info .ok   { color: #4caf50; }
   .upload-stage-info .warn { color: #e05555; }
   .upload-stage-actions { display: flex; gap: 8px; flex-wrap: wrap; }
   .upload-stage-sep { border: none; border-top: 0.5px solid var(--border); margin: 14px 0; }
   .upload-action-btn {
     font-family: var(--mono);
-    font-size: 24px;
+    font-size: 1.5rem;
     letter-spacing: 0.04em;
     background: var(--bg);
     color: var(--text-mid);
@@ -379,7 +380,7 @@
 
   .meme-input {
     font-family: var(--mono);
-    font-size: 22px;
+    font-size: 1.375rem;
     background: var(--bg);
     color: var(--text);
     border: 0.5px solid var(--border);
@@ -413,7 +414,7 @@
 
   .giphy-status {
     font-family: var(--mono);
-    font-size: 24px;
+    font-size: 1.5rem;
     color: var(--text-dim);
     text-align: center;
     padding: 36px 0;
@@ -428,7 +429,7 @@
     justify-content: center;
     background: rgba(0,0,0,0.6);
     font-family: var(--mono);
-    font-size: 24px;
+    font-size: 1.5rem;
     letter-spacing: 0.08em;
     color: var(--text);
     opacity: 0;
@@ -445,7 +446,7 @@
     border: 0.5px solid var(--border);
     color: var(--text-mid);
     font-family: var(--mono);
-    font-size: 22px;
+    font-size: 1.375rem;
     padding: 4px 9px;
     cursor: pointer;
     z-index: 3;
@@ -464,7 +465,7 @@
     border: 0.5px solid var(--border);
     background: var(--surface);
     font-family: var(--mono);
-    font-size: 18px;
+    font-size: 1.125rem;
     color: var(--text-mid);
     position: sticky;
     top: 20px;
@@ -474,7 +475,7 @@
   .side-panel-header {
     border-bottom: 0.5px solid var(--border);
     padding: 10px 14px;
-    font-size: 15px;
+    font-size: 0.9375rem;
     color: var(--text-dim);
     letter-spacing: 0.06em;
     background: var(--bg);
@@ -491,7 +492,7 @@
     gap: 3px;
   }
   .cfg-label {
-    font-size: 14px;
+    font-size: 0.875rem;
     letter-spacing: 0.08em;
     color: var(--text-dim);
     text-transform: uppercase;
@@ -501,7 +502,7 @@
     border: 0.5px solid var(--border);
     color: var(--text);
     font-family: var(--mono);
-    font-size: 18px;
+    font-size: 1.125rem;
     padding: 7px 10px;
     width: 100%;
     outline: none;
@@ -509,7 +510,7 @@
   .cfg-input:focus { border-color: var(--text-mid); }
   .cfg-input.invalid { border-color: #e05555; }
   .cfg-err {
-    font-size: 15px;
+    font-size: 0.9375rem;
     color: #e05555;
     font-family: var(--mono);
     letter-spacing: 0.04em;
@@ -524,7 +525,7 @@
     border: 0.5px solid var(--border);
     padding: 6px 8px;
     font-family: var(--mono);
-    font-size: 17px;
+    font-size: 1.0625rem;
     letter-spacing: 0.02em;
     cursor: pointer;
     text-align: left;
@@ -548,7 +549,7 @@
     border: 0.5px solid var(--border);
     color: var(--text-mid);
     font-family: var(--mono);
-    font-size: 17px;
+    font-size: 1.0625rem;
     padding: 8px 10px;
     cursor: pointer;
     text-align: left;
@@ -560,7 +561,7 @@
   }
   .cfg-device-btn:hover { border-color: var(--text-mid); color: var(--text); }
   .cfg-device-btn.active { border-color: var(--text); color: var(--text); }
-  .cfg-device-watt { color: var(--text-dim); font-size: 15px; }
+  .cfg-device-watt { color: var(--text-dim); font-size: 0.9375rem; }
   .cfg-device-days { color: var(--text); font-weight: 700; min-width: 32px; text-align: right; }
 
   .cfg-msg-btn {
@@ -568,7 +569,7 @@
     border: 0.5px solid var(--border);
     color: var(--text-mid);
     font-family: var(--mono);
-    font-size: 17px;
+    font-size: 1.0625rem;
     padding: 8px 10px;
     cursor: pointer;
     text-align: left;
@@ -587,7 +588,7 @@
     align-items: center;
     gap: 6px;
     font-family: var(--mono);
-    font-size: 17px;
+    font-size: 1.0625rem;
     color: var(--text-dim);
     cursor: pointer;
     margin-top: 4px;
@@ -597,7 +598,7 @@
     border: 0.5px solid var(--border);
     color: var(--text);
     font-family: var(--mono);
-    font-size: 18px;
+    font-size: 1.125rem;
     padding: 8px 10px;
     width: 100%;
     resize: vertical;
@@ -609,7 +610,7 @@
   .cfg-msg-textarea:focus { border-color: var(--text-mid); }
 
   .cfg-section-label {
-    font-size: 14px;
+    font-size: 0.875rem;
     letter-spacing: 0.1em;
     color: var(--text-dim);
     text-transform: uppercase;
@@ -618,7 +619,7 @@
     margin-bottom: -2px;
   }
   .cfg-hint {
-    font-size: 15px;
+    font-size: 0.9375rem;
     color: var(--text-dim);
     font-family: var(--mono);
     letter-spacing: 0.04em;
@@ -629,7 +630,7 @@
   .sneaky-hint {
     display: none;
     font-family: var(--mono);
-    font-size: 15px;
+    font-size: 0.9375rem;
     color: var(--text-mid);
     text-align: center;
     padding: 10px 20px 12px;
@@ -647,7 +648,7 @@
   /* ── ATTRIBUTION ───────────────────────────────── */
   .attribution {
     font-family: var(--mono);
-    font-size: 14px;
+    font-size: 0.875rem;
     color: var(--text-dim);
     text-align: center;
     margin-top: 14px;
@@ -682,14 +683,14 @@
     min-width: 0;
   }
   .bottom-bar-token-label {
-    font-size: 14px;
+    font-size: 0.875rem;
     color: var(--text-dim);
     letter-spacing: 0.08em;
     text-transform: uppercase;
     flex-shrink: 0;
   }
   .bottom-bar-token-val {
-    font-size: 16px;
+    font-size: 1rem;
     color: var(--text);
     letter-spacing: 0.04em;
     flex: 1;
@@ -706,7 +707,7 @@
     border-left: 0.5px solid var(--border);
     color: var(--text-mid);
     font-family: var(--mono);
-    font-size: 16px;
+    font-size: 1rem;
     padding: 15px 22px;
     cursor: pointer;
     letter-spacing: 0.06em;
@@ -716,7 +717,7 @@
   }
   .bottom-bar-btn:hover { color: var(--text); background: #222; }
   .bottom-bar-btn.primary { color: var(--text); }
-  .bottom-bar-btn.token-copy { border-left: none; padding-left: 8px; color: var(--text-dim); font-size: 14px; background: none; }
+  .bottom-bar-btn.token-copy { border-left: none; padding-left: 8px; color: var(--text-dim); font-size: 0.875rem; background: none; }
 
   /* ── PRINT QR (hidden on screen) ───────────────── */
   .print-qr {
@@ -747,20 +748,20 @@
 
   @media (max-width: 700px) {
     body { padding: 16px 10px; }
-    .headline { font-size: 40px; }
+    .headline { font-size: 2.5rem; }
     .body { padding: 28px 20px 24px; margin: 8px; }
     .stats { grid-template-columns: repeat(2, 1fr); }
     .cfg-themes { grid-template-columns: repeat(3, 1fr); }
     .bottom-bar { flex-wrap: wrap; }
     .bottom-bar-token { min-width: 0; }
-    .meta-bar { font-size: 11px; letter-spacing: 0.02em; }
+    .meta-bar { font-size: 0.6875rem; letter-spacing: 0.02em; }
   }
 
   @media (max-width: 400px) {
-    .headline { font-size: 30px; }
+    .headline { font-size: 1.875rem; }
     .body { padding: 18px 12px 18px; margin: 4px; }
-    .stat-value { font-size: 16px; }
-    .bottom-bar-btn { padding: 11px 12px; font-size: 11px; }
+    .stat-value { font-size: 1rem; }
+    .bottom-bar-btn { padding: 11px 12px; font-size: 0.6875rem; }
   }
 
   /* ── PRINT ─────────────────────────────────────── */
@@ -780,7 +781,7 @@
     .body { padding: 24px 36px 20px !important; }
 
     /* scale down headline */
-    .headline { font-size: 38px !important; margin-bottom: 4px !important; }
+    .headline { font-size: 2.375rem !important; margin-bottom: 4px !important; }
 
     /* tighter dividers */
     hr.divider { margin: 10px 0 !important; }
@@ -788,9 +789,9 @@
     /* compact stats */
     .stats { margin-bottom: 14px !important; }
     .stat { padding: 8px 12px !important; }
-    .stat-value { font-size: 15px !important; }
-    .stat-label { font-size: 9px !important; }
-    .stat-sub { font-size: 9px !important; margin-top: 2px !important; }
+    .stat-value { font-size: 0.9375rem !important; }
+    .stat-label { font-size: 0.5625rem !important; }
+    .stat-sub { font-size: 0.5625rem !important; margin-top: 2px !important; }
 
     /* smaller meme */
     .meme-container { min-height: 0 !important; margin-bottom: 10px !important; max-height: 180px !important; }
@@ -799,7 +800,7 @@
     /* compact message + fridge */
     .message { margin-bottom: 10px !important; line-height: 1.6 !important; }
     .fridge-block { margin: 10px 0 !important; padding: 10px 16px !important; }
-    .fridge-block .big-num { font-size: 36px !important; margin: 4px 0 2px !important; }
+    .fridge-block .big-num { font-size: 2.25rem !important; margin: 4px 0 2px !important; }
 
     /* binary + comment lines */
     .binary { margin-bottom: 2px !important; }
@@ -823,7 +824,7 @@
     .print-qr-text {
       text-align: right;
       font-family: 'Courier New', Courier, monospace;
-      font-size: 9px;
+      font-size: 0.5625rem;
       color: var(--text-mid);
       line-height: 1.7;
       letter-spacing: 0.06em;
@@ -917,7 +918,7 @@
       für ungefähr
       <span class="big-num cursor" id="days-display">—</span>
       mit Strom versorgt ist.<br>
-      <span style="font-size:11px; color: var(--text-dim);">// timestamp: <span id="ts-display">—</span> UTC — danke für deine Existenz.</span>
+      <span style="font-size: 0.6875rem; color: var(--text-dim);">// timestamp: <span id="ts-display">—</span> UTC — danke für deine Existenz.</span>
     </div>
 
     <div class="print-qr" id="print-qr">
@@ -1054,7 +1055,7 @@
       <div id="tab-giphy" style="display:none">
         <div style="display:flex;gap:8px;margin-bottom:8px;align-items:center;">
           <input class="meme-input" id="giphy-key-input" type="text" placeholder="Giphy API key" style="max-width:260px">
-          <span style="font-family:var(--mono);font-size:9px;color:var(--text-dim);flex-shrink:0;">free → <a href="https://developers.giphy.com" target="_blank" style="color:var(--text-mid)">developers.giphy.com</a></span>
+          <span style="font-family:var(--mono);font-size: 0.5625rem;color:var(--text-dim);flex-shrink:0;">free → <a href="https://developers.giphy.com" target="_blank" style="color:var(--text-mid)">developers.giphy.com</a></span>
         </div>
         <div class="giphy-search-row">
           <input class="meme-input" id="giphy-search-input" type="text" placeholder="birthday meme...">
@@ -1192,7 +1193,7 @@ function render() {
   document.querySelector('.card').style.zoom = scale !== 1 ? scale : '';
   applyTheme(theme);
   if (theme !== 'uwu') {
-    console.log('%c✨ psst... try ?theme=uwu ✨', 'color:#ff6eb4;font-family:monospace;font-size:13px');
+    console.log('%c✨ psst... try ?theme=uwu ✨', 'color:#ff6eb4;font-family:monospace;font-size: 0.8125rem');
   }
   const device = pickDevice(amount, deviceOverride);
   const days   = amount !== null ? computeDays(amount, device) : null;
@@ -1290,7 +1291,7 @@ function render() {
   // fridge block
   if (amount === null) {
     document.getElementById('fridge-block').innerHTML =
-      '<span style="font-size:11px;color:var(--text-dim);">' +
+      '<span style="font-size: 0.6875rem;color:var(--text-dim);">' +
       '// kein Betrag angegeben \u2014 f\u00fcge <strong>?amount=XX</strong> zur URL hinzu, um die Ger\u00e4telaufzeit zu berechnen.<br>' +
       '// timestamp: ' + ts + ' UTC \u2014 danke f\u00fcr deine Existenz.</span>';
   } else {

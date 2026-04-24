@@ -16,6 +16,7 @@
     --display: system-ui, -apple-system, 'Segoe UI', sans-serif;
   }
 
+  html { font-size: 16px; }
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
   body {
@@ -34,7 +35,7 @@
 
   .title {
     font-family: var(--display);
-    font-size: clamp(52px, 20vw, 112px);
+    font-size: clamp(3.25rem, 20vw, 7rem);
     font-weight: 800;
     letter-spacing: -0.04em;
     line-height: 1;
@@ -42,14 +43,14 @@
   }
 
   .sub {
-    font-size: 28px;
+    font-size: 1.75rem;
     color: var(--text-mid);
     letter-spacing: 0.06em;
     margin-bottom: 40px;
   }
 
   .sep {
-    font-size: 26px;
+    font-size: 1.625rem;
     color: var(--text-dim);
     letter-spacing: 0.04em;
     margin: 32px 0;
@@ -58,7 +59,7 @@
   }
 
   .section-label {
-    font-size: 26px;
+    font-size: 1.625rem;
     color: var(--text-mid);
     letter-spacing: 0.08em;
     text-transform: uppercase;
@@ -73,7 +74,7 @@
   .token-input {
     flex: 1;
     font-family: var(--mono);
-    font-size: 28px;
+    font-size: 1.75rem;
     background: var(--surface);
     color: var(--text);
     border: 0.5px solid var(--border);
@@ -85,11 +86,11 @@
     transition: border-color 0.12s;
   }
   .token-input:focus { border-color: var(--text-mid); }
-  .token-input::placeholder { color: var(--text-dim); font-size: 26px; }
+  .token-input::placeholder { color: var(--text-dim); font-size: 1.625rem; }
 
   .token-btn {
     font-family: var(--mono);
-    font-size: 26px;
+    font-size: 1.625rem;
     background: var(--surface);
     color: var(--text);
     border: 0.5px solid var(--border);
@@ -103,7 +104,7 @@
   .token-btn:hover { border-color: var(--text-mid); background: var(--border); }
 
   .token-err {
-    font-size: 26px;
+    font-size: 1.625rem;
     color: #e05555;
     letter-spacing: 0.04em;
     min-height: 18px;
@@ -121,7 +122,7 @@
     align-items: center;
     gap: 14px;
     font-family: var(--mono);
-    font-size: 26px;
+    font-size: 1.625rem;
     color: var(--text-mid);
     border: 0.5px solid var(--border);
     padding: 18px 20px;
@@ -134,11 +135,11 @@
     text-decoration: none;
   }
   .build-btn:hover { border-color: var(--text-mid); color: var(--text); }
-  .build-btn-icon { font-size: 42px; opacity: 0.6; }
+  .build-btn-icon { font-size: 2.625rem; opacity: 0.6; }
 
   .footer {
     font-family: var(--mono);
-    font-size: 26px;
+    font-size: 1.625rem;
     color: var(--text-dim);
     text-align: center;
     margin-top: 52px;
