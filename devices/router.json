@@ -1,0 +1,9 @@
+{
+  "id":        "router",
+  "name":      "Router + Switch Stack (bitcircus101)",
+  "shortName": "router+switch@bitcircus101",
+  "watt":      18,
+  "threshold": 20,
+  "img":       "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/Network_switches.jpg/800px-Network_switches.jpg",
+  "imgLicense": "CC BY-SA 3.0 — Wikimedia Commons"
+}

@@ -1,0 +1,9 @@
+{
+  "id":        "laser",
+  "name":      "Lasercutter (bitcircus101)",
+  "shortName": "lasercutter@bitcircus101",
+  "watt":      800,
+  "threshold": 150,
+  "img":       "https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/Laser_cutting_machine.jpg/800px-Laser_cutting_machine.jpg",
+  "imgLicense": "CC BY-SA 4.0 — Wikimedia Commons"
+}

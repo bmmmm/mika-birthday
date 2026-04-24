@@ -388,6 +388,7 @@
 
 <div class="toast" id="toast">// URL copied to clipboard</div>
 
+<script src="config.js"></script>
 <script>
 const THEMES = {
   dark:      { label: 'Dark',      vars: { '--bg': '#0d0d0d', '--surface': '#141414', '--border': '#2a2a2a', '--text': '#e8e8e6', '--text-dim': '#444',    '--text-mid': '#888'    }, display: "'Syne', sans-serif",               mono: "'Courier Prime', monospace"   },
@@ -426,13 +427,8 @@ function buildThemeGrid() {
   });
 }
 
-const PRICE_PER_KWH = 0.30;
-const DEVICES = [
-  { id: 'fridge', watt: 45,  threshold: 0   },
-  { id: 'router', watt: 18,  threshold: 20  },
-  { id: 'server', watt: 80,  threshold: 50  },
-  { id: 'laser',  watt: 800, threshold: 150 },
-];
+var PRICE_PER_KWH = SETTINGS.pricePerKwh;
+var DEVICES = [];
 
 function computeDays(amount, watt) {
   return (amount / PRICE_PER_KWH) / (watt * 24 / 1000);
@@ -492,7 +488,7 @@ function updateDeviceStrip(amount) {
   if (amount !== null && isFinite(amount) && amount >= 0) {
     var best = DEVICES[0];
     DEVICES.forEach(function(d) {
-      if (amount >= d.threshold && computeDays(amount, d.watt) >= 30) best = d;
+      if (amount >= d.threshold && computeDays(amount, d.watt) >= SETTINGS.minDays) best = d;
     });
     selectedId = best.id;
   }
@@ -552,8 +548,18 @@ function resetAll() {
   document.getElementById(id).addEventListener('input', update);
 });
 
-buildThemeGrid();
-update();
+(async function () {
+  try {
+    var ids = await fetch('./devices/index.json').then(function (r) { return r.json(); });
+    DEVICES = await Promise.all(ids.map(function (id) {
+      return fetch('./devices/' + id + '.json').then(function (r) { return r.json(); });
+    }));
+  } catch (e) {
+    console.warn('devices load failed:', e);
+  }
+  buildThemeGrid();
+  update();
+})();
 </script>
 </body>
 </html>
