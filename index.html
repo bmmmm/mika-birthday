@@ -912,7 +912,7 @@
   </div>
 
   <div class="footer">
-    <span id="footer-left">bitcircus101 — Dorotheenstraße 101, 53111 Bonn</span>
+    <span id="footer-left"></span>
     <span id="footer-right">—</span>
   </div>
   <div class="sneaky-hint" id="sneaky-hint">// liked this card? → build your own: <a href="https://bmmmm.github.io/mika-birthday/start.html">bmmmm.github.io/mika-birthday</a></div>
@@ -1212,12 +1212,12 @@ function render() {
   document.getElementById('stat-kernel').textContent = 'v' + age + '.0';
 
   // clear previous meme content before re-render
-  const _mc = document.querySelector('.meme-container');
-  _mc.querySelectorAll('.meme-img, .meme-change-hint, .meme-remove-btn').forEach(function (el) { el.remove(); });
+  const container = document.querySelector('.meme-container');
+  const _ph       = document.getElementById('meme-placeholder');
+  container.querySelectorAll('.meme-img, .meme-change-hint, .meme-remove-btn').forEach(function (el) { el.remove(); });
 
   // themed placeholder
-  const _ph   = document.getElementById('meme-placeholder');
-  const _phd  = THEME_PLACEHOLDERS[theme] || THEME_PLACEHOLDERS.dark;
+  const _phd = THEME_PLACEHOLDERS[theme] || THEME_PLACEHOLDERS.dark;
   _ph.innerHTML = '<div class="crosshair">' + esc(_phd.icon) + '</div>'
     + '<p>' + esc(_phd.line1) + '</p>'
     + '<p class="upload-hint">' + esc(_phd.line2) + '</p>';
@@ -1232,20 +1232,18 @@ function render() {
     : (device.img ? '// device: ' + device.shortName : '\u2014');
   document.getElementById('meme-label').textContent = '[ img_src: ' + memeLabel + ' ]';
   if (memeOrDevice) {
-    const placeholder = document.getElementById('meme-placeholder');
-    const container   = document.querySelector('.meme-container');
-    const img         = document.createElement('img');
-    img.className     = 'meme-img';
-    img.alt           = meme ? 'meme' : device.name;
-    img.onerror       = function () {
-      placeholder.style.display = '';
+    const img     = document.createElement('img');
+    img.className = 'meme-img';
+    img.alt       = meme ? 'meme' : device.name;
+    img.onerror   = function () {
+      _ph.style.display = '';
       img.remove();
       container.querySelectorAll('.meme-change-hint, .meme-remove-btn').forEach(function (el) { el.remove(); });
     };
-    placeholder.style.display = 'none';
+    _ph.style.display = 'none';
     img.src = memeOrDevice;
     container.appendChild(img);
-    if (!getParams().locked) {
+    if (!locked) {
       const hint      = document.createElement('div');
       hint.className  = 'meme-change-hint';
       hint.textContent = '[ click to change ]';
@@ -1409,6 +1407,7 @@ var _cfgDevice    = null;
 var _cfgQuote     = 'classic';
 var _cfgCustomize = false;
 var _sidePanelBound = false;
+var _applyTimer   = null;
 
 function setupSidePanel() {
   var p = getParams();
@@ -1511,10 +1510,11 @@ function renderDeviceTiles(amount) {
   if (!grid) return;
   grid.innerHTML = '';
 
+  var autoDevice = _cfgDevice === null ? pickDevice(amount) : null;
   DEVICES.forEach(function (d) {
     var days    = amount !== null && amount >= 0 ? computeDays(amount, d) : null;
     var daysStr = days === null ? '—' : days >= 365 ? (days / 365).toFixed(1) + 'y' : Math.round(days) + 'd';
-    var isActive = _cfgDevice === d.id || (_cfgDevice === null && d === pickDevice(amount));
+    var isActive = _cfgDevice === d.id || (_cfgDevice === null && d === autoDevice);
     var btn = document.createElement('button');
     btn.className = 'cfg-device-btn' + (isActive ? ' active' : '');
     btn.innerHTML =
@@ -1583,6 +1583,7 @@ function closeMemePicker() {
 }
 
 function switchTab(name) {
+  if (name !== 'upload') resetUploadStage();
   ['upload', 'url', 'giphy'].forEach(function (t) {
     document.getElementById('tab-' + t).style.display = t === name ? '' : 'none';
   });
@@ -1894,7 +1895,6 @@ function setupMemeUpload() {
   }
 
   // live-update text inputs with debounce (themes/devices already update instantly)
-  var _applyTimer = null;
   ['cfg-name', 'cfg-age', 'cfg-amount', 'cfg-from'].forEach(function (id) {
     var el = document.getElementById(id);
     if (!el) return;
