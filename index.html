@@ -1137,8 +1137,7 @@ function renderDeviceTiles(amount) {
       '<span class="cfg-device-days">' + daysStr + '</span>';
     btn.addEventListener('click', function () {
       _cfgDevice = _cfgDevice === d.id ? null : d.id;
-      var curAmount = parseFloat(document.getElementById('cfg-amount').value);
-      renderDeviceTiles(isNaN(curAmount) ? null : curAmount);
+      applyConfig();
     });
     grid.appendChild(btn);
   });
