@@ -154,6 +154,9 @@
     padding: 3px 10px;
     letter-spacing: 0.06em;
     margin-bottom: 16px;
+    max-width: 100%;
+    overflow-wrap: break-word;
+    word-break: break-all;
   }
 
   .meme-container {
@@ -173,6 +176,8 @@
     margin-top: -22px;
     margin-bottom: 10px;
     padding: 0 2px;
+    overflow-wrap: break-word;
+    word-break: break-all;
   }
 
   .meme-label-br {
@@ -696,12 +701,10 @@
     color: var(--text);
     letter-spacing: 0.04em;
     flex: 1;
-    word-break: break-all;
-    white-space: normal;
     min-width: 0;
-    line-height: 1.5;
-    max-height: 60px;
-    overflow-y: auto;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   .bottom-bar-btn {
     background: var(--surface);
@@ -983,6 +986,16 @@
       <div class="cfg-label">device</div>
       <div class="cfg-devices" id="cfg-devices"></div>
       <div class="cfg-hint" style="margin-top:3px">// click to override auto-select</div>
+    </div>
+
+    <div class="cfg-section-label">media</div>
+    <div class="cfg-field">
+      <div class="cfg-label">image url</div>
+      <input class="cfg-input" id="cfg-meme-url" type="text" placeholder="https://example.com/image.jpg" spellcheck="false" autocomplete="off">
+    </div>
+    <div style="display:flex;gap:4px;">
+      <button class="cfg-msg-btn" id="cfg-meme-browse" style="flex:1;margin-bottom:0">[ ⊕ browse / upload / gif ]</button>
+      <button class="cfg-msg-btn" id="cfg-meme-remove" style="display:none;color:#e05555;flex-shrink:0;margin-bottom:0">[ ✕ ]</button>
     </div>
 
     <div class="cfg-section-label">style</div>
@@ -1494,6 +1507,40 @@ function setupSidePanel() {
       });
       _sidePanelBound = true;
     }
+  }
+
+  // meme URL section — update state every render
+  var _memeUrlEl  = document.getElementById('cfg-meme-url');
+  var _memeRemEl  = document.getElementById('cfg-meme-remove');
+  var _memeBrwEl  = document.getElementById('cfg-meme-browse');
+  if (_memeUrlEl && document.activeElement !== _memeUrlEl) {
+    var _m = p.meme || '';
+    if (_m.startsWith('data:')) {
+      _memeUrlEl.value = ''; _memeUrlEl.placeholder = '(embedded image — use share link)'; _memeUrlEl.disabled = true;
+    } else if (_m.startsWith('blob:')) {
+      _memeUrlEl.value = ''; _memeUrlEl.placeholder = '(local file — print only)'; _memeUrlEl.disabled = true;
+    } else {
+      _memeUrlEl.value = _m; _memeUrlEl.placeholder = 'https://example.com/image.jpg'; _memeUrlEl.disabled = false;
+    }
+  }
+  if (_memeRemEl) _memeRemEl.style.display = p.meme ? '' : 'none';
+  if (!_memeUrlEl._bound) {
+    if (_memeUrlEl) {
+      _memeUrlEl._bound = true;
+      _memeUrlEl.addEventListener('input', function () {
+        clearTimeout(_applyTimer);
+        _applyTimer = setTimeout(function () {
+          var val = _memeUrlEl.value.trim();
+          var u = new URL(window.location.href);
+          if (val) u.searchParams.set('meme', val);
+          else     u.searchParams.delete('meme');
+          history.replaceState(null, '', u.toString());
+          render(); setupSidePanel();
+        }, 600);
+      });
+    }
+    if (_memeBrwEl) _memeBrwEl.addEventListener('click', openMemePicker);
+    if (_memeRemEl) _memeRemEl.addEventListener('click', removeMeme);
   }
 
   // message tiles
