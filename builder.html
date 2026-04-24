@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Birthday Card Builder</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Syne:wght@400;600;700;800&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;700&family=Playfair+Display:wght@700;900&family=Share+Tech+Mono&family=Syne:wght@400;600;700;800&family=Unbounded:wght@700;900&family=VT323&display=swap');
 
   :root {
     --bg: #0d0d0d;
@@ -250,6 +250,46 @@
     border-top: 0.5px solid var(--border);
     margin: 32px 0;
   }
+
+  /* theme picker */
+  .theme-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 3px;
+  }
+
+  .theme-tile {
+    border: 0.5px solid;
+    padding: 12px 10px 10px;
+    cursor: pointer;
+    position: relative;
+    transition: opacity 0.12s;
+    user-select: none;
+  }
+  .theme-tile:hover { opacity: 0.82; }
+  .theme-tile.active { outline: 2px solid var(--text); outline-offset: 1px; }
+
+  .theme-preview-hbd {
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 3px;
+  }
+
+  .theme-preview-code {
+    font-size: 9px;
+    letter-spacing: 0.05em;
+    opacity: 0.7;
+  }
+
+  .theme-tile-name {
+    font-family: var(--mono);
+    font-size: 8px;
+    letter-spacing: 0.1em;
+    margin-top: 8px;
+    opacity: 0.6;
+    text-transform: lowercase;
+  }
 </style>
 </head>
 <body>
@@ -325,6 +365,14 @@
     </div>
   </div>
 
+  <!-- theme -->
+  <div class="section">
+    <div class="section-label">theme</div>
+    <div class="section-body single" style="padding:12px 12px 14px">
+      <div class="theme-grid" id="theme-grid"></div>
+    </div>
+  </div>
+
   <!-- output -->
   <div class="output-section">
     <div class="output-label">generated URL</div>
@@ -341,6 +389,43 @@
 <div class="toast" id="toast">// URL copied to clipboard</div>
 
 <script>
+const THEMES = {
+  dark:      { label: 'Dark',      vars: { '--bg': '#0d0d0d', '--surface': '#141414', '--border': '#2a2a2a', '--text': '#e8e8e6', '--text-dim': '#444',    '--text-mid': '#888'    }, display: "'Syne', sans-serif",               mono: "'Courier Prime', monospace"   },
+  light:     { label: 'Light',     vars: { '--bg': '#f8f8f6', '--surface': '#f0f0ee', '--border': '#d8d8d6', '--text': '#111110', '--text-dim': '#bbb',    '--text-mid': '#666'    }, display: "'Syne', sans-serif",               mono: "'Courier Prime', monospace"   },
+  amber:     { label: 'Amber',     vars: { '--bg': '#0c0700', '--surface': '#150d00', '--border': '#2a1e00', '--text': '#d4870a', '--text-dim': '#3d2600', '--text-mid': '#7a5500' }, display: "'Syne', sans-serif",               mono: "'Courier Prime', monospace"   },
+  matrix:    { label: 'Matrix',    vars: { '--bg': '#000000', '--surface': '#001200', '--border': '#003800', '--text': '#00e840', '--text-dim': '#004010', '--text-mid': '#00a030' }, display: "'Share Tech Mono', monospace",      mono: "'Share Tech Mono', monospace" },
+  blueprint: { label: 'Blueprint', vars: { '--bg': '#001830', '--surface': '#00203e', '--border': '#1a3a5c', '--text': '#a8d4f0', '--text-dim': '#1a3a5c', '--text-mid': '#4a88b8' }, display: "'Syne', sans-serif",               mono: "'IBM Plex Mono', monospace"   },
+  paper:     { label: 'Paper',     vars: { '--bg': '#f5f0e8', '--surface': '#ede8de', '--border': '#c8bfaa', '--text': '#2c2418', '--text-dim': '#b8aa90', '--text-mid': '#7a6a54' }, display: "'Playfair Display', Georgia, serif", mono: "'Courier Prime', monospace" },
+  neon:      { label: 'Neon',      vars: { '--bg': '#07000f', '--surface': '#0e0018', '--border': '#2d0045', '--text': '#ff2d78', '--text-dim': '#2d0025', '--text-mid': '#aa0055' }, display: "'Syne', sans-serif",               mono: "'Courier Prime', monospace"   },
+  dos:       { label: 'DOS',       vars: { '--bg': '#000080', '--surface': '#0000aa', '--border': '#5555ff', '--text': '#ffffff', '--text-dim': '#5555ff', '--text-mid': '#aaaaaa' }, display: "'VT323', monospace",                mono: "'VT323', monospace"           },
+  brutalist: { label: 'Brutalist', vars: { '--bg': '#ffffff', '--surface': '#f0f0f0', '--border': '#000000', '--text': '#000000', '--text-dim': '#999999', '--text-mid': '#333333' }, display: "'Archivo Black', sans-serif",       mono: "'Courier Prime', monospace"   },
+  ink:       { label: 'Ink',       vars: { '--bg': '#1a1410', '--surface': '#221c16', '--border': '#3a3028', '--text': '#e8d5b0', '--text-dim': '#4a3c2c', '--text-mid': '#8a7258' }, display: "'Unbounded', sans-serif",           mono: "'Courier Prime', monospace"   },
+};
+
+var currentTheme = 'dark';
+
+function buildThemeGrid() {
+  var grid = document.getElementById('theme-grid');
+  Object.keys(THEMES).forEach(function (id) {
+    var t    = THEMES[id];
+    var tile = document.createElement('div');
+    tile.className    = 'theme-tile' + (id === 'dark' ? ' active' : '');
+    tile.style.background  = t.vars['--bg'];
+    tile.style.borderColor = t.vars['--border'];
+    tile.innerHTML =
+      '<div class="theme-preview-hbd" style="font-family:' + t.display + ';color:' + t.vars['--text'] + '">Hbd</div>' +
+      '<div class="theme-preview-code" style="font-family:' + t.mono + ';color:' + t.vars['--text-mid'] + '">0x1E</div>' +
+      '<div class="theme-tile-name" style="color:' + t.vars['--text-dim'] + '">' + t.label + '</div>';
+    tile.addEventListener('click', function () {
+      currentTheme = id;
+      document.querySelectorAll('.theme-tile').forEach(function (el) { el.classList.remove('active'); });
+      tile.classList.add('active');
+      update();
+    });
+    grid.appendChild(tile);
+  });
+}
+
 const PRICE_PER_KWH = 0.30;
 const DEVICES = [
   { id: 'fridge', watt: 45,  threshold: 0   },
@@ -377,11 +462,12 @@ function buildUrl(vals) {
   // handle case where builder is at root
   base = base.endsWith('/') ? base + 'index.html' : base.replace(/\/[^/]*$/, '/index.html');
   var p = new URLSearchParams();
-  if (vals.name)          p.set('name',   vals.name);
-  if (vals.age)           p.set('age',    String(vals.age));
-  if (vals.amount !== null) p.set('amount', String(vals.amount));
-  if (vals.meme)          p.set('meme',   vals.meme);
-  if (vals.from)          p.set('from',   vals.from);
+  if (vals.name)             p.set('name',   vals.name);
+  if (vals.age)              p.set('age',    String(vals.age));
+  if (vals.amount !== null)  p.set('amount', String(vals.amount));
+  if (vals.meme)             p.set('meme',   vals.meme);
+  if (vals.from)             p.set('from',   vals.from);
+  if (currentTheme !== 'dark') p.set('theme', currentTheme);
   var qs = p.toString();
   return qs ? base + '?' + qs : base;
 }
@@ -462,6 +548,7 @@ function resetAll() {
   document.getElementById(id).addEventListener('input', update);
 });
 
+buildThemeGrid();
 update();
 </script>
 </body>
