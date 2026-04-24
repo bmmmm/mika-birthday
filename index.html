@@ -720,30 +720,59 @@
 
   /* ── PRINT ─────────────────────────────────────── */
   @media print {
-    @page { size: A4 portrait; margin: 10mm; }
+    @page { size: A4 portrait; margin: 8mm 10mm; }
     * {
       print-color-adjust: exact !important;
       -webkit-print-color-adjust: exact !important;
     }
-    body {
-      padding: 0;
-      min-height: 0;
-      justify-content: flex-start;
-    }
-    .toast, .attribution, .side-panel, .sneaky-hint { display: none !important; }
+    body { padding: 0; min-height: 0; justify-content: flex-start; }
+    .toast, .attribution, .side-panel, .sneaky-hint, .meme-label { display: none !important; }
     .bottom-bar { display: none !important; }
     .page-wrapper { flex-direction: column; }
-    .card { width: 100%; zoom: 0.85; }
-    .meme-container { min-height: 0 !important; }
-    .meme-img { max-height: 220px !important; object-fit: contain; }
+    .card { width: 100%; page-break-inside: avoid; }
+
+    /* compact body padding */
+    .body { padding: 24px 36px 20px !important; }
+
+    /* scale down headline */
+    .headline { font-size: 38px !important; margin-bottom: 4px !important; }
+
+    /* tighter dividers */
+    hr.divider { margin: 10px 0 !important; }
+
+    /* compact stats */
+    .stats { margin-bottom: 14px !important; }
+    .stat { padding: 8px 12px !important; }
+    .stat-value { font-size: 15px !important; }
+    .stat-label { font-size: 8px !important; }
+    .stat-sub { font-size: 8px !important; margin-top: 2px !important; }
+
+    /* smaller meme */
+    .meme-container { min-height: 0 !important; margin-bottom: 10px !important; max-height: 180px !important; }
+    .meme-img { max-height: 180px !important; object-fit: contain; }
+
+    /* compact message + fridge */
+    .message { margin-bottom: 10px !important; line-height: 1.6 !important; }
+    .fridge-block { margin: 10px 0 !important; padding: 10px 16px !important; }
+    .fridge-block .big-num { font-size: 36px !important; margin: 4px 0 2px !important; }
+
+    /* binary + comment lines */
+    .binary { margin-bottom: 2px !important; }
+    .comment { margin-bottom: 10px !important; }
+
+    /* device badge */
+    .device-badge { margin-bottom: 8px !important; }
+
+    /* cursor blink off */
     .cursor::after { display: none !important; }
+
     .print-qr {
       display: flex !important;
       align-items: center;
       justify-content: flex-end;
       gap: 14px;
-      margin-top: 20px;
-      padding-top: 14px;
+      margin-top: 12px;
+      padding-top: 10px;
       border-top: 0.5px solid var(--border);
     }
     .print-qr-text {
@@ -754,11 +783,7 @@
       line-height: 1.7;
       letter-spacing: 0.06em;
     }
-    .print-qr img {
-      width: 90px;
-      height: 90px;
-      display: block;
-    }
+    .print-qr img { width: 80px; height: 80px; display: block; }
   }
 </style>
 </head>
