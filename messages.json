@@ -1,0 +1,57 @@
+[
+  {
+    "id": "classic",
+    "label": "Der Klassiker",
+    "text": "Mit dieser Karte. Und deinem Geburtstag.\nDer schlichten Tatsache, dass du — vor genau {age} Jahren — geboren wurdest.\n{binary} Happy B-Day, {name}."
+  },
+  {
+    "id": "sachlich",
+    "label": "Sehr sachlich",
+    "text": "Du bist {age}.\nDas ist alles, was wir wissen.\n{binary} // keine weiteren Kommentare."
+  },
+  {
+    "id": "nerd",
+    "label": "Nerd Mode",
+    "text": "v{age}.0.0 — release notes:\n- deprecated: youth\n- added: wisdom, patches\n{binary} commits. no rollback planned."
+  },
+  {
+    "id": "cli",
+    "label": "CLI Vibes",
+    "text": "$ whoami\n{name}, {age} years uptime, 0 reboots.\n{binary} — and still no sudo needed."
+  },
+  {
+    "id": "existentiell",
+    "label": "Existenziell",
+    "text": "Vor {age} Jahren: ein Neustart.\nSeitdem: 99.9% uptime, ein paar memory leaks.\n{binary} — und das ist gut so, {name}."
+  },
+  {
+    "id": "langweilig",
+    "label": "Sehr langweilig",
+    "text": "Herzlichen Glückwunsch zum Geburtstag.\nDu wirst {age} Jahre alt.\nAlles Gute."
+  },
+  {
+    "id": "birthday_run",
+    "label": "$ run birthday",
+    "text": "$ run birthday --name={name} --age={age}\n[INFO]  loading confetti...  done\n[INFO]  cake: {age} candles lit\n[DONE]  {binary} — have a great one."
+  },
+  {
+    "id": "git_log",
+    "label": "git log",
+    "text": "commit {binary}\nAuthor: {name} <{name}@life.local>\n\n    feat: initialize {name}\n    BREAKING: youth deprecated in v{age}"
+  },
+  {
+    "id": "kernel_panic",
+    "label": "Kernel Panic",
+    "text": "HAPPY BIRTHDAY EXCEPTION\nProcess: {name} pid v{age}\nThread 0: triggered too_awesome\n{binary} — no stack trace needed."
+  },
+  {
+    "id": "uptime",
+    "label": "Uptime Report",
+    "text": "{name}@life:~$ uptime\n{age} years, 0 reboots, load: ∞\n{binary} — still running."
+  },
+  {
+    "id": "404",
+    "label": "404 Youth",
+    "text": "404: youth not found\nAgent: {name}/{age}.0\nFallback: {binary} — wisdom cached."
+  }
+]
