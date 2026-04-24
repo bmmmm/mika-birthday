@@ -374,10 +374,6 @@
   .meme-input:focus { border-color: #555; }
   .meme-input::placeholder { color: var(--text-dim); }
 
-  .giphy-key-row { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; }
-  .giphy-key-hint { font-family: var(--mono); font-size: 9px; color: var(--text-dim); flex-shrink: 0; }
-  .giphy-key-hint a { color: var(--text-mid); }
-
   .giphy-search-row { display: flex; gap: 8px; margin-bottom: 14px; }
 
   .giphy-grid {
@@ -556,7 +552,7 @@
     <div class="meme-picker-header">
       <button class="meme-tab active" data-tab="upload">[ upload ]</button>
       <button class="meme-tab" data-tab="url">[ url ]</button>
-      <button class="meme-tab" data-tab="giphy">[ giphy ]</button>
+      <button class="meme-tab" data-tab="giphy">[ search gifs ]</button>
       <button class="meme-picker-close" id="meme-picker-close">✕</button>
     </div>
     <div class="meme-picker-body">
@@ -576,17 +572,17 @@
           <button class="btn primary" id="url-load-btn">[ load ]</button>
         </div>
       </div>
-      <!-- giphy -->
+      <!-- gif search (Giphy) -->
       <div id="tab-giphy" style="display:none">
-        <div class="giphy-key-row">
+        <div style="display:flex;gap:8px;margin-bottom:8px;align-items:center;">
           <input class="meme-input" id="giphy-key-input" type="text" placeholder="Giphy API key" style="max-width:260px">
-          <span class="giphy-key-hint">free at <a href="https://developers.giphy.com" target="_blank">developers.giphy.com</a></span>
+          <span style="font-family:var(--mono);font-size:9px;color:var(--text-dim);flex-shrink:0;">free → <a href="https://developers.giphy.com" target="_blank" style="color:var(--text-mid)">developers.giphy.com</a></span>
         </div>
         <div class="giphy-search-row">
           <input class="meme-input" id="giphy-search-input" type="text" placeholder="birthday meme...">
           <button class="btn primary" id="giphy-search-btn">[ search ]</button>
         </div>
-        <div id="giphy-results"><div class="giphy-status">// enter a search term above</div></div>
+        <div id="giphy-results"><div class="giphy-status">// enter API key + search term</div></div>
       </div>
     </div>
   </div>
@@ -798,11 +794,10 @@ function copyLink() {
 
 // ── meme picker ────────────────────────────────────────────────────────────
 function openMemePicker() {
-  var overlay = document.getElementById('meme-picker-overlay');
-  overlay.style.display = 'flex';
-  var saved = (new URLSearchParams(window.location.search).get('giphyKey'))
-            || sessionStorage.getItem('giphyKey') || '';
-  document.getElementById('giphy-key-input').value = saved;
+  document.getElementById('meme-picker-overlay').style.display = 'flex';
+  var saved = sessionStorage.getItem('giphyKey') || '';
+  var keyEl = document.getElementById('giphy-key-input');
+  if (keyEl && !keyEl.value) keyEl.value = saved;
 }
 
 function closeMemePicker() {
@@ -873,13 +868,13 @@ document.getElementById('meme-url-input').addEventListener('keydown', function (
   if (e.key === 'Enter') document.getElementById('url-load-btn').click();
 });
 
-// giphy tab
-document.getElementById('giphy-search-btn').addEventListener('click', runGiphySearch);
+// gif search tab (Tenor — no API key required)
+document.getElementById('giphy-search-btn').addEventListener('click', runGifSearch);
 document.getElementById('giphy-search-input').addEventListener('keydown', function (e) {
-  if (e.key === 'Enter') runGiphySearch();
+  if (e.key === 'Enter') runGifSearch();
 });
 
-async function runGiphySearch() {
+async function runGifSearch() {
   var query = document.getElementById('giphy-search-input').value.trim();
   var key   = document.getElementById('giphy-key-input').value.trim();
   if (key) sessionStorage.setItem('giphyKey', key);
@@ -897,7 +892,7 @@ async function runGiphySearch() {
     );
     if (!res.ok) throw new Error('Giphy ' + res.status);
     var json = await res.json();
-    if (!json.data.length) {
+    if (!json.data || !json.data.length) {
       document.getElementById('giphy-results').innerHTML = '<div class="giphy-status">// no results</div>';
       return;
     }
@@ -909,8 +904,8 @@ async function runGiphySearch() {
       var img      = document.createElement('img');
       img.className = 'giphy-thumb';
       img.src       = thumb;
-      img.title     = gif.title;
-      img.addEventListener('click', function () { selectMeme(original, gif.title); });
+      img.title     = gif.title || '';
+      img.addEventListener('click', function () { selectMeme(original, gif.title || original); });
       grid.appendChild(img);
     });
     var results = document.getElementById('giphy-results');
@@ -918,7 +913,7 @@ async function runGiphySearch() {
     results.appendChild(grid);
   } catch (err) {
     document.getElementById('giphy-results').innerHTML =
-      '<div class="giphy-status">// error: ' + err.message + '</div>';
+      '<div class="giphy-status">// ' + err.message + '</div>';
   }
 }
 
