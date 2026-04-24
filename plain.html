@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Happy Birthday</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: monospace;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #000;
+  background: #fff;
+  padding: 3em 2em;
+}
+pre {
+  font-family: inherit;
+  font-size: inherit;
+  white-space: pre;
+}
+#meme-img {
+  max-width: 72ch;
+  display: block;
+  margin: 0;
+}
+@media print {
+  body { padding: 1em; }
+}
+</style>
+</head>
+<body>
+<pre id="top"></pre>
+<img id="meme-img" src="" alt="" style="display:none">
+<pre id="bot"></pre>
+<script>
+var p      = new URLSearchParams(location.search);
+var name   = p.get('name')   || 'Mika';
+var rawAge = p.get('age');
+var age    = rawAge && !isNaN(parseInt(rawAge, 10)) ? parseInt(rawAge, 10) : 30;
+var rawAmt = p.get('amount');
+var amount = rawAmt && rawAmt.trim() !== '' && !isNaN(parseFloat(rawAmt)) ? parseFloat(rawAmt) : null;
+var from   = p.get('from')  || null;
+var meme   = p.get('meme')  || null;
+var device = p.get('device') || null;
+
+var KWH = 0.30;
+var DEVICES = [
+  { id: 'fridge', label: 'fridge@bitcircus101',         watt: 45,  threshold: 0   },
+  { id: 'router', label: 'router+switch@bitcircus101',   watt: 18,  threshold: 20  },
+  { id: 'server', label: 'nutc@bitcircus101',            watt: 80,  threshold: 50  },
+  { id: 'laser',  label: 'lasercutter@bitcircus101',     watt: 800, threshold: 150 },
+];
+
+function pickDevice(eur, override) {
+  if (override) {
+    var found = DEVICES.filter(function(d){ return d.id === override; })[0];
+    if (found) return found;
+  }
+  if (eur === null) return DEVICES[0];
+  var best = DEVICES[0];
+  DEVICES.forEach(function(d) {
+    var days = (eur / KWH) / (d.watt * 24 / 1000);
+    if (eur >= d.threshold && days >= 30) best = d;
+  });
+  return best;
+}
+
+function fmtDays(n) {
+  if (n >= 365) return (n / 365).toFixed(1) + ' years';
+  return Math.round(n) + ' days';
+}
+
+function toHex(n) { return '0x' + n.toString(16).toUpperCase().padStart(2, '0'); }
+function toBin(n)  { return '0b' + n.toString(2).padStart(8, '0'); }
+
+var dev  = pickDevice(amount, device);
+var days = amount !== null ? (amount / KWH) / (dev.watt * 24 / 1000) : null;
+var ts   = new Date().toISOString().replace('T', ' ').slice(0, 16) + ' UTC';
+
+document.title = 'happy birthday ' + name.toLowerCase() + ' -- v' + age + '.0';
+
+var W   = 72;
+var SEP = '='.repeat(W);
+var DIV = '-'.repeat(W);
+
+function pad(label, val) {
+  return ('  ' + label + ':').padEnd(18) + val;
+}
+
+var out = [];
+
+out.push(SEP);
+out.push('');
+out.push('  HAPPY BIRTHDAY, ' + name.toUpperCase() + '!');
+out.push('  version ' + age + '.0.0  //  ' + toHex(age) + '  //  ' + toBin(age));
+out.push('');
+out.push(SEP);
+out.push('');
+out.push(pad('age',    age + ' years'));
+out.push(pad('uptime', (age * 365) + ' days'));
+out.push(pad('epoch',  '~' + Math.round(age * 365.25 * 86400 / 1e6) + 'M seconds ago  (+/- timezone)'));
+out.push(pad('bits',   age.toString(2).length + ' bits needed to represent you'));
+out.push('');
+out.push(DIV);
+out.push('');
+out.push(pad('from',   from  || '(anonymous)'));
+out.push(pad('to',     name));
+out.push(pad('status', 'EXECUTING'));
+out.push('');
+out.push(DIV);
+out.push('');
+out.push('  [[ device report ]]');
+out.push('');
+if (amount !== null) {
+  out.push(pad('device',  dev.label));
+  out.push(pad('power',   dev.watt + 'W continuous'));
+  out.push(pad('budget',  amount.toFixed(2) + ' EUR  (@  ' + KWH + ' EUR/kWh)'));
+  out.push(pad('runtime', fmtDays(days) + '  powered'));
+  out.push('');
+  out.push('  [[ all devices @ ' + amount.toFixed(2) + ' EUR ]]');
+  out.push('');
+  DEVICES.forEach(function(d) {
+    var dd   = (amount / KWH) / (d.watt * 24 / 1000);
+    var mark = d.id === dev.id ? ' <--' : '';
+    out.push(('  ' + d.label).padEnd(40) + d.watt + 'W   ' + fmtDays(dd).padEnd(14) + mark);
+  });
+} else {
+  out.push('  no amount specified.');
+  out.push('  add ?amount=XX to the URL to see device runtimes.');
+}
+out.push('');
+
+if (meme) {
+  out.push(SEP);
+  out.push('');
+  out.push('  [[ image ]]');
+  out.push('');
+}
+
+document.getElementById('top').textContent = out.join('\n');
+
+if (meme) {
+  var img  = document.getElementById('meme-img');
+  img.src  = meme;
+  img.alt  = 'meme';
+  img.style.display = '';
+}
+
+var bot = [];
+if (!meme) bot.push(SEP);
+bot.push('');
+bot.push(pad('generated', ts));
+bot.push(pad('url',       location.href.split('?')[0]));
+bot.push('');
+bot.push(SEP);
+bot.push('  hacked w/ <3 by bitcircus101.de');
+bot.push(SEP);
+
+document.getElementById('bot').textContent = bot.join('\n');
+</script>
+</body>
+</html>
