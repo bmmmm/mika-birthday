@@ -448,6 +448,7 @@
       <span class="output-token-val" id="output-token">—</span>
       <button class="output-token-copy" onclick="copyToken()">[ ⊕ copy ]</button>
     </div>
+    <div id="token-meme-note" style="display:none;padding:5px 16px 6px;font-family:var(--mono);font-size:9px;color:var(--text-dim);letter-spacing:0.06em;border-bottom:0.5px solid var(--border)">// image included — token will be longer; blob/local uploads cannot be encoded</div>
     <div class="output-actions">
       <button class="action-btn primary" onclick="openCard()">[ open card ]</button>
       <button class="action-btn" onclick="openPlain()">[ open plain ]</button>
@@ -491,6 +492,11 @@ var customizeMsg  = false;
 var PRICE_PER_KWH = SETTINGS.pricePerKwh;
 var DEVICES  = [];
 var MESSAGES = [];
+
+// token encoding: compact positional format  name|age|amount|from|themeCode|quoteCode|device
+// images are excluded — tokens are for text-only cards
+var TOKEN_THEME  = { simple:'s', light:'l', amber:'a', matrix:'m', blueprint:'b', paper:'p', neon:'n', dos:'o', brutalist:'r', ink:'i' };
+var TOKEN_QUOTE  = { sachlich:'s', nerd:'n', cli:'v', existentiell:'e', langweilig:'w', birthday_run:'b', git_log:'g', kernel_panic:'k', uptime:'u', '404':'4' };
 
 // ── message grid ─────────────────────────────────────────────────────────────
 function buildMsgGrid() {
@@ -650,9 +656,31 @@ function buildUrl(vals) {
 }
 
 function buildToken(cardUrl) {
-  var qs = cardUrl.split('?')[1] || '';
-  if (!qs) return '';
-  return btoa(qs).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+  var u  = new URL(cardUrl);
+  var sp = u.searchParams;
+  var name = sp.get('name') || '';
+  var age  = sp.get('age')  || '';
+  if (!name && !age) return '';
+
+  var amount = sp.get('amount') || '';
+  var from   = sp.get('from')   || '';
+  var theme  = TOKEN_THEME[sp.get('theme') || ''] || '';
+  var rawQ   = sp.get('quote') || '';
+  var quoteField = rawQ === 'custom'
+    ? '~' + (sp.get('text') || '')
+    : (TOKEN_QUOTE[rawQ] || '');
+  var device = sp.get('device') || '';
+  // blob: URLs are temporary browser objects and can't be encoded
+  var rawMeme = sp.get('meme') || '';
+  var meme    = (rawMeme && !rawMeme.startsWith('blob:')) ? encodeURIComponent(rawMeme) : '';
+
+  var fields = [name, age, amount, from, theme, quoteField, device, meme];
+  while (fields.length && fields[fields.length - 1] === '') fields.pop();
+
+  var raw = fields.join('|');
+  var b64 = btoa(unescape(encodeURIComponent(raw)))
+    .replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+  return b64.match(/.{1,4}/g).join('.');
 }
 
 function renderUrl(url) {
@@ -695,6 +723,8 @@ function update() {
   } else {
     tokenRow.style.display = 'none';
   }
+  var memeNote = document.getElementById('token-meme-note');
+  if (memeNote) memeNote.style.display = (token && vals.meme) ? '' : 'none';
 }
 
 function copyToken() {

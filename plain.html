@@ -17,7 +17,8 @@ body {
 pre {
   font-family: inherit;
   font-size: inherit;
-  white-space: pre;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
 }
 #meme-img {
   max-width: 72ch;
@@ -160,7 +161,11 @@ bot.push(pad('generated', ts));
 bot.push(pad('url',       location.href.split('?')[0]));
 bot.push('');
 bot.push(SEP);
-bot.push('  hacked w/ <3 by bitcircus101.de  //  plzzz donate kkthx -> bitcircus101.de/donations  //  github.com/bmmmm/mika-birthday');
+bot.push('');
+bot.push('  hacked w/ <3 by bitcircus101.de');
+bot.push('  plzzz donate kkthx  ->  bitcircus101.de/donations');
+bot.push('  source: github.com/bmmmm/mika-birthday');
+bot.push('');
 bot.push(SEP);
 
 document.getElementById('bot').textContent = bot.join('\n');
