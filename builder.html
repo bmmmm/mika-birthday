@@ -280,6 +280,19 @@
   .output-url .param-key { color: var(--text-dim); }
   .output-url .param-val { color: var(--text); }
 
+  .output-actions-wrap {
+    border-top: 0.5px solid var(--border);
+  }
+  .ui-scale-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 16px;
+    background: var(--surface);
+    border-bottom: 0.5px solid var(--border);
+  }
+  .ui-scale-bar .scale-label { flex-shrink: 0; }
+  .ui-scale-bar .scale-slider { flex: 1; margin: 0; }
   .output-actions { display: flex; gap: 0; }
 
   .action-btn {
@@ -535,16 +548,18 @@
         <div class="scale-label">card text scale <strong id="card-scale-val">100%</strong></div>
         <input type="range" class="scale-slider" id="card-scale" min="70" max="150" step="5" value="100">
       </div>
-      <div class="scale-field">
-        <div class="scale-label">builder UI scale <strong id="ui-scale-val">100%</strong></div>
+    </div>
+    <div class="output-actions-wrap">
+      <div class="ui-scale-bar">
+        <span class="scale-label">builder UI scale <strong id="ui-scale-val">100%</strong></span>
         <input type="range" class="scale-slider" id="ui-scale" min="75" max="135" step="5" value="100">
       </div>
-    </div>
-    <div class="output-actions">
-      <button class="action-btn primary" onclick="openCard()">[ open card ]</button>
-      <button class="action-btn" onclick="openPlain()">[ open plain ]</button>
-      <button class="action-btn" onclick="copyUrl()">[ copy URL ]</button>
-      <button class="action-btn" onclick="resetAll()">[ reset ]</button>
+      <div class="output-actions">
+        <button class="action-btn primary" onclick="openCard()">[ open card ]</button>
+        <button class="action-btn" onclick="openPlain()">[ open plain ]</button>
+        <button class="action-btn" onclick="copyUrl()">[ copy URL ]</button>
+        <button class="action-btn" onclick="resetAll()">[ reset ]</button>
+      </div>
     </div>
   </div>
 
