@@ -484,10 +484,19 @@ const THEMES = {
   ink:       { label: 'Ink',       vars: { '--bg': '#1a1410', '--surface': '#221c16', '--border': '#3a3028', '--text': '#e8d5b0', '--text-dim': '#9a8060', '--text-mid': '#c0a070' }, display: "'Arial Black', Impact, sans-serif",                mono: "'Courier New', Courier, monospace" },
 };
 
-var currentTheme  = 'dark';
+var currentTheme  = 'simple';
 var currentDevice = null;
 var currentQuote  = 'classic';
 var customizeMsg  = false;
+
+function applyTheme(id) {
+  var t = THEMES[id];
+  if (!t) return;
+  var root = document.documentElement;
+  Object.keys(t.vars).forEach(function (k) { root.style.setProperty(k, t.vars[k]); });
+  root.style.setProperty('--display', t.display);
+  root.style.setProperty('--mono', t.mono);
+}
 
 var PRICE_PER_KWH = SETTINGS.pricePerKwh;
 var DEVICES  = [];
@@ -554,6 +563,7 @@ function buildThemeGrid() {
       '<div class="theme-tile-name" style="color:' + t.vars['--text-mid'] + '">' + t.label + '</div>';
     tile.addEventListener('click', function () {
       currentTheme = id;
+      applyTheme(id);
       document.querySelectorAll('.theme-tile').forEach(function (el) { el.classList.remove('active'); });
       tile.classList.add('active');
       update();
@@ -758,15 +768,16 @@ function resetAll() {
   ['f-name', 'f-age', 'f-amount', 'f-from', 'f-meme'].forEach(function (id) {
     document.getElementById(id).value = '';
   });
-  currentTheme  = 'dark';
+  currentTheme  = 'simple';
   currentDevice = null;
   currentQuote  = 'classic';
   customizeMsg  = false;
+  applyTheme('simple');
   document.getElementById('f-customize').checked = false;
   document.getElementById('f-custom-text').style.display = 'none';
   document.getElementById('f-custom-text').value = '';
   document.querySelectorAll('.theme-tile').forEach(function (el) {
-    el.classList.toggle('active', el.dataset.themeId === 'dark');
+    el.classList.toggle('active', el.dataset.themeId === 'simple');
   });
   document.querySelectorAll('.msg-tile').forEach(function (el) {
     el.classList.toggle('active', el.dataset.msgId === 'classic');
@@ -801,6 +812,7 @@ document.getElementById('f-custom-text').addEventListener('input', update);
     console.warn('messages load failed:', e);
   }
   buildThemeGrid();
+  applyTheme(currentTheme);
   buildDeviceStrip();
   buildMsgGrid();
   update();
