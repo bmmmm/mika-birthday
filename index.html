@@ -27,9 +27,16 @@
     font-family: var(--display);
     min-height: 100vh;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     padding: 40px 20px;
+  }
+
+  .page-wrapper {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
   }
 
   .card {
@@ -421,6 +428,95 @@
   }
   .meme-container:hover .meme-change-hint { opacity: 1; }
 
+  /* ── SIDE PANEL ────────────────────────────────── */
+  .side-panel {
+    width: 240px;
+    flex-shrink: 0;
+    border: 0.5px solid var(--border);
+    background: var(--surface);
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-mid);
+  }
+  .side-panel-header {
+    border-bottom: 0.5px solid var(--border);
+    padding: 8px 14px;
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 0.08em;
+    background: var(--bg);
+  }
+  .side-panel-body {
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .cfg-field {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .cfg-label {
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+  }
+  .cfg-input {
+    background: var(--bg);
+    border: 0.5px solid var(--border);
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 11px;
+    padding: 5px 8px;
+    width: 100%;
+    outline: none;
+  }
+  .cfg-input:focus { border-color: var(--text-mid); }
+  .cfg-themes {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px;
+  }
+  .cfg-theme-btn {
+    border: 0.5px solid var(--border);
+    padding: 5px 6px;
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    text-align: left;
+    transition: border-color 0.1s;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .cfg-theme-btn.active {
+    border-color: var(--text);
+    color: var(--text);
+  }
+  .cfg-theme-btn:hover { border-color: var(--text-mid); }
+  .cfg-apply {
+    background: var(--bg);
+    border: 0.5px solid var(--border);
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 11px;
+    padding: 7px 10px;
+    cursor: pointer;
+    text-align: left;
+    letter-spacing: 0.04em;
+    width: 100%;
+    margin-top: 4px;
+  }
+  .cfg-apply:hover { border-color: var(--text-mid); }
+  .cfg-divider {
+    border: none;
+    border-top: 0.5px solid var(--border);
+    margin: 2px 0;
+  }
+
   /* ── ATTRIBUTION ───────────────────────────────── */
   .attribution {
     font-family: var(--mono);
@@ -454,7 +550,7 @@
       --text-dim: #aaa;
       --text-mid: #555;
     }
-    .share-row, .btn, .toast, .attribution { display: none !important; }
+    .share-row, .btn, .toast, .attribution, .side-panel { display: none !important; }
     .cursor::after { display: none !important; }
     .card { width: 100%; border: 0.5px solid #ccc; }
     .body { padding: 32px 40px; margin: 12px; }
@@ -465,6 +561,7 @@
 </head>
 <body>
 
+<div class="page-wrapper">
 <div class="card">
 
   <div class="meta-bar">
@@ -564,6 +661,36 @@
   </div>
 
 </div>
+
+<div class="side-panel" id="side-panel">
+  <div class="side-panel-header">// config.sh</div>
+  <div class="side-panel-body">
+    <div class="cfg-field">
+      <div class="cfg-label">name</div>
+      <input class="cfg-input" id="cfg-name" type="text" spellcheck="false">
+    </div>
+    <div class="cfg-field">
+      <div class="cfg-label">age</div>
+      <input class="cfg-input" id="cfg-age" type="number" min="0" max="999">
+    </div>
+    <div class="cfg-field">
+      <div class="cfg-label">amount (€)</div>
+      <input class="cfg-input" id="cfg-amount" type="number" min="0" step="0.01" placeholder="—">
+    </div>
+    <div class="cfg-field">
+      <div class="cfg-label">from</div>
+      <input class="cfg-input" id="cfg-from" type="text" spellcheck="false">
+    </div>
+    <hr class="cfg-divider">
+    <div class="cfg-field">
+      <div class="cfg-label">theme</div>
+      <div class="cfg-themes" id="cfg-themes"></div>
+    </div>
+    <button class="cfg-apply" onclick="applyConfig()">[ apply changes ]</button>
+  </div>
+</div>
+
+</div><!-- /.page-wrapper -->
 
 <div class="attribution">
   // hacked w/ ♥ by <a href="https://bitcircus101.de" target="_blank">bitcircus101.de</a>
@@ -848,7 +975,67 @@ function copyLink() {
   });
 }
 
-// ── meme picker ────────────────────────────────────────────────────────────
+// ── side panel ─────────────────────────────────────────────────────────────
+var _cfgTheme = 'dark';
+
+function setupSidePanel() {
+  var p = getParams();
+  if (p.locked) {
+    document.getElementById('side-panel').style.display = 'none';
+    return;
+  }
+  _cfgTheme = p.theme || 'dark';
+
+  document.getElementById('cfg-name').value   = p.name;
+  document.getElementById('cfg-age').value    = p.age;
+  document.getElementById('cfg-amount').value = p.amount !== null ? p.amount : '';
+  document.getElementById('cfg-from').value   = p.from || '';
+
+  var grid = document.getElementById('cfg-themes');
+  grid.innerHTML = '';
+  var visible = Object.keys(THEMES).filter(function (k) { return k !== 'uwu'; });
+  visible.forEach(function (key) {
+    var t   = THEMES[key];
+    var btn = document.createElement('button');
+    var isActive    = key === _cfgTheme;
+    btn.className   = 'cfg-theme-btn' + (isActive ? ' active' : '');
+    if (isActive) btn.style.outline = '1.5px solid ' + t.vars['--text'];
+    btn.textContent = t.label || key;
+    btn.style.background = t.vars['--bg'];
+    btn.style.color      = t.vars['--text'];
+    btn.style.fontFamily = t.mono;
+    btn.addEventListener('click', function () {
+      _cfgTheme = key;
+      applyTheme(key);
+      grid.querySelectorAll('.cfg-theme-btn').forEach(function (b) {
+        b.classList.toggle('active', b === btn);
+        b.style.outline = b === btn ? '1.5px solid ' + t.vars['--text'] : '';
+      });
+    });
+    grid.appendChild(btn);
+  });
+}
+
+function applyConfig() {
+  var url    = new URL(window.location.href);
+  var name   = document.getElementById('cfg-name').value.trim() || 'Mika';
+  var age    = parseInt(document.getElementById('cfg-age').value, 10);
+  var amount = document.getElementById('cfg-amount').value.trim();
+  var from   = document.getElementById('cfg-from').value.trim();
+
+  url.searchParams.set('name', name);
+  url.searchParams.set('age',  isNaN(age) ? '30' : String(age));
+  if (amount) url.searchParams.set('amount', amount);
+  else        url.searchParams.delete('amount');
+  if (from)   url.searchParams.set('from', from);
+  else        url.searchParams.delete('from');
+  if (_cfgTheme && _cfgTheme !== 'dark') url.searchParams.set('theme', _cfgTheme);
+  else                                   url.searchParams.delete('theme');
+  url.searchParams.delete('locked');
+  window.location.href = url.toString();
+}
+
+// ── meme picker ─────────────────────────────────────────────────────────────
 function openMemePicker() {
   document.getElementById('meme-picker-overlay').style.display = 'flex';
   var saved = sessionStorage.getItem('giphyKey') || '';
@@ -983,6 +1170,7 @@ function setupMemeUpload() {
 
 render();
 setupMemeUpload();
+setupSidePanel();
 </script>
 </body>
 </html>
