@@ -1009,10 +1009,7 @@
             <img id="stage-img" src="" alt="">
           </div>
           <div class="upload-stage-info" id="stage-info"></div>
-          <div class="upload-stage-actions">
-            <button class="upload-action-btn" id="stage-print-btn">[ ⎙ print only ]</button>
-            <button class="upload-action-btn primary" id="stage-compress-btn">[ ⊕ compress for link ]</button>
-          </div>
+          <div class="upload-stage-actions" id="stage-actions"></div>
         </div>
 
         <!-- step 3: compress result -->
@@ -1659,6 +1656,20 @@ function resetUploadStage() {
   _stageFile = null;
 }
 
+function embedDirectly(file) {
+  var reader = new FileReader();
+  reader.onload = function (e) {
+    var dataUrl = e.target.result;
+    var u = new URL(window.location.href);
+    u.searchParams.set('meme', dataUrl);
+    history.replaceState(null, '', u.toString());
+    resetUploadStage();
+    render(); setupSidePanel();
+    closeMemePicker();
+  };
+  reader.readAsDataURL(file);
+}
+
 function showStage(file) {
   _stageFile = file;
   if (_stageBlobUrl) URL.revokeObjectURL(_stageBlobUrl);
@@ -1666,15 +1677,41 @@ function showStage(file) {
 
   document.getElementById('stage-img').src = _stageBlobUrl;
 
-  var sizeTxt = fmtBytes(file.size);
+  var sizeTxt    = fmtBytes(file.size);
   var embeddable = file.size < EMBED_LIMIT;
   document.getElementById('stage-info').innerHTML =
     '<span>file: ' + esc(file.name) + '</span><br>' +
     '<span>size: ' + sizeTxt + ' — ' +
     (embeddable
-      ? '<span class="ok">fits in link without compression</span>'
-      : '<span class="warn">too large for link — compress or print only</span>') +
+      ? '<span class="ok">fits in link — can embed directly</span>'
+      : '<span class="warn">too large for link — compress or use print only</span>') +
     '</span>';
+
+  var actionsEl = document.getElementById('stage-actions');
+  actionsEl.innerHTML = '';
+
+  var printBtn = document.createElement('button');
+  printBtn.className   = 'upload-action-btn';
+  printBtn.textContent = '[ ⎙ print only ]';
+  printBtn.addEventListener('click', function () {
+    if (_stageBlobUrl) selectMeme(_stageBlobUrl, (_stageFile ? _stageFile.name : 'image') + ' (print only)');
+    resetUploadStage();
+  });
+  actionsEl.appendChild(printBtn);
+
+  if (embeddable) {
+    var embedBtn = document.createElement('button');
+    embedBtn.className   = 'upload-action-btn primary';
+    embedBtn.textContent = '[ ↗ embed in link ]';
+    embedBtn.addEventListener('click', function () { embedDirectly(file); });
+    actionsEl.appendChild(embedBtn);
+  } else {
+    var compressBtn = document.createElement('button');
+    compressBtn.className   = 'upload-action-btn primary';
+    compressBtn.textContent = '[ ⊕ compress for link ]';
+    compressBtn.addEventListener('click', compressAndShow);
+    actionsEl.appendChild(compressBtn);
+  }
 
   document.getElementById('upload-drop').style.display  = 'none';
   document.getElementById('upload-stage').style.display = '';
@@ -1753,12 +1790,6 @@ document.getElementById('file-input').addEventListener('change', function (e) {
   e.target.value = '';
   showStage(file);
 });
-document.getElementById('stage-print-btn').addEventListener('click', function () {
-  if (_stageBlobUrl) selectMeme(_stageBlobUrl, (_stageFile ? _stageFile.name : 'image') + ' (print only)');
-  resetUploadStage();
-});
-document.getElementById('stage-compress-btn').addEventListener('click', compressAndShow);
-
 // url tab
 document.getElementById('url-load-btn').addEventListener('click', function () {
   var url = document.getElementById('meme-url-input').value.trim();
