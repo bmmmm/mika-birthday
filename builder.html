@@ -131,9 +131,8 @@
     color: var(--text-dim);
     letter-spacing: 0.04em;
     margin-bottom: 4px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    overflow-wrap: break-word;
+    word-break: break-word;
   }
   .device-tile.active .device-tile-name,
   .device-tile.pinned .device-tile-name { color: var(--text-mid); }
