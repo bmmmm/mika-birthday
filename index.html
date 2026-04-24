@@ -807,9 +807,10 @@
       <textarea class="cfg-msg-textarea" id="cfg-custom-text" style="display:none" placeholder="write your own...&#10;use {name}, {age}, {binary}, {hex}"></textarea>
     </div>
     <hr class="cfg-divider">
-    <button class="cfg-apply" onclick="copyLink()">[ copy shareable link ]</button>
-    <button class="cfg-apply" onclick="window.print()">[ print / save as PDF ]</button>
-    <button class="cfg-apply" onclick="applyConfig()">[ apply changes ]</button>
+    <button class="cfg-apply" onclick="copyLink()">[ share card ]</button>
+    <button class="cfg-apply" onclick="copyEditorLink()">[ share editor ]</button>
+    <button class="cfg-apply" onclick="window.print()">[ print card ]</button>
+    <div style="font-size:9px;color:var(--text-dim);font-family:var(--mono);margin-top:2px">// QR code auto-included on print/PDF</div>
   </div>
 </div>
 <div class="toast" id="toast">// link copied to clipboard</div>
@@ -1122,10 +1123,23 @@ function buildShareUrl() {
 
 function copyLink() {
   navigator.clipboard.writeText(buildShareUrl()).then(function () {
-    var t = document.getElementById('toast');
-    t.classList.add('show');
-    setTimeout(function () { t.classList.remove('show'); }, 2500);
+    showToast('// card link copied');
   });
+}
+
+function copyEditorLink() {
+  var u = new URL(buildShareUrl());
+  u.searchParams.delete('locked');
+  navigator.clipboard.writeText(u.toString()).then(function () {
+    showToast('// editor link copied');
+  });
+}
+
+function showToast(msg) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(function () { t.classList.remove('show'); }, 2500);
 }
 
 // ── side panel ─────────────────────────────────────────────────────────────
@@ -1432,6 +1446,16 @@ function setupMemeUpload() {
   render();
   setupMemeUpload();
   setupSidePanel();
+
+  // live-update text inputs with debounce (themes/devices already update instantly)
+  var _applyTimer = null;
+  ['cfg-name', 'cfg-age', 'cfg-amount', 'cfg-from'].forEach(function (id) {
+    var el = document.getElementById(id);
+    if (el) el.addEventListener('input', function () {
+      clearTimeout(_applyTimer);
+      _applyTimer = setTimeout(applyConfig, 400);
+    });
+  });
 })();
 </script>
 </body>
