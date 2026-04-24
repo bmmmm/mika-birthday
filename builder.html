@@ -115,6 +115,7 @@
     cursor: pointer;
     transition: background 0.12s;
     user-select: none;
+    min-width: 0;
   }
   .device-tile:hover { background: var(--surface); }
   .device-tile.active { background: var(--surface); }
@@ -130,6 +131,9 @@
     color: var(--text-dim);
     letter-spacing: 0.04em;
     margin-bottom: 4px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
   .device-tile.active .device-tile-name,
   .device-tile.pinned .device-tile-name { color: var(--text-mid); }
