@@ -1084,7 +1084,7 @@ function getParams() {
     amount: rawAmount !== null && rawAmount.trim() !== '' && !isNaN(parseFloat(rawAmount)) ? parseFloat(rawAmount) : null,
     meme:   p.get('meme')  || null,
     from:   p.get('from')  || null,
-    age:    rawAge !== null ? (parseInt(rawAge, 10) || 30) : 30,
+    age:    rawAge !== null ? (isNaN(parseInt(rawAge, 10)) ? 30 : parseInt(rawAge, 10)) : 30,
     theme:      p.get('theme')  || 'dark',
     locked:     p.get('locked') === '1',
     device:     p.get('device') || null,
@@ -1250,11 +1250,13 @@ function render() {
       hint.addEventListener('click', openMemePicker);
       container.appendChild(hint);
 
-      const rmBtn     = document.createElement('button');
-      rmBtn.className = 'meme-remove-btn';
-      rmBtn.textContent = '[ ✕ remove ]';
-      rmBtn.addEventListener('click', function (e) { e.stopPropagation(); removeMeme(); });
-      container.appendChild(rmBtn);
+      if (meme) {
+        const rmBtn     = document.createElement('button');
+        rmBtn.className = 'meme-remove-btn';
+        rmBtn.textContent = '[ ✕ remove ]';
+        rmBtn.addEventListener('click', function (e) { e.stopPropagation(); removeMeme(); });
+        container.appendChild(rmBtn);
+      }
     }
   }
 
@@ -1418,8 +1420,8 @@ function setupSidePanel() {
   }
   _cfgTheme     = p.theme  || 'dark';
   _cfgDevice    = p.device || null;
-  _cfgQuote     = p.quote  || 'classic';
   _cfgCustomize = p.quote === 'custom';
+  _cfgQuote     = (_cfgCustomize || !p.quote) ? (_cfgQuote || 'classic') : p.quote;
 
   document.getElementById('cfg-name').value   = p.name;
   document.getElementById('cfg-age').value    = p.age;
@@ -1548,8 +1550,9 @@ function applyConfig() {
   else            url.searchParams.delete('device');
   if (_cfgCustomize) {
     var ct = document.getElementById('cfg-custom-text').value.trim();
-    if (ct) { url.searchParams.set('quote', 'custom'); url.searchParams.set('text', ct); }
-    else    { url.searchParams.delete('quote'); url.searchParams.delete('text'); }
+    url.searchParams.set('quote', 'custom');
+    if (ct) url.searchParams.set('text', ct);
+    else    url.searchParams.delete('text');
   } else {
     if (_cfgQuote && _cfgQuote !== 'classic') url.searchParams.set('quote', _cfgQuote);
     else url.searchParams.delete('quote');
@@ -1610,6 +1613,12 @@ function selectMeme(src, label) {
     hint.textContent = '[ click to change ]';
     hint.addEventListener('click', openMemePicker);
     container.appendChild(hint);
+
+    var rmBtn     = document.createElement('button');
+    rmBtn.className = 'meme-remove-btn';
+    rmBtn.textContent = '[ ✕ remove ]';
+    rmBtn.addEventListener('click', function (e) { e.stopPropagation(); removeMeme(); });
+    container.appendChild(rmBtn);
   }
 
   placeholder.style.display = 'none';
