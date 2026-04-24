@@ -5,8 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Birthday Card Builder</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;700&family=Playfair+Display:wght@700;900&family=Share+Tech+Mono&family=Syne:wght@400;600;700;800&family=Unbounded:wght@700;900&family=VT323&display=swap');
-
   :root {
     --bg: #0d0d0d;
     --surface: #141414;
@@ -16,8 +14,8 @@
     --text-dim: #444;
     --text-mid: #888;
     --accent: #e8e8e6;
-    --mono: 'Courier Prime', 'Courier New', monospace;
-    --display: 'Syne', sans-serif;
+    --mono: 'Courier New', Courier, monospace;
+    --display: system-ui, -apple-system, 'Segoe UI', sans-serif;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -379,6 +377,7 @@
     <div class="output-url" id="output-url">—</div>
     <div class="output-actions">
       <button class="action-btn primary" onclick="openCard()">[ open card ]</button>
+      <button class="action-btn" onclick="openPlain()">[ open plain ]</button>
       <button class="action-btn" onclick="copyUrl()">[ copy URL ]</button>
       <button class="action-btn" onclick="resetAll()">[ reset ]</button>
     </div>
@@ -391,16 +390,17 @@
 <script src="config.js"></script>
 <script>
 const THEMES = {
-  dark:      { label: 'Dark',      vars: { '--bg': '#0d0d0d', '--surface': '#141414', '--border': '#2a2a2a', '--text': '#e8e8e6', '--text-dim': '#444',    '--text-mid': '#888'    }, display: "'Syne', sans-serif",               mono: "'Courier Prime', monospace"   },
-  light:     { label: 'Light',     vars: { '--bg': '#f8f8f6', '--surface': '#f0f0ee', '--border': '#d8d8d6', '--text': '#111110', '--text-dim': '#bbb',    '--text-mid': '#666'    }, display: "'Syne', sans-serif",               mono: "'Courier Prime', monospace"   },
-  amber:     { label: 'Amber',     vars: { '--bg': '#0c0700', '--surface': '#150d00', '--border': '#2a1e00', '--text': '#d4870a', '--text-dim': '#3d2600', '--text-mid': '#7a5500' }, display: "'Syne', sans-serif",               mono: "'Courier Prime', monospace"   },
-  matrix:    { label: 'Matrix',    vars: { '--bg': '#000000', '--surface': '#001200', '--border': '#003800', '--text': '#00e840', '--text-dim': '#004010', '--text-mid': '#00a030' }, display: "'Share Tech Mono', monospace",      mono: "'Share Tech Mono', monospace" },
-  blueprint: { label: 'Blueprint', vars: { '--bg': '#001830', '--surface': '#00203e', '--border': '#1a3a5c', '--text': '#a8d4f0', '--text-dim': '#1a3a5c', '--text-mid': '#4a88b8' }, display: "'Syne', sans-serif",               mono: "'IBM Plex Mono', monospace"   },
-  paper:     { label: 'Paper',     vars: { '--bg': '#f5f0e8', '--surface': '#ede8de', '--border': '#c8bfaa', '--text': '#2c2418', '--text-dim': '#b8aa90', '--text-mid': '#7a6a54' }, display: "'Playfair Display', Georgia, serif", mono: "'Courier Prime', monospace" },
-  neon:      { label: 'Neon',      vars: { '--bg': '#07000f', '--surface': '#0e0018', '--border': '#2d0045', '--text': '#ff2d78', '--text-dim': '#5a003a', '--text-mid': '#ff85b0' }, display: "'Syne', sans-serif",               mono: "'Courier Prime', monospace"   },
-  dos:       { label: 'DOS',       vars: { '--bg': '#000080', '--surface': '#0000aa', '--border': '#5555ff', '--text': '#ffffff', '--text-dim': '#5555ff', '--text-mid': '#aaaaaa' }, display: "'VT323', monospace",                mono: "'VT323', monospace"           },
-  brutalist: { label: 'Brutalist', vars: { '--bg': '#ffffff', '--surface': '#f0f0f0', '--border': '#000000', '--text': '#000000', '--text-dim': '#999999', '--text-mid': '#333333' }, display: "'Archivo Black', sans-serif",       mono: "'Courier Prime', monospace"   },
-  ink:       { label: 'Ink',       vars: { '--bg': '#1a1410', '--surface': '#221c16', '--border': '#3a3028', '--text': '#e8d5b0', '--text-dim': '#4a3c2c', '--text-mid': '#8a7258' }, display: "'Unbounded', sans-serif",           mono: "'Courier Prime', monospace"   },
+  simple:    { label: 'Simple',    vars: { '--bg': '#ffffff', '--surface': '#f7f7f7', '--border': '#e2e2e2', '--text': '#1a1a1a', '--text-dim': '#c0c0c0', '--text-mid': '#777'    }, display: "system-ui, -apple-system, 'Segoe UI', sans-serif", mono: "'Courier New', Courier, monospace" },
+  dark:      { label: 'Dark',      vars: { '--bg': '#0d0d0d', '--surface': '#141414', '--border': '#2a2a2a', '--text': '#e8e8e6', '--text-dim': '#444',    '--text-mid': '#888'    }, display: "system-ui, -apple-system, 'Segoe UI', sans-serif", mono: "'Courier New', Courier, monospace" },
+  light:     { label: 'Light',     vars: { '--bg': '#f8f8f6', '--surface': '#f0f0ee', '--border': '#d8d8d6', '--text': '#111110', '--text-dim': '#bbb',    '--text-mid': '#666'    }, display: "system-ui, -apple-system, 'Segoe UI', sans-serif", mono: "'Courier New', Courier, monospace" },
+  amber:     { label: 'Amber',     vars: { '--bg': '#0c0700', '--surface': '#150d00', '--border': '#2a1e00', '--text': '#d4870a', '--text-dim': '#3d2600', '--text-mid': '#7a5500' }, display: "system-ui, -apple-system, 'Segoe UI', sans-serif", mono: "'Courier New', Courier, monospace" },
+  matrix:    { label: 'Matrix',    vars: { '--bg': '#000000', '--surface': '#001200', '--border': '#003800', '--text': '#00e840', '--text-dim': '#004010', '--text-mid': '#00a030' }, display: "monospace",                                         mono: "monospace"                         },
+  blueprint: { label: 'Blueprint', vars: { '--bg': '#001830', '--surface': '#00203e', '--border': '#1a3a5c', '--text': '#a8d4f0', '--text-dim': '#1a3a5c', '--text-mid': '#4a88b8' }, display: "system-ui, -apple-system, 'Segoe UI', sans-serif", mono: "'Courier New', Courier, monospace" },
+  paper:     { label: 'Paper',     vars: { '--bg': '#f5f0e8', '--surface': '#ede8de', '--border': '#c8bfaa', '--text': '#2c2418', '--text-dim': '#b8aa90', '--text-mid': '#7a6a54' }, display: "Georgia, 'Times New Roman', serif",                mono: "'Courier New', Courier, monospace" },
+  neon:      { label: 'Neon',      vars: { '--bg': '#07000f', '--surface': '#0e0018', '--border': '#2d0045', '--text': '#ff2d78', '--text-dim': '#5a003a', '--text-mid': '#ff85b0' }, display: "system-ui, -apple-system, 'Segoe UI', sans-serif", mono: "'Courier New', Courier, monospace" },
+  dos:       { label: 'DOS',       vars: { '--bg': '#000080', '--surface': '#0000aa', '--border': '#5555ff', '--text': '#ffffff', '--text-dim': '#5555ff', '--text-mid': '#aaaaaa' }, display: "monospace",                                         mono: "monospace"                         },
+  brutalist: { label: 'Brutalist', vars: { '--bg': '#ffffff', '--surface': '#f0f0f0', '--border': '#000000', '--text': '#000000', '--text-dim': '#999999', '--text-mid': '#333333' }, display: "'Arial Black', Impact, sans-serif",                mono: "'Courier New', Courier, monospace" },
+  ink:       { label: 'Ink',       vars: { '--bg': '#1a1410', '--surface': '#221c16', '--border': '#3a3028', '--text': '#e8d5b0', '--text-dim': '#4a3c2c', '--text-mid': '#8a7258' }, display: "'Arial Black', Impact, sans-serif",                mono: "'Courier New', Courier, monospace" },
 };
 
 var currentTheme = 'dark';
@@ -521,6 +521,14 @@ function update() {
 function openCard() {
   var vals = getValues();
   window.open(buildUrl(vals), '_blank');
+}
+
+function openPlain() {
+  var vals = getValues();
+  var url  = buildUrl(vals).replace(/\/index\.html/, '/plain.html');
+  var u    = new URL(url);
+  u.searchParams.delete('theme');
+  window.open(u.toString(), '_blank');
 }
 
 function copyUrl() {
