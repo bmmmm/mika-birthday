@@ -351,6 +351,30 @@
   .upload-drop-area .drop-icon { font-size: 28px; opacity: 0.35; }
   .upload-drop-area p { font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em; }
 
+  /* staged upload */
+  .upload-stage-preview { display: flex; justify-content: center; padding: 12px 0 8px; }
+  .upload-stage-preview img { max-width: 100%; max-height: 140px; object-fit: contain; border: 0.5px solid var(--border); display: block; }
+  .upload-stage-info { font-family: var(--mono); font-size: 10px; color: var(--text-dim); letter-spacing: 0.06em; padding: 4px 0 10px; line-height: 1.8; }
+  .upload-stage-info .ok   { color: #4caf50; }
+  .upload-stage-info .warn { color: #e05555; }
+  .upload-stage-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .upload-stage-sep { border: none; border-top: 0.5px solid var(--border); margin: 14px 0; }
+  .upload-action-btn {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    background: var(--bg);
+    color: var(--text-mid);
+    border: 0.5px solid var(--border);
+    padding: 8px 14px;
+    cursor: pointer;
+    transition: color 0.1s, border-color 0.1s;
+    white-space: nowrap;
+  }
+  .upload-action-btn:hover { color: var(--text); border-color: var(--text-mid); }
+  .upload-action-btn.primary { color: var(--text); border-color: var(--text-mid); }
+  .upload-action-btn.danger:hover { color: #e05555; border-color: #e05555; }
+
   .url-row { display: flex; gap: 8px; }
 
   .meme-input {
@@ -978,12 +1002,34 @@
           <p style="opacity:0.45;margin-top:2px">jpg · png · gif · webp</p>
         </div>
         <input type="file" id="file-input" accept="image/*" style="display:none">
+
+        <!-- step 2: staged preview -->
+        <div id="upload-stage" style="display:none">
+          <div class="upload-stage-preview">
+            <img id="stage-img" src="" alt="">
+          </div>
+          <div class="upload-stage-info" id="stage-info"></div>
+          <div class="upload-stage-actions">
+            <button class="upload-action-btn" id="stage-print-btn">[ ⎙ print only ]</button>
+            <button class="upload-action-btn primary" id="stage-compress-btn">[ ⊕ compress for link ]</button>
+          </div>
+        </div>
+
+        <!-- step 3: compress result -->
+        <div id="compress-result" style="display:none">
+          <hr class="upload-stage-sep">
+          <div class="upload-stage-preview">
+            <img id="compress-img" src="" alt="">
+          </div>
+          <div class="upload-stage-info" id="compress-info"></div>
+          <div class="upload-stage-actions" id="compress-actions"></div>
+        </div>
       </div>
       <!-- url -->
       <div id="tab-url" style="display:none">
         <div class="url-row">
           <input class="meme-input" id="meme-url-input" type="text" placeholder="https://example.com/meme.jpg">
-          <button class="btn primary" id="url-load-btn">[ load ]</button>
+          <button class="upload-action-btn primary" id="url-load-btn">[ load ]</button>
         </div>
       </div>
       <!-- gif search (Giphy) -->
@@ -994,7 +1040,7 @@
         </div>
         <div class="giphy-search-row">
           <input class="meme-input" id="giphy-search-input" type="text" placeholder="birthday meme...">
-          <button class="btn primary" id="giphy-search-btn">[ search ]</button>
+          <button class="upload-action-btn primary" id="giphy-search-btn">[ search ]</button>
         </div>
         <div id="giphy-results"><div class="giphy-status">// enter API key + search term</div></div>
       </div>
@@ -1182,7 +1228,11 @@ function render() {
 
   // meme / device photo
   const memeOrDevice = meme || (device.img ? device.img : null);
-  const memeLabel    = meme ? meme : (device.img ? '// device: ' + device.shortName : '\u2014');
+  const memeLabel    = meme
+    ? (meme.startsWith('data:') ? 'data: (compressed image, embedded)'
+      : meme.startsWith('blob:') ? 'blob: (local file, print only)'
+      : meme)
+    : (device.img ? '// device: ' + device.shortName : '\u2014');
   document.getElementById('meme-label').textContent = '[ img_src: ' + memeLabel + ' ]';
   if (memeOrDevice) {
     const placeholder = document.getElementById('meme-placeholder');
@@ -1289,6 +1339,7 @@ var THEME_PLACEHOLDERS = {
   dos:       { icon: 'C:\\>', line1: 'IMAGE NOT FOUND', line2: 'press any key...' },
   brutalist: { icon: '■', line1: 'NO IMAGE.',           line2: 'CLICK TO ADD ONE.' },
   ink:       { icon: '◎', line1: 'image goes here',     line2: 'click to add' },
+  uwu:       { icon: '♡', line1: 'drop ur cutest pic',  line2: 'OwO whats this?' },
 };
 var TOKEN_QUOTE = { sachlich:'s', nerd:'n', cli:'v', existentiell:'e', langweilig:'w', birthday_run:'b', git_log:'g', kernel_panic:'k', uptime:'u', '404':'4' };
 
@@ -1306,7 +1357,7 @@ function buildToken() {
     : (TOKEN_QUOTE[rawQ] || '');
   var device  = p.device || '';
   var rawMeme = p.meme || '';
-  var meme    = (rawMeme && !rawMeme.startsWith('blob:')) ? encodeURIComponent(rawMeme) : '';
+  var meme    = (rawMeme && !rawMeme.startsWith('blob:') && !rawMeme.startsWith('data:')) ? encodeURIComponent(rawMeme) : '';
   var fields  = [name, age, amount, from, theme, quoteField, device, meme];
   while (fields.length && fields[fields.length - 1] === '') fields.pop();
   var raw = fields.join('|');
@@ -1316,10 +1367,14 @@ function buildToken() {
 }
 
 function updateTokenDisplay() {
+  var p   = getParams();
   var tok = buildToken();
   var val = tok || '—';
+  var suffix = '';
+  if (p.meme && p.meme.startsWith('data:')) suffix = ' ⚠ embedded image — use share link';
+  else if (p.meme && p.meme.startsWith('blob:')) suffix = ' ⚠ local file — print only';
   var a = document.getElementById('bottom-token-val');
-  if (a) a.textContent = val;
+  if (a) a.textContent = val + suffix;
 }
 
 function copyToken() {
@@ -1356,6 +1411,7 @@ var _cfgTheme     = 'dark';
 var _cfgDevice    = null;
 var _cfgQuote     = 'classic';
 var _cfgCustomize = false;
+var _sidePanelBound = false;
 
 function setupSidePanel() {
   var p = getParams();
@@ -1403,10 +1459,17 @@ function setupSidePanel() {
   var deviceGrid = document.getElementById('cfg-devices');
   if (deviceGrid) {
     renderDeviceTiles(p.amount);
-    document.getElementById('cfg-amount').addEventListener('input', function () {
-      var amt = parseFloat(this.value);
-      renderDeviceTiles(isNaN(amt) ? null : amt);
-    });
+    if (!_sidePanelBound) {
+      document.getElementById('cfg-amount').addEventListener('input', function () {
+        var amt = parseFloat(this.value);
+        renderDeviceTiles(isNaN(amt) ? null : amt);
+      });
+      document.getElementById('cfg-custom-text').addEventListener('input', function () {
+        clearTimeout(_applyTimer);
+        _applyTimer = setTimeout(applyConfig, 400);
+      });
+      _sidePanelBound = true;
+    }
   }
 
   // message tiles
@@ -1439,8 +1502,9 @@ function setupSidePanel() {
     customTextEl.style.display      = _cfgCustomize ? '' : 'none';
     if (_cfgCustomize && p.customText) customTextEl.value = p.customText;
     customizeEl.onchange = function () {
-      _cfgCustomize          = this.checked;
+      _cfgCustomize = this.checked;
       customTextEl.style.display = _cfgCustomize ? '' : 'none';
+      applyConfig();
     };
   }
 }
@@ -1517,6 +1581,7 @@ function openMemePicker() {
 }
 
 function closeMemePicker() {
+  resetUploadStage();
   document.getElementById('meme-picker-overlay').style.display = 'none';
 }
 
@@ -1533,7 +1598,7 @@ function selectMeme(src, label) {
   var container   = document.querySelector('.meme-container');
   var placeholder = document.getElementById('meme-placeholder');
 
-  container.querySelectorAll('.meme-img, .meme-change-hint').forEach(function (el) { el.remove(); });
+  container.querySelectorAll('.meme-img, .meme-change-hint, .meme-remove-btn').forEach(function (el) { el.remove(); });
 
   var img       = document.createElement('img');
   img.className = 'meme-img';
@@ -1575,14 +1640,124 @@ document.addEventListener('keydown', function (e) {
   if (e.key === 'Escape') closeMemePicker();
 });
 
-// upload tab
+// upload tab — staged compression flow
+var _stageFile    = null;
+var _stageBlobUrl = null;
+var EMBED_LIMIT   = 150 * 1024; // 150 KB data-URL length threshold
+
+function fmtBytes(n) {
+  if (n >= 1024 * 1024) return (n / 1024 / 1024).toFixed(1) + ' MB';
+  if (n >= 1024)        return Math.round(n / 1024) + ' KB';
+  return n + ' B';
+}
+
+function resetUploadStage() {
+  if (_stageBlobUrl) { URL.revokeObjectURL(_stageBlobUrl); _stageBlobUrl = null; }
+  document.getElementById('upload-drop').style.display  = '';
+  document.getElementById('upload-stage').style.display = 'none';
+  document.getElementById('compress-result').style.display = 'none';
+  _stageFile = null;
+}
+
+function showStage(file) {
+  _stageFile = file;
+  if (_stageBlobUrl) URL.revokeObjectURL(_stageBlobUrl);
+  _stageBlobUrl = URL.createObjectURL(file);
+
+  document.getElementById('stage-img').src = _stageBlobUrl;
+
+  var sizeTxt = fmtBytes(file.size);
+  var embeddable = file.size < EMBED_LIMIT;
+  document.getElementById('stage-info').innerHTML =
+    '<span>file: ' + esc(file.name) + '</span><br>' +
+    '<span>size: ' + sizeTxt + ' — ' +
+    (embeddable
+      ? '<span class="ok">fits in link without compression</span>'
+      : '<span class="warn">too large for link — compress or print only</span>') +
+    '</span>';
+
+  document.getElementById('upload-drop').style.display  = 'none';
+  document.getElementById('upload-stage').style.display = '';
+  document.getElementById('compress-result').style.display = 'none';
+}
+
+function compressAndShow() {
+  if (!_stageFile) return;
+  var MAX_DIM = 400, QUALITY = 0.35;
+  var reader  = new FileReader();
+  document.getElementById('compress-info').innerHTML = '<span style="color:var(--text-dim)">// compressing…</span>';
+  document.getElementById('compress-actions').innerHTML = '';
+  document.getElementById('compress-result').style.display = '';
+
+  reader.onload = function (e) {
+    var img  = new Image();
+    img.onload = function () {
+      var w = img.width, h = img.height;
+      if (w > MAX_DIM || h > MAX_DIM) {
+        if (w > h) { h = Math.round(h * MAX_DIM / w); w = MAX_DIM; }
+        else       { w = Math.round(w * MAX_DIM / h); h = MAX_DIM; }
+      }
+      var canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      var dataUrl = canvas.toDataURL('image/jpeg', QUALITY);
+      var approxBytes = Math.round(dataUrl.length * 0.75);
+
+      document.getElementById('compress-img').src = dataUrl;
+
+      var fits = dataUrl.length <= EMBED_LIMIT;
+      document.getElementById('compress-info').innerHTML =
+        '<span>compressed: ' + fmtBytes(approxBytes) + ' @ ' + w + '×' + h + 'px</span><br>' +
+        (fits
+          ? '<span class="ok">fits in link — accept to embed</span>'
+          : '<span class="warn">still too large for link (' + fmtBytes(dataUrl.length) + ') — print only</span>');
+
+      var actionsEl = document.getElementById('compress-actions');
+      actionsEl.innerHTML = '';
+
+      if (fits) {
+        var acceptBtn = document.createElement('button');
+        acceptBtn.className   = 'upload-action-btn primary';
+        acceptBtn.textContent = '[ ↗ use compressed (embed in link) ]';
+        acceptBtn.addEventListener('click', function () {
+          var u = new URL(window.location.href);
+          u.searchParams.set('meme', dataUrl);
+          history.replaceState(null, '', u.toString());
+          resetUploadStage();
+          render(); setupSidePanel();
+          closeMemePicker();
+        });
+        actionsEl.appendChild(acceptBtn);
+      }
+
+      var printBtn = document.createElement('button');
+      printBtn.className   = 'upload-action-btn';
+      printBtn.textContent = '[ ⎙ use for print only ]';
+      printBtn.addEventListener('click', function () {
+        selectMeme(_stageBlobUrl, _stageFile.name + ' (print only)');
+        resetUploadStage();
+      });
+      actionsEl.appendChild(printBtn);
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(_stageFile);
+}
+
 document.getElementById('upload-drop').addEventListener('click', function () {
   document.getElementById('file-input').click();
 });
 document.getElementById('file-input').addEventListener('change', function (e) {
   var file = e.target.files[0];
-  if (file) selectMeme(URL.createObjectURL(file), file.name);
+  if (!file) return;
+  e.target.value = '';
+  showStage(file);
 });
+document.getElementById('stage-print-btn').addEventListener('click', function () {
+  if (_stageBlobUrl) selectMeme(_stageBlobUrl, (_stageFile ? _stageFile.name : 'image') + ' (print only)');
+  resetUploadStage();
+});
+document.getElementById('stage-compress-btn').addEventListener('click', compressAndShow);
 
 // url tab
 document.getElementById('url-load-btn').addEventListener('click', function () {
@@ -1593,7 +1768,7 @@ document.getElementById('meme-url-input').addEventListener('keydown', function (
   if (e.key === 'Enter') document.getElementById('url-load-btn').click();
 });
 
-// gif search tab (Tenor — no API key required)
+// gif search tab (Giphy — free key at developers.giphy.com)
 document.getElementById('giphy-search-btn').addEventListener('click', runGifSearch);
 document.getElementById('giphy-search-input').addEventListener('keydown', function (e) {
   if (e.key === 'Enter') runGifSearch();

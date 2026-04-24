@@ -81,6 +81,8 @@ function toBin(n)  { return '0b' + n.toString(2).padStart(8, '0'); }
     console.warn('devices load failed:', e);
   }
 
+if (!DEVICES.length) { document.getElementById('top').textContent = '// error: could not load device data'; return; }
+
 var dev  = pickDevice(amount, device);
 var days = amount !== null ? (amount / KWH) / (dev.watt * 24 / 1000) : null;
 var ts   = new Date().toISOString().replace('T', ' ').slice(0, 16) + ' UTC';
