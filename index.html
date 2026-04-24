@@ -570,6 +570,8 @@
       background: #fff !important;
       color: #111 !important;
       padding: 0;
+      min-height: 0;
+      justify-content: flex-start;
     }
     :root {
       --bg: #fff;
@@ -865,7 +867,7 @@ function getParams() {
   const rawAge    = p.get('age');
   return {
     name:   p.get('name')  || 'Mika',
-    amount: rawAmount !== null ? parseFloat(rawAmount) : null,
+    amount: rawAmount !== null && rawAmount.trim() !== '' && !isNaN(parseFloat(rawAmount)) ? parseFloat(rawAmount) : null,
     meme:   p.get('meme')  || null,
     from:   p.get('from')  || null,
     age:    rawAge !== null ? (parseInt(rawAge, 10) || 30) : 30,
@@ -976,16 +978,25 @@ function render() {
   document.getElementById('meme-label').textContent = '[ img_src: ' + (meme || '\u2014') + ' ]';
   if (meme) {
     const placeholder = document.getElementById('meme-placeholder');
+    const container   = document.querySelector('.meme-container');
     const img         = document.createElement('img');
     img.className     = 'meme-img';
     img.alt           = 'meme';
     img.onerror       = function () {
       placeholder.style.display = '';
       img.remove();
+      container.querySelectorAll('.meme-change-hint').forEach(function (el) { el.remove(); });
     };
     placeholder.style.display = 'none';
     img.src = meme;
-    document.querySelector('.meme-container').appendChild(img);
+    container.appendChild(img);
+    if (!getParams().locked) {
+      const hint      = document.createElement('div');
+      hint.className  = 'meme-change-hint';
+      hint.textContent = '[ click to change ]';
+      hint.addEventListener('click', openMemePicker);
+      container.appendChild(hint);
+    }
   }
 
   // device badge

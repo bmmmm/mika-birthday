@@ -396,7 +396,7 @@ const THEMES = {
   matrix:    { label: 'Matrix',    vars: { '--bg': '#000000', '--surface': '#001200', '--border': '#003800', '--text': '#00e840', '--text-dim': '#004010', '--text-mid': '#00a030' }, display: "'Share Tech Mono', monospace",      mono: "'Share Tech Mono', monospace" },
   blueprint: { label: 'Blueprint', vars: { '--bg': '#001830', '--surface': '#00203e', '--border': '#1a3a5c', '--text': '#a8d4f0', '--text-dim': '#1a3a5c', '--text-mid': '#4a88b8' }, display: "'Syne', sans-serif",               mono: "'IBM Plex Mono', monospace"   },
   paper:     { label: 'Paper',     vars: { '--bg': '#f5f0e8', '--surface': '#ede8de', '--border': '#c8bfaa', '--text': '#2c2418', '--text-dim': '#b8aa90', '--text-mid': '#7a6a54' }, display: "'Playfair Display', Georgia, serif", mono: "'Courier Prime', monospace" },
-  neon:      { label: 'Neon',      vars: { '--bg': '#07000f', '--surface': '#0e0018', '--border': '#2d0045', '--text': '#ff2d78', '--text-dim': '#2d0025', '--text-mid': '#aa0055' }, display: "'Syne', sans-serif",               mono: "'Courier Prime', monospace"   },
+  neon:      { label: 'Neon',      vars: { '--bg': '#07000f', '--surface': '#0e0018', '--border': '#2d0045', '--text': '#ff2d78', '--text-dim': '#5a003a', '--text-mid': '#ff85b0' }, display: "'Syne', sans-serif",               mono: "'Courier Prime', monospace"   },
   dos:       { label: 'DOS',       vars: { '--bg': '#000080', '--surface': '#0000aa', '--border': '#5555ff', '--text': '#ffffff', '--text-dim': '#5555ff', '--text-mid': '#aaaaaa' }, display: "'VT323', monospace",                mono: "'VT323', monospace"           },
   brutalist: { label: 'Brutalist', vars: { '--bg': '#ffffff', '--surface': '#f0f0f0', '--border': '#000000', '--text': '#000000', '--text-dim': '#999999', '--text-mid': '#333333' }, display: "'Archivo Black', sans-serif",       mono: "'Courier Prime', monospace"   },
   ink:       { label: 'Ink',       vars: { '--bg': '#1a1410', '--surface': '#221c16', '--border': '#3a3028', '--text': '#e8d5b0', '--text-dim': '#4a3c2c', '--text-mid': '#8a7258' }, display: "'Unbounded', sans-serif",           mono: "'Courier Prime', monospace"   },
@@ -539,6 +539,10 @@ function copyUrl() {
 function resetAll() {
   ['f-name', 'f-age', 'f-amount', 'f-from', 'f-meme'].forEach(function(id) {
     document.getElementById(id).value = '';
+  });
+  currentTheme = 'dark';
+  document.querySelectorAll('.theme-tile').forEach(function(el, i) {
+    el.classList.toggle('active', i === 0);
   });
   update();
 }
