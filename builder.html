@@ -297,6 +297,65 @@
   .action-btn:hover { color: var(--text); background: var(--surface); }
   .action-btn.primary { color: var(--text); }
 
+  /* scale sliders */
+  .scale-row {
+    display: flex;
+    gap: 24px;
+    padding: 14px 16px;
+    border-top: 0.5px solid var(--border);
+    background: var(--surface);
+  }
+  .scale-field {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .scale-label {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text-dim);
+    letter-spacing: 0.06em;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+  .scale-label strong {
+    font-family: var(--mono);
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-mid);
+  }
+  input[type=range].scale-slider {
+    width: 100%;
+    appearance: none;
+    -webkit-appearance: none;
+    height: 3px;
+    background: var(--border);
+    outline: none;
+    cursor: pointer;
+    border-radius: 2px;
+  }
+  input[type=range].scale-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--text);
+    cursor: pointer;
+    transition: transform 0.1s;
+  }
+  input[type=range].scale-slider::-webkit-slider-thumb:hover { transform: scale(1.2); }
+  input[type=range].scale-slider::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--text);
+    cursor: pointer;
+    border: none;
+  }
+
   /* footer */
   .site-footer {
     width: 680px;
@@ -449,6 +508,16 @@
       <button class="output-token-copy" onclick="copyToken()">[ ⊕ copy ]</button>
     </div>
     <div id="token-meme-note" style="display:none;padding:6px 16px 8px;font-family:var(--mono);font-size:13px;color:var(--text-dim);letter-spacing:0.04em;border-bottom:0.5px solid var(--border)">// image included — token will be longer; blob/local uploads cannot be encoded</div>
+    <div class="scale-row">
+      <div class="scale-field">
+        <div class="scale-label">card text scale <strong id="card-scale-val">100%</strong></div>
+        <input type="range" class="scale-slider" id="card-scale" min="70" max="150" step="5" value="100">
+      </div>
+      <div class="scale-field">
+        <div class="scale-label">builder UI scale <strong id="ui-scale-val">100%</strong></div>
+        <input type="range" class="scale-slider" id="ui-scale" min="75" max="135" step="5" value="100">
+      </div>
+    </div>
     <div class="output-actions">
       <button class="action-btn primary" onclick="openCard()">[ open card ]</button>
       <button class="action-btn" onclick="openPlain()">[ open plain ]</button>
@@ -654,6 +723,7 @@ function buildUrl(vals) {
   if (vals.meme)            p.set('meme',   vals.meme);
   if (vals.from)            p.set('from',   vals.from);
   if (currentTheme !== 'dark') p.set('theme', currentTheme);
+  if (currentCardScale !== 100) p.set('scale', (currentCardScale / 100).toFixed(2));
   if (currentDevice)        p.set('device', currentDevice);
   if (customizeMsg) {
     var ct = document.getElementById('f-custom-text').value.trim();
@@ -772,6 +842,11 @@ function resetAll() {
   currentDevice = null;
   currentQuote  = 'classic';
   customizeMsg  = false;
+  currentCardScale = 100;
+  document.getElementById('card-scale').value = 100;
+  document.getElementById('card-scale-val').textContent = '100%';
+  document.getElementById('ui-scale').value = 100;
+  applyUiScale(100);
   applyTheme('simple');
   document.getElementById('f-customize').checked = false;
   document.getElementById('f-custom-text').style.display = 'none';
@@ -784,6 +859,28 @@ function resetAll() {
   });
   update();
 }
+
+// ── scale sliders ────────────────────────────────────────────────────────────
+var currentCardScale = 100;
+
+function applyUiScale(pct) {
+  document.querySelector('.builder').style.zoom = pct / 100;
+  document.getElementById('ui-scale-val').textContent = pct + '%';
+  localStorage.setItem('builderUiScale', pct);
+}
+
+function applyCardScale(pct) {
+  currentCardScale = pct;
+  document.getElementById('card-scale-val').textContent = pct + '%';
+  update();
+}
+
+document.getElementById('card-scale').addEventListener('input', function () {
+  applyCardScale(parseInt(this.value, 10));
+});
+document.getElementById('ui-scale').addEventListener('input', function () {
+  applyUiScale(parseInt(this.value, 10));
+});
 
 // ── wire inputs ───────────────────────────────────────────────────────────────
 ['f-name', 'f-age', 'f-amount', 'f-from', 'f-meme'].forEach(function (id) {
@@ -815,6 +912,11 @@ document.getElementById('f-custom-text').addEventListener('input', update);
   applyTheme(currentTheme);
   buildDeviceStrip();
   buildMsgGrid();
+  var savedUiScale = parseInt(localStorage.getItem('builderUiScale'), 10);
+  if (savedUiScale && savedUiScale >= 75 && savedUiScale <= 135) {
+    document.getElementById('ui-scale').value = savedUiScale;
+    applyUiScale(savedUiScale);
+  }
   update();
 })();
 </script>
