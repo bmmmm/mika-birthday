@@ -502,6 +502,31 @@
     color: var(--text);
   }
   .cfg-theme-btn:hover { border-color: var(--text-mid); }
+  .cfg-devices {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .cfg-device-btn {
+    background: var(--bg);
+    border: 0.5px solid var(--border);
+    color: var(--text-mid);
+    font-family: var(--mono);
+    font-size: 10px;
+    padding: 5px 8px;
+    cursor: pointer;
+    text-align: left;
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 6px;
+    align-items: center;
+    transition: border-color 0.1s;
+  }
+  .cfg-device-btn:hover { border-color: var(--text-mid); color: var(--text); }
+  .cfg-device-btn.active { border-color: var(--text); color: var(--text); }
+  .cfg-device-watt { color: var(--text-dim); font-size: 9px; }
+  .cfg-device-days { color: var(--text); font-weight: 700; min-width: 32px; text-align: right; }
+
   .cfg-apply {
     background: var(--bg);
     border: 0.5px solid var(--border);
@@ -747,6 +772,12 @@
     </div>
     <hr class="cfg-divider">
     <div class="cfg-field">
+      <div class="cfg-label">device</div>
+      <div class="cfg-devices" id="cfg-devices"></div>
+      <div style="font-size:9px;color:var(--text-dim);margin-top:4px;font-family:var(--mono)">// click to override auto-select</div>
+    </div>
+    <hr class="cfg-divider">
+    <div class="cfg-field">
       <div class="cfg-label">theme</div>
       <div class="cfg-themes" id="cfg-themes"></div>
     </div>
@@ -837,6 +868,8 @@ const DEVICES = [
     shortName: 'fridge@bitcircus101',
     watt: 45,
     threshold: 0,
+    img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/89/Refrigerator.jpg/800px-Refrigerator.jpg',
+    // CC0 Public Domain — Wikimedia Commons
   },
   {
     id: 'router',
@@ -844,6 +877,8 @@ const DEVICES = [
     shortName: 'router+switch@bitcircus101',
     watt: 18,
     threshold: 20,
+    img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/Network_switches.jpg/800px-Network_switches.jpg',
+    // CC BY-SA 3.0 — Wikimedia Commons
   },
   {
     id: 'server',
@@ -851,6 +886,8 @@ const DEVICES = [
     shortName: 'nutc@bitcircus101',
     watt: 80,
     threshold: 50,
+    img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/Datacenter_Server_Racks_%2822370909788%29.jpg/800px-Datacenter_Server_Racks_%2822370909788%29.jpg',
+    // CC BY 2.0 — Wikimedia Commons
   },
   {
     id: 'laser',
@@ -858,6 +895,8 @@ const DEVICES = [
     shortName: 'lasercutter@bitcircus101',
     watt: 800,
     threshold: 150,
+    img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/Laser_cutting_machine.jpg/800px-Laser_cutting_machine.jpg',
+    // CC BY-SA 4.0 — Wikimedia Commons
   },
 ];
 
@@ -873,6 +912,7 @@ function getParams() {
     age:    rawAge !== null ? (parseInt(rawAge, 10) || 30) : 30,
     theme:  p.get('theme')  || 'dark',
     locked: p.get('locked') === '1',
+    device: p.get('device') || null,
   };
 }
 
@@ -908,7 +948,11 @@ function computeDays(amountEur, device) {
   return kwh / kwhPerDay;
 }
 
-function pickDevice(amountEur) {
+function pickDevice(amountEur, deviceOverride) {
+  if (deviceOverride) {
+    const found = DEVICES.find(function (d) { return d.id === deviceOverride; });
+    if (found) return found;
+  }
   if (amountEur === null) return DEVICES[0];
   let best = DEVICES[0];
   for (const d of DEVICES) {
@@ -934,12 +978,12 @@ function esc(s) {
 }
 
 function render() {
-  const { name, amount, meme, from, age, theme } = getParams();
+  const { name, amount, meme, from, age, theme, device: deviceOverride } = getParams();
   applyTheme(theme);
   if (theme !== 'uwu') {
     console.log('%c✨ psst... try ?theme=uwu ✨', 'color:#ff6eb4;font-family:monospace;font-size:13px');
   }
-  const device = pickDevice(amount);
+  const device = pickDevice(amount, deviceOverride);
   const days   = amount !== null ? computeDays(amount, device) : null;
   const ts     = new Date().toISOString().replace('T', ' ').slice(0, 19);
 
@@ -974,21 +1018,23 @@ function render() {
   document.getElementById('stat-epoch').innerHTML    = epochApprox(age) + '<span class="stat-unit">s ago</span>';
   document.getElementById('stat-kernel').textContent = 'v' + age + '.0';
 
-  // meme
-  document.getElementById('meme-label').textContent = '[ img_src: ' + (meme || '\u2014') + ' ]';
-  if (meme) {
+  // meme / device photo
+  const memeOrDevice = meme || (device.img ? device.img : null);
+  const memeLabel    = meme ? meme : (device.img ? '// device: ' + device.shortName : '\u2014');
+  document.getElementById('meme-label').textContent = '[ img_src: ' + memeLabel + ' ]';
+  if (memeOrDevice) {
     const placeholder = document.getElementById('meme-placeholder');
     const container   = document.querySelector('.meme-container');
     const img         = document.createElement('img');
     img.className     = 'meme-img';
-    img.alt           = 'meme';
+    img.alt           = meme ? 'meme' : device.name;
     img.onerror       = function () {
       placeholder.style.display = '';
       img.remove();
       container.querySelectorAll('.meme-change-hint').forEach(function (el) { el.remove(); });
     };
     placeholder.style.display = 'none';
-    img.src = meme;
+    img.src = memeOrDevice;
     container.appendChild(img);
     if (!getParams().locked) {
       const hint      = document.createElement('div');
@@ -1046,6 +1092,7 @@ function buildShareUrl() {
   if (p.meme && !p.meme.startsWith('blob:')) url.searchParams.set('meme', p.meme);
   if (p.from)                        url.searchParams.set('from',   p.from);
   if (p.theme && p.theme !== 'dark') url.searchParams.set('theme', p.theme);
+  if (p.device)                      url.searchParams.set('device', p.device);
   url.searchParams.set('locked', '1');
   return url.toString();
 }
@@ -1059,7 +1106,8 @@ function copyLink() {
 }
 
 // ── side panel ─────────────────────────────────────────────────────────────
-var _cfgTheme = 'dark';
+var _cfgTheme  = 'dark';
+var _cfgDevice = null;
 
 function setupSidePanel() {
   var p = getParams();
@@ -1067,7 +1115,8 @@ function setupSidePanel() {
     document.getElementById('side-panel').style.display = 'none';
     return;
   }
-  _cfgTheme = p.theme || 'dark';
+  _cfgTheme  = p.theme  || 'dark';
+  _cfgDevice = p.device || null;
 
   document.getElementById('cfg-name').value   = p.name;
   document.getElementById('cfg-age').value    = p.age;
@@ -1097,6 +1146,40 @@ function setupSidePanel() {
     });
     grid.appendChild(btn);
   });
+
+  // device tiles
+  var deviceGrid = document.getElementById('cfg-devices');
+  if (deviceGrid) {
+    renderDeviceTiles(p.amount);
+    document.getElementById('cfg-amount').addEventListener('input', function () {
+      var amt = parseFloat(this.value);
+      renderDeviceTiles(isNaN(amt) ? null : amt);
+    });
+  }
+}
+
+function renderDeviceTiles(amount) {
+  var grid = document.getElementById('cfg-devices');
+  if (!grid) return;
+  grid.innerHTML = '';
+
+  DEVICES.forEach(function (d) {
+    var days    = amount !== null && amount >= 0 ? computeDays(amount, d) : null;
+    var daysStr = days === null ? '—' : days >= 365 ? (days / 365).toFixed(1) + 'y' : Math.round(days) + 'd';
+    var isActive = _cfgDevice === d.id || (_cfgDevice === null && d === pickDevice(amount));
+    var btn = document.createElement('button');
+    btn.className = 'cfg-device-btn' + (isActive ? ' active' : '');
+    btn.innerHTML =
+      '<span class="cfg-device-name">' + d.id + '</span>' +
+      '<span class="cfg-device-watt">' + d.watt + 'W</span>' +
+      '<span class="cfg-device-days">' + daysStr + '</span>';
+    btn.addEventListener('click', function () {
+      _cfgDevice = _cfgDevice === d.id ? null : d.id;
+      var curAmount = parseFloat(document.getElementById('cfg-amount').value);
+      renderDeviceTiles(isNaN(curAmount) ? null : curAmount);
+    });
+    grid.appendChild(btn);
+  });
 }
 
 function applyConfig() {
@@ -1114,6 +1197,8 @@ function applyConfig() {
   else        url.searchParams.delete('from');
   if (_cfgTheme && _cfgTheme !== 'dark') url.searchParams.set('theme', _cfgTheme);
   else                                   url.searchParams.delete('theme');
+  if (_cfgDevice) url.searchParams.set('device', _cfgDevice);
+  else            url.searchParams.delete('device');
   url.searchParams.delete('locked');
   window.location.href = url.toString();
 }
