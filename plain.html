@@ -33,6 +33,7 @@ pre {
 <pre id="top"></pre>
 <img id="meme-img" src="" alt="" style="display:none">
 <pre id="bot"></pre>
+<script src="config.js"></script>
 <script>
 var p      = new URLSearchParams(location.search);
 var name   = p.get('name')   || 'Mika';
@@ -44,13 +45,8 @@ var from   = p.get('from')  || null;
 var meme   = p.get('meme')  || null;
 var device = p.get('device') || null;
 
-var KWH = 0.30;
-var DEVICES = [
-  { id: 'fridge', label: 'fridge@bitcircus101',         watt: 45,  threshold: 0   },
-  { id: 'router', label: 'router+switch@bitcircus101',   watt: 18,  threshold: 20  },
-  { id: 'server', label: 'nutc@bitcircus101',            watt: 80,  threshold: 50  },
-  { id: 'laser',  label: 'lasercutter@bitcircus101',     watt: 800, threshold: 150 },
-];
+var KWH     = SETTINGS.pricePerKwh;
+var DEVICES = [];
 
 function pickDevice(eur, override) {
   if (override) {
@@ -61,7 +57,7 @@ function pickDevice(eur, override) {
   var best = DEVICES[0];
   DEVICES.forEach(function(d) {
     var days = (eur / KWH) / (d.watt * 24 / 1000);
-    if (eur >= d.threshold && days >= 30) best = d;
+    if (eur >= d.threshold && days >= SETTINGS.minDays) best = d;
   });
   return best;
 }
@@ -73,6 +69,16 @@ function fmtDays(n) {
 
 function toHex(n) { return '0x' + n.toString(16).toUpperCase().padStart(2, '0'); }
 function toBin(n)  { return '0b' + n.toString(2).padStart(8, '0'); }
+
+(async function () {
+  try {
+    var ids = await fetch('./devices/index.json').then(function (r) { return r.json(); });
+    DEVICES = await Promise.all(ids.map(function (id) {
+      return fetch('./devices/' + id + '.json').then(function (r) { return r.json(); });
+    }));
+  } catch (e) {
+    console.warn('devices load failed:', e);
+  }
 
 var dev  = pickDevice(amount, device);
 var days = amount !== null ? (amount / KWH) / (dev.watt * 24 / 1000) : null;
@@ -113,7 +119,7 @@ out.push('');
 out.push('  [[ device report ]]');
 out.push('');
 if (amount !== null) {
-  out.push(pad('device',  dev.label));
+  out.push(pad('device',  dev.shortName));
   out.push(pad('power',   dev.watt + 'W continuous'));
   out.push(pad('budget',  amount.toFixed(2) + ' EUR  (@  ' + KWH + ' EUR/kWh)'));
   out.push(pad('runtime', fmtDays(days) + '  powered'));
@@ -123,7 +129,7 @@ if (amount !== null) {
   DEVICES.forEach(function(d) {
     var dd   = (amount / KWH) / (d.watt * 24 / 1000);
     var mark = d.id === dev.id ? ' <--' : '';
-    out.push(('  ' + d.label).padEnd(40) + d.watt + 'W   ' + fmtDays(dd).padEnd(14) + mark);
+    out.push(('  ' + d.shortName).padEnd(40) + d.watt + 'W   ' + fmtDays(dd).padEnd(14) + mark);
   });
 } else {
   out.push('  no amount specified.');
@@ -158,6 +164,6 @@ bot.push('  hacked w/ <3 by bitcircus101.de');
 bot.push(SEP);
 
 document.getElementById('bot').textContent = bot.join('\n');
-</script>
+})();</script>
 </body>
 </html>

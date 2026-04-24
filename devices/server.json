@@ -1,0 +1,9 @@
+{
+  "id":        "server",
+  "name":      "Server nutc (bitcircus101)",
+  "shortName": "nutc@bitcircus101",
+  "watt":      80,
+  "threshold": 50,
+  "img":       "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/Datacenter_Server_Racks_%2822370909788%29.jpg/800px-Datacenter_Server_Racks_%2822370909788%29.jpg",
+  "imgLicense": "CC BY 2.0 — Wikimedia Commons"
+}

@@ -835,6 +835,7 @@
   </div>
 </div>
 
+<script src="config.js"></script>
 <script>
 const THEMES = {
   dark:      { label: 'Dark',      vars: { '--bg': '#0d0d0d', '--surface': '#141414', '--border': '#2a2a2a', '--border-dim': '#1e1e1e', '--text': '#e8e8e6', '--text-dim': '#444',    '--text-mid': '#888'    }, display: "'Syne', sans-serif",              mono: "'Courier Prime', 'Courier New', monospace"    },
@@ -859,46 +860,8 @@ function applyTheme(name) {
   root.style.setProperty('--mono',    theme.mono);
 }
 
-const PRICE_PER_KWH = 0.30;
-
-const DEVICES = [
-  {
-    id: 'fridge',
-    name: 'Kühlschrank (bitcircus101)',
-    shortName: 'fridge@bitcircus101',
-    watt: 45,
-    threshold: 0,
-    img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/89/Refrigerator.jpg/800px-Refrigerator.jpg',
-    // CC0 Public Domain — Wikimedia Commons
-  },
-  {
-    id: 'router',
-    name: 'Router + Switch Stack (bitcircus101)',
-    shortName: 'router+switch@bitcircus101',
-    watt: 18,
-    threshold: 20,
-    img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/Network_switches.jpg/800px-Network_switches.jpg',
-    // CC BY-SA 3.0 — Wikimedia Commons
-  },
-  {
-    id: 'server',
-    name: 'Server nutc (bitcircus101)',
-    shortName: 'nutc@bitcircus101',
-    watt: 80,
-    threshold: 50,
-    img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/Datacenter_Server_Racks_%2822370909788%29.jpg/800px-Datacenter_Server_Racks_%2822370909788%29.jpg',
-    // CC BY 2.0 — Wikimedia Commons
-  },
-  {
-    id: 'laser',
-    name: 'Lasercutter (bitcircus101)',
-    shortName: 'lasercutter@bitcircus101',
-    watt: 800,
-    threshold: 150,
-    img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/Laser_cutting_machine.jpg/800px-Laser_cutting_machine.jpg',
-    // CC BY-SA 4.0 — Wikimedia Commons
-  },
-];
+var PRICE_PER_KWH = SETTINGS.pricePerKwh;
+var DEVICES = [];
 
 function getParams() {
   const p = new URLSearchParams(window.location.search);
@@ -956,7 +919,7 @@ function pickDevice(amountEur, deviceOverride) {
   if (amountEur === null) return DEVICES[0];
   let best = DEVICES[0];
   for (const d of DEVICES) {
-    if (amountEur >= d.threshold && computeDays(amountEur, d) >= 30) {
+    if (amountEur >= d.threshold && computeDays(amountEur, d) >= SETTINGS.minDays) {
       best = d;
     }
   }
@@ -1070,8 +1033,8 @@ function render() {
   // footer
   document.getElementById('footer-left').textContent =
     from
-      ? 'from: ' + from + ' \u2192 bitcircus101 \u2014 Dorotheenstra\u00dfe 101, 53111 Bonn'
-      : 'bitcircus101 \u2014 Dorotheenstra\u00dfe 101, 53111 Bonn';
+      ? 'from: ' + from + ' \u2192 ' + SETTINGS.location
+      : SETTINGS.location;
   document.getElementById('footer-right').textContent =
     ts.slice(0, 10) + ' UTC // v' + age + '.0.0';
 
@@ -1336,9 +1299,19 @@ function setupMemeUpload() {
   if (placeholder) placeholder.addEventListener('click', openMemePicker);
 }
 
-render();
-setupMemeUpload();
-setupSidePanel();
+(async function () {
+  try {
+    var ids = await fetch('./devices/index.json').then(function (r) { return r.json(); });
+    DEVICES = await Promise.all(ids.map(function (id) {
+      return fetch('./devices/' + id + '.json').then(function (r) { return r.json(); });
+    }));
+  } catch (e) {
+    console.warn('devices load failed:', e);
+  }
+  render();
+  setupMemeUpload();
+  setupSidePanel();
+})();
 </script>
 </body>
 </html>

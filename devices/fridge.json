@@ -1,0 +1,9 @@
+{
+  "id":        "fridge",
+  "name":      "Kühlschrank (bitcircus101)",
+  "shortName": "fridge@bitcircus101",
+  "watt":      45,
+  "threshold": 0,
+  "img":       "https://upload.wikimedia.org/wikipedia/commons/thumb/8/89/Refrigerator.jpg/800px-Refrigerator.jpg",
+  "imgLicense": "CC0 Public Domain — Wikimedia Commons"
+}
