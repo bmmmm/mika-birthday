@@ -16,6 +16,15 @@
     --accent: #e8e8e6;
     --mono: 'Courier New', Courier, monospace;
     --display: system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+    /* Shared type scale */
+    --fs-micro:   0.6875rem;
+    --fs-caption: 0.75rem;
+    --fs-small:   0.8125rem;
+    --fs-body:    0.875rem;
+    --fs-input:   1rem;
+    --fs-heading: 1.5rem;
+    --fs-title:   clamp(2.5rem, 8vw, 3.75rem);
   }
 
   html { font-size: 16px; }
@@ -37,7 +46,7 @@
   .builder-header { margin-bottom: 40px; }
 
   .builder-title {
-    font-size: 3.75rem;
+    font-size: var(--fs-title);
     font-weight: 800;
     letter-spacing: -0.03em;
     line-height: 1;
@@ -46,7 +55,7 @@
 
   .builder-sub {
     font-family: var(--mono);
-    font-size: 0.875rem;
+    font-size: var(--fs-body);
     color: var(--text-dim);
     letter-spacing: 0.04em;
   }
@@ -58,7 +67,7 @@
 
   .section-label {
     font-family: var(--mono);
-    font-size: 0.75rem;
+    font-size: var(--fs-caption);
     font-weight: 700;
     letter-spacing: 0.06em;
     color: var(--text-dim);
@@ -80,7 +89,7 @@
 
   .field-label {
     font-family: var(--mono);
-    font-size: 0.875rem;
+    font-size: var(--fs-body);
     color: var(--text-dim);
     letter-spacing: 0.04em;
   }
@@ -88,7 +97,7 @@
 
   .field-input {
     font-family: var(--mono);
-    font-size: 1rem;
+    font-size: var(--fs-input);
     background: var(--bg);
     color: var(--text);
     border: 0.5px solid var(--border);
@@ -98,7 +107,7 @@
     width: 100%;
     transition: border-color 0.12s;
   }
-  .field-input:focus { border-color: #555; }
+  .field-input:focus { border-color: var(--text-mid); }
   .field-input::placeholder { color: var(--text-dim); }
 
   /* device strip */
@@ -127,7 +136,7 @@
 
   .device-tile-name {
     font-family: var(--mono);
-    font-size: 0.875rem;
+    font-size: var(--fs-body);
     color: var(--text-dim);
     letter-spacing: 0.04em;
     margin-bottom: 4px;
@@ -139,7 +148,7 @@
 
   .device-tile-days {
     font-family: var(--display);
-    font-size: 1.75rem;
+    font-size: var(--fs-heading);
     font-weight: 800;
     letter-spacing: -0.02em;
     color: var(--text-dim);
@@ -150,14 +159,14 @@
 
   .device-tile-unit {
     font-family: var(--mono);
-    font-size: 0.875rem;
+    font-size: var(--fs-body);
     color: var(--text-dim);
     margin-top: 2px;
   }
 
   .device-tile-pin {
     font-family: var(--mono);
-    font-size: 0.8125rem;
+    font-size: var(--fs-small);
     color: var(--text-mid);
     margin-top: 4px;
     letter-spacing: 0.04em;
@@ -166,7 +175,7 @@
   /* age strip */
   .age-strip {
     font-family: var(--mono);
-    font-size: 0.875rem;
+    font-size: var(--fs-body);
     color: var(--text-dim);
     margin-top: 10px;
     letter-spacing: 0.03em;
@@ -194,7 +203,7 @@
 
   .theme-palette {
     font-family: monospace;
-    font-size: 0.625rem;
+    font-size: var(--fs-micro);
     line-height: 1.15;
     letter-spacing: 0;
     white-space: pre;
@@ -203,7 +212,7 @@
 
   .theme-tile-name {
     font-family: var(--mono);
-    font-size: 0.75rem;
+    font-size: var(--fs-caption);
     letter-spacing: 0.03em;
     opacity: 0.65;
     text-transform: lowercase;
@@ -217,7 +226,7 @@
 
   .output-label {
     font-family: var(--mono);
-    font-size: 0.75rem;
+    font-size: var(--fs-caption);
     letter-spacing: 0.06em;
     color: var(--text-dim);
     background: var(--surface);
@@ -237,7 +246,7 @@
   }
   .output-token-label {
     font-family: var(--mono);
-    font-size: 0.75rem;
+    font-size: var(--fs-caption);
     color: var(--text-dim);
     letter-spacing: 0.06em;
     text-transform: uppercase;
@@ -245,7 +254,7 @@
   }
   .output-token-val {
     font-family: var(--mono);
-    font-size: 0.875rem;
+    font-size: var(--fs-body);
     color: var(--text-mid);
     flex: 1;
     overflow: hidden;
@@ -255,7 +264,7 @@
   }
   .output-token-copy {
     font-family: var(--mono);
-    font-size: 0.8125rem;
+    font-size: var(--fs-small);
     background: transparent;
     color: var(--text-dim);
     border: 0.5px solid var(--border);
@@ -269,7 +278,7 @@
 
   .output-url {
     font-family: var(--mono);
-    font-size: 0.875rem;
+    font-size: var(--fs-body);
     color: var(--text-mid);
     padding: 14px 16px;
     word-break: break-all;
@@ -297,7 +306,7 @@
 
   .action-btn {
     font-family: var(--display);
-    font-size: 0.9375rem;
+    font-size: var(--fs-input);
     font-weight: 600;
     letter-spacing: 0.03em;
     background: transparent;
@@ -330,7 +339,7 @@
   }
   .scale-label {
     font-family: var(--mono);
-    font-size: 0.75rem;
+    font-size: var(--fs-caption);
     color: var(--text-dim);
     letter-spacing: 0.06em;
     display: flex;
@@ -339,7 +348,7 @@
   }
   .scale-label strong {
     font-family: var(--mono);
-    font-size: 0.875rem;
+    font-size: var(--fs-body);
     font-weight: 700;
     color: var(--text-mid);
   }
@@ -377,7 +386,7 @@
   .site-footer {
     width: min(920px, 100%);
     font-family: var(--mono);
-    font-size: 0.8125rem;
+    font-size: var(--fs-small);
     color: var(--text-dim);
     text-align: center;
     padding: 24px 0 32px;
@@ -397,7 +406,7 @@
   }
   .msg-tile {
     font-family: var(--mono);
-    font-size: 0.875rem;
+    font-size: var(--fs-body);
     padding: 9px 10px;
     cursor: pointer;
     border: 0.5px solid var(--border);
@@ -417,7 +426,7 @@
     align-items: center;
     gap: 8px;
     font-family: var(--mono);
-    font-size: 0.875rem;
+    font-size: var(--fs-body);
     color: var(--text-dim);
     cursor: pointer;
     margin-top: 6px;
@@ -430,7 +439,7 @@
     left: 50%;
     transform: translateX(-50%);
     font-family: var(--mono);
-    font-size: 0.875rem;
+    font-size: var(--fs-body);
     letter-spacing: 0.04em;
     color: var(--text-dim);
     background: var(--surface);
@@ -444,7 +453,6 @@
   /* ── RESPONSIVE ─────────────────────────────────── */
   @media (max-width: 980px) {
     body { padding: 28px 14px 0; }
-    .builder-title { font-size: 2.75rem; }
     .section-body { grid-template-columns: 1fr !important; }
     .theme-grid { grid-template-columns: repeat(3, 1fr); }
     .device-strip { grid-template-columns: repeat(2, 1fr) !important; }
@@ -455,7 +463,6 @@
     .msg-grid { grid-template-columns: 1fr; }
   }
   @media (max-width: 560px) {
-    .builder-title { font-size: 2rem; }
     .action-btn { flex: 1 1 100%; }
   }
 
@@ -542,7 +549,7 @@
       <span class="output-token-val" id="output-token">—</span>
       <button class="output-token-copy" onclick="copyToken()">[ ⊕ copy ]</button>
     </div>
-    <div id="token-meme-note" style="display:none;padding:6px 16px 8px;font-family:var(--mono);font-size: 0.8125rem;color:var(--text-dim);letter-spacing:0.04em;border-bottom:0.5px solid var(--border)">// image included — token will be longer; blob/local uploads cannot be encoded</div>
+    <div id="token-meme-note" style="display:none;padding:6px 16px 8px;font-family:var(--mono);font-size:var(--fs-small);color:var(--text-dim);letter-spacing:0.04em;border-bottom:0.5px solid var(--border)">// image included — token will be longer; blob/local uploads cannot be encoded</div>
     <div class="scale-row">
       <div class="scale-field">
         <div class="scale-label">card text scale <strong id="card-scale-val">100%</strong></div>
@@ -570,6 +577,7 @@
   &nbsp;·&nbsp; <a href="https://bitcircus101.de/donations" target="_blank">plzzz donate kkthx</a>
   &nbsp;·&nbsp; <a href="https://github.com/bmmmm/mika-birthday" target="_blank">github</a>
   &nbsp;·&nbsp; <a href="start.html">↩ start</a>
+  &nbsp;·&nbsp; <span class="site-version">v0.0.0-dev</span>
 </footer>
 
 <div class="toast" id="toast">// URL copied to clipboard</div>
@@ -577,7 +585,6 @@
 <script src="config.js"></script>
 <script>
 const THEMES = {
-  simple:    { label: 'Simple',    vars: { '--bg': '#ffffff', '--surface': '#f7f7f7', '--border': '#e2e2e2', '--text': '#1a1a1a', '--text-dim': '#888888', '--text-mid': '#555555' }, display: "system-ui, -apple-system, 'Segoe UI', sans-serif", mono: "'Courier New', Courier, monospace" },
   dark:      { label: 'Dark',      vars: { '--bg': '#0d0d0d', '--surface': '#141414', '--border': '#2a2a2a', '--text': '#e8e8e6', '--text-dim': '#606060', '--text-mid': '#999999' }, display: "system-ui, -apple-system, 'Segoe UI', sans-serif", mono: "'Courier New', Courier, monospace" },
   light:     { label: 'Light',     vars: { '--bg': '#f8f8f6', '--surface': '#f0f0ee', '--border': '#d8d8d6', '--text': '#111110', '--text-dim': '#777777', '--text-mid': '#555555' }, display: "system-ui, -apple-system, 'Segoe UI', sans-serif", mono: "'Courier New', Courier, monospace" },
   amber:     { label: 'Amber',     vars: { '--bg': '#0c0700', '--surface': '#150d00', '--border': '#2a1e00', '--text': '#d4870a', '--text-dim': '#a06010', '--text-mid': '#c88020' }, display: "system-ui, -apple-system, 'Segoe UI', sans-serif", mono: "'Courier New', Courier, monospace" },
@@ -590,7 +597,7 @@ const THEMES = {
   ink:       { label: 'Ink',       vars: { '--bg': '#1a1410', '--surface': '#221c16', '--border': '#3a3028', '--text': '#e8d5b0', '--text-dim': '#9a8060', '--text-mid': '#c0a070' }, display: "'Arial Black', Impact, sans-serif",                mono: "'Courier New', Courier, monospace" },
 };
 
-var currentTheme  = 'simple';
+var currentTheme  = 'dark';
 var currentDevice = null;
 var currentQuote  = 'classic';
 var customizeMsg  = false;
@@ -610,7 +617,7 @@ var MESSAGES = [];
 
 // token encoding: compact positional format  name|age|amount|from|themeCode|quoteCode|device
 // images are excluded — tokens are for text-only cards
-var TOKEN_THEME  = { simple:'s', light:'l', amber:'a', matrix:'m', blueprint:'b', paper:'p', neon:'n', dos:'o', brutalist:'r', ink:'i' };
+var TOKEN_THEME  = { light:'l', amber:'a', matrix:'m', blueprint:'b', paper:'p', neon:'n', dos:'o', brutalist:'r', ink:'i' };
 var TOKEN_QUOTE  = { sachlich:'s', nerd:'n', cli:'v', existentiell:'e', langweilig:'w', birthday_run:'b', git_log:'g', kernel_panic:'k', uptime:'u', '404':'4' };
 
 // ── message grid ─────────────────────────────────────────────────────────────
@@ -875,7 +882,7 @@ function resetAll() {
   ['f-name', 'f-age', 'f-amount', 'f-from', 'f-meme'].forEach(function (id) {
     document.getElementById(id).value = '';
   });
-  currentTheme  = 'simple';
+  currentTheme  = 'dark';
   currentDevice = null;
   currentQuote  = 'classic';
   customizeMsg  = false;
@@ -884,12 +891,12 @@ function resetAll() {
   document.getElementById('card-scale-val').textContent = '100%';
   document.getElementById('ui-scale').value = 100;
   applyUiScale(100);
-  applyTheme('simple');
+  applyTheme('dark');
   document.getElementById('f-customize').checked = false;
   document.getElementById('f-custom-text').style.display = 'none';
   document.getElementById('f-custom-text').value = '';
   document.querySelectorAll('.theme-tile').forEach(function (el) {
-    el.classList.toggle('active', el.dataset.themeId === 'simple');
+    el.classList.toggle('active', el.dataset.themeId === 'dark');
   });
   document.querySelectorAll('.msg-tile').forEach(function (el) {
     el.classList.toggle('active', el.dataset.msgId === 'classic');

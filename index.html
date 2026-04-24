@@ -4,6 +4,31 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Happy Birthday</title>
+<script>
+// Early theme bootstrap — applies CSS vars before first paint to prevent FOUC.
+// Must stay in sync with main THEMES definition below.
+var THEMES = {
+  dark:      { label: 'Dark',      vars: { '--bg': '#0d0d0d', '--surface': '#141414', '--border': '#2a2a2a', '--border-dim': '#1e1e1e', '--text': '#e8e8e6', '--text-dim': '#606060', '--text-mid': '#999999' }, display: "system-ui, -apple-system, 'Segoe UI', sans-serif", mono: "'Courier New', Courier, monospace"             },
+  light:     { label: 'Light',     vars: { '--bg': '#f8f8f6', '--surface': '#f0f0ee', '--border': '#d8d8d6', '--border-dim': '#e4e4e2', '--text': '#111110', '--text-dim': '#777777', '--text-mid': '#555555' }, display: "system-ui, -apple-system, 'Segoe UI', sans-serif", mono: "'Courier New', Courier, monospace"             },
+  amber:     { label: 'Amber',     vars: { '--bg': '#0c0700', '--surface': '#150d00', '--border': '#2a1e00', '--border-dim': '#1e1400', '--text': '#d4870a', '--text-dim': '#a06010', '--text-mid': '#c88020' }, display: "system-ui, -apple-system, 'Segoe UI', sans-serif", mono: "'Courier New', Courier, monospace"             },
+  matrix:    { label: 'Matrix',    vars: { '--bg': '#000000', '--surface': '#001200', '--border': '#003800', '--border-dim': '#002000', '--text': '#00e840', '--text-dim': '#008830', '--text-mid': '#00b840' }, display: "monospace",                                         mono: "monospace"                                     },
+  blueprint: { label: 'Blueprint', vars: { '--bg': '#001830', '--surface': '#00203e', '--border': '#1a3a5c', '--border-dim': '#0e2840', '--text': '#a8d4f0', '--text-dim': '#3a70a0', '--text-mid': '#5a9aca' }, display: "system-ui, -apple-system, 'Segoe UI', sans-serif", mono: "'Courier New', Courier, monospace"             },
+  paper:     { label: 'Paper',     vars: { '--bg': '#f5f0e8', '--surface': '#ede8de', '--border': '#c8bfaa', '--border-dim': '#d8d0be', '--text': '#2c2418', '--text-dim': '#7a6a50', '--text-mid': '#5a4a38' }, display: "Georgia, 'Times New Roman', serif",                mono: "'Courier New', Courier, monospace"             },
+  neon:      { label: 'Neon',      vars: { '--bg': '#07000f', '--surface': '#0e0018', '--border': '#2d0045', '--border-dim': '#1a0028', '--text': '#ff2d78', '--text-dim': '#b03070', '--text-mid': '#ff85b0' }, display: "system-ui, -apple-system, 'Segoe UI', sans-serif", mono: "'Courier New', Courier, monospace"             },
+  dos:       { label: 'DOS',       vars: { '--bg': '#000080', '--surface': '#0000aa', '--border': '#5555ff', '--border-dim': '#2222cc', '--text': '#ffffff', '--text-dim': '#8888ff', '--text-mid': '#cccccc' }, display: "monospace",                                         mono: "monospace"                                     },
+  brutalist: { label: 'Brutalist', vars: { '--bg': '#ffffff', '--surface': '#f0f0f0', '--border': '#000000', '--border-dim': '#444444', '--text': '#000000', '--text-dim': '#666666', '--text-mid': '#333333' }, display: "'Arial Black', Impact, sans-serif",                mono: "'Courier New', Courier, monospace"             },
+  ink:       { label: 'Ink',       vars: { '--bg': '#1a1410', '--surface': '#221c16', '--border': '#3a3028', '--border-dim': '#2a2420', '--text': '#e8d5b0', '--text-dim': '#9a8060', '--text-mid': '#c0a070' }, display: "'Arial Black', Impact, sans-serif",                mono: "'Courier New', Courier, monospace"             },
+  uwu:       { label: 'uwu ✨',    vars: { '--bg': '#fff0f8', '--surface': '#ffe4f2', '--border': '#ffb3d9', '--border-dim': '#ffc8e8', '--text': '#8b1a6b', '--text-dim': '#a04080', '--text-mid': '#9e3880' }, display: "system-ui, -apple-system, sans-serif",              mono: "'Courier New', Courier, monospace"             },
+};
+function applyTheme(name) {
+  var theme = THEMES[name] || THEMES.dark;
+  var root  = document.documentElement;
+  Object.keys(theme.vars).forEach(function (k) { root.style.setProperty(k, theme.vars[k]); });
+  root.style.setProperty('--display', theme.display);
+  root.style.setProperty('--mono',    theme.mono);
+}
+applyTheme(new URLSearchParams(window.location.search).get('theme') || 'dark');
+</script>
 <style>
   :root {
     --bg: #0d0d0d;
@@ -15,6 +40,15 @@
     --text-mid: #888;
     --mono: 'Courier New', Courier, monospace;
     --display: system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+    /* Shared type scale */
+    --fs-micro:   0.6875rem;
+    --fs-caption: 0.75rem;
+    --fs-small:   0.8125rem;
+    --fs-body:    0.875rem;
+    --fs-input:   1rem;
+    --fs-heading: 1.5rem;
+    --fs-title:   clamp(2.5rem, 8vw, 3.75rem);
   }
 
   html { font-size: 16px; }
@@ -81,7 +115,7 @@
 
   .age-badge {
     display: inline-block;
-    font-size: 0.5em; /* 0.5 × headline(3.5em) = 1.75em of card */
+    font-size: 0.5em;
     font-weight: 700;
     font-family: var(--mono);
     color: var(--text);
@@ -101,8 +135,8 @@
     margin: 28px 0;
   }
 
-  .binary { font-family: var(--mono); font-size: 0.9375em; color: var(--text-dim); letter-spacing: 0.1em; margin-bottom: 6px; }
-  .comment { font-family: var(--mono); font-size: 0.9375em; color: var(--text-dim); margin-bottom: 28px; }
+  .binary { font-family: var(--mono); font-size: 0.875em; color: var(--text-dim); letter-spacing: 0.1em; margin-bottom: 6px; }
+  .comment { font-family: var(--mono); font-size: 0.875em; color: var(--text-dim); margin-bottom: 28px; }
 
   .stats {
     display: grid;
@@ -137,7 +171,7 @@
 
   .stat-unit {
     font-family: var(--display);
-    font-size: 0.47em; /* 0.47 × stat-value(1.875em) ≈ 0.875em of card */
+    font-size: 0.5em;
     color: var(--text-mid);
     margin-left: 4px;
     font-weight: 400;
@@ -194,7 +228,7 @@
     transition: color 0.15s;
   }
   .meme-placeholder:hover { color: var(--text-mid); }
-  .meme-placeholder .crosshair { font-size: 3rem; margin-bottom: 8px; opacity: 0.3; }
+  .meme-placeholder .crosshair { font-size: 3em; margin-bottom: 8px; opacity: 0.3; }
   .meme-placeholder p { font-family: var(--mono); font-size: 1em; letter-spacing: 0.1em; }
   .meme-placeholder .upload-hint { font-family: var(--display); font-size: 0.875em; margin-top: 6px; opacity: 0.5; }
 
@@ -241,7 +275,7 @@
     left: 50%;
     transform: translateX(-50%);
     font-family: var(--mono);
-    font-size: 0.875rem;
+    font-size: var(--fs-body);
     letter-spacing: 0.08em;
     color: var(--text-dim);
     background: var(--surface);
@@ -273,7 +307,7 @@
     content: '\25ae';
     animation: blink 1.1s step-end infinite;
     color: var(--text-dim);
-    font-size: 0.85em;
+    font-size: 0.875em;
   }
   @keyframes blink { 50% { opacity: 0; } }
 
@@ -308,7 +342,7 @@
 
   .meme-tab {
     font-family: var(--mono);
-    font-size: 0.875rem;
+    font-size: var(--fs-body);
     letter-spacing: 0.06em;
     background: transparent;
     color: var(--text-dim);
@@ -323,7 +357,7 @@
 
   .meme-picker-close {
     font-family: var(--display);
-    font-size: 1rem;
+    font-size: var(--fs-input);
     font-weight: 400;
     margin-left: auto;
     background: transparent;
@@ -355,21 +389,21 @@
     transition: border-color 0.15s, color 0.15s;
     gap: 8px;
   }
-  .upload-drop-area:hover { border-color: #555; color: var(--text-mid); }
-  .upload-drop-area .drop-icon { font-size: 2.625rem; opacity: 0.35; }
-  .upload-drop-area p { font-family: var(--mono); font-size: 0.875rem; letter-spacing: 0.08em; }
+  .upload-drop-area:hover { border-color: var(--text-mid); color: var(--text-mid); }
+  .upload-drop-area .drop-icon { font-size: 2.5rem; opacity: 0.35; }
+  .upload-drop-area p { font-family: var(--mono); font-size: var(--fs-body); letter-spacing: 0.08em; }
 
   /* staged upload */
   .upload-stage-preview { display: flex; justify-content: center; padding: 12px 0 8px; }
   .upload-stage-preview img { max-width: 100%; max-height: 140px; object-fit: contain; border: 0.5px solid var(--border); display: block; }
-  .upload-stage-info { font-family: var(--mono); font-size: 0.875rem; color: var(--text-dim); letter-spacing: 0.04em; padding: 4px 0 10px; line-height: 1.8; }
+  .upload-stage-info { font-family: var(--mono); font-size: var(--fs-body); color: var(--text-dim); letter-spacing: 0.04em; padding: 4px 0 10px; line-height: 1.8; }
   .upload-stage-info .ok   { color: #4caf50; }
   .upload-stage-info .warn { color: #e05555; }
   .upload-stage-actions { display: flex; gap: 8px; flex-wrap: wrap; }
   .upload-stage-sep { border: none; border-top: 0.5px solid var(--border); margin: 14px 0; }
   .upload-action-btn {
     font-family: var(--mono);
-    font-size: 0.875rem;
+    font-size: var(--fs-body);
     letter-spacing: 0.04em;
     background: var(--bg);
     color: var(--text-mid);
@@ -387,7 +421,7 @@
 
   .meme-input {
     font-family: var(--mono);
-    font-size: 0.875rem;
+    font-size: var(--fs-body);
     background: var(--bg);
     color: var(--text);
     border: 0.5px solid var(--border);
@@ -397,7 +431,7 @@
     letter-spacing: 0.03em;
     width: 100%;
   }
-  .meme-input:focus { border-color: #555; }
+  .meme-input:focus { border-color: var(--text-mid); }
   .meme-input::placeholder { color: var(--text-dim); }
 
   .giphy-search-row { display: flex; gap: 8px; margin-bottom: 14px; }
@@ -421,7 +455,7 @@
 
   .giphy-status {
     font-family: var(--mono);
-    font-size: 0.875rem;
+    font-size: var(--fs-body);
     color: var(--text-dim);
     text-align: center;
     padding: 36px 0;
@@ -436,7 +470,7 @@
     justify-content: center;
     background: rgba(0,0,0,0.6);
     font-family: var(--mono);
-    font-size: 0.875rem;
+    font-size: var(--fs-body);
     letter-spacing: 0.08em;
     color: var(--text);
     opacity: 0;
@@ -453,7 +487,7 @@
     border: 0.5px solid var(--border);
     color: var(--text-mid);
     font-family: var(--mono);
-    font-size: 0.8125rem;
+    font-size: var(--fs-small);
     padding: 4px 9px;
     cursor: pointer;
     z-index: 3;
@@ -472,7 +506,7 @@
     border: 0.5px solid var(--border);
     background: var(--surface);
     font-family: var(--mono);
-    font-size: 0.875rem;
+    font-size: var(--fs-body);
     color: var(--text-mid);
     position: sticky;
     top: 20px;
@@ -482,7 +516,7 @@
   .side-panel-header {
     border-bottom: 0.5px solid var(--border);
     padding: 10px 14px;
-    font-size: 0.8125rem;
+    font-size: var(--fs-small);
     color: var(--text-dim);
     letter-spacing: 0.06em;
     background: var(--bg);
@@ -499,7 +533,7 @@
     gap: 3px;
   }
   .cfg-label {
-    font-size: 0.6875rem;
+    font-size: var(--fs-micro);
     letter-spacing: 0.08em;
     color: var(--text-dim);
     text-transform: uppercase;
@@ -509,7 +543,7 @@
     border: 0.5px solid var(--border);
     color: var(--text);
     font-family: var(--mono);
-    font-size: 0.875rem;
+    font-size: var(--fs-body);
     padding: 7px 10px;
     width: 100%;
     outline: none;
@@ -517,7 +551,7 @@
   .cfg-input:focus { border-color: var(--text-mid); }
   .cfg-input.invalid { border-color: #e05555; }
   .cfg-err {
-    font-size: 0.75rem;
+    font-size: var(--fs-caption);
     color: #e05555;
     font-family: var(--mono);
     letter-spacing: 0.04em;
@@ -532,7 +566,7 @@
     border: 0.5px solid var(--border);
     padding: 6px 8px;
     font-family: var(--mono);
-    font-size: 0.8125rem;
+    font-size: var(--fs-small);
     letter-spacing: 0.02em;
     cursor: pointer;
     text-align: left;
@@ -556,7 +590,7 @@
     border: 0.5px solid var(--border);
     color: var(--text-mid);
     font-family: var(--mono);
-    font-size: 0.8125rem;
+    font-size: var(--fs-small);
     padding: 8px 10px;
     cursor: pointer;
     text-align: left;
@@ -568,7 +602,7 @@
   }
   .cfg-device-btn:hover { border-color: var(--text-mid); color: var(--text); }
   .cfg-device-btn.active { border-color: var(--text); color: var(--text); }
-  .cfg-device-watt { color: var(--text-dim); font-size: 0.75rem; }
+  .cfg-device-watt { color: var(--text-dim); font-size: var(--fs-caption); }
   .cfg-device-days { color: var(--text); font-weight: 700; min-width: 32px; text-align: right; }
 
   .cfg-msg-btn {
@@ -576,7 +610,7 @@
     border: 0.5px solid var(--border);
     color: var(--text-mid);
     font-family: var(--mono);
-    font-size: 0.8125rem;
+    font-size: var(--fs-small);
     padding: 8px 10px;
     cursor: pointer;
     text-align: left;
@@ -595,7 +629,7 @@
     align-items: center;
     gap: 6px;
     font-family: var(--mono);
-    font-size: 0.8125rem;
+    font-size: var(--fs-small);
     color: var(--text-dim);
     cursor: pointer;
     margin-top: 4px;
@@ -605,7 +639,7 @@
     border: 0.5px solid var(--border);
     color: var(--text);
     font-family: var(--mono);
-    font-size: 0.875rem;
+    font-size: var(--fs-body);
     padding: 8px 10px;
     width: 100%;
     resize: vertical;
@@ -617,7 +651,7 @@
   .cfg-msg-textarea:focus { border-color: var(--text-mid); }
 
   .cfg-section-label {
-    font-size: 0.6875rem;
+    font-size: var(--fs-micro);
     letter-spacing: 0.1em;
     color: var(--text-dim);
     text-transform: uppercase;
@@ -626,7 +660,7 @@
     margin-bottom: -2px;
   }
   .cfg-hint {
-    font-size: 0.8125rem;
+    font-size: var(--fs-small);
     color: var(--text-dim);
     font-family: var(--mono);
     letter-spacing: 0.04em;
@@ -658,7 +692,7 @@
   .cfg-scale-slider::-webkit-slider-thumb:hover { transform: scale(1.3); }
   .cfg-scale-val {
     font-family: var(--mono);
-    font-size: 0.75rem;
+    font-size: var(--fs-caption);
     color: var(--text);
     min-width: 3ch;
     text-align: right;
@@ -669,7 +703,7 @@
   .sneaky-hint {
     display: none;
     font-family: var(--mono);
-    font-size: 0.8125rem;
+    font-size: var(--fs-small);
     color: var(--text-mid);
     text-align: center;
     padding: 10px 20px 12px;
@@ -687,7 +721,7 @@
   /* ── ATTRIBUTION ───────────────────────────────── */
   .attribution {
     font-family: var(--mono);
-    font-size: 0.8125rem;
+    font-size: var(--fs-small);
     color: var(--text-dim);
     text-align: center;
     margin-top: 14px;
@@ -722,14 +756,14 @@
     min-width: 0;
   }
   .bottom-bar-token-label {
-    font-size: 0.75rem;
+    font-size: var(--fs-caption);
     color: var(--text-dim);
     letter-spacing: 0.08em;
     text-transform: uppercase;
     flex-shrink: 0;
   }
   .bottom-bar-token-val {
-    font-size: 0.875rem;
+    font-size: var(--fs-body);
     color: var(--text);
     letter-spacing: 0.04em;
     flex: 1;
@@ -744,7 +778,7 @@
     border-left: 0.5px solid var(--border);
     color: var(--text-mid);
     font-family: var(--mono);
-    font-size: 0.875rem;
+    font-size: var(--fs-body);
     padding: 15px 22px;
     cursor: pointer;
     letter-spacing: 0.06em;
@@ -752,9 +786,9 @@
     transition: color 0.12s, background 0.12s;
     line-height: 1;
   }
-  .bottom-bar-btn:hover { color: var(--text); background: #222; }
+  .bottom-bar-btn:hover { color: var(--text); background: var(--border); }
   .bottom-bar-btn.primary { color: var(--text); }
-  .bottom-bar-btn.token-copy { border-left: none; padding-left: 8px; color: var(--text-dim); font-size: 0.75rem; background: none; }
+  .bottom-bar-btn.token-copy { border-left: none; padding-left: 8px; color: var(--text-dim); font-size: var(--fs-caption); background: none; }
 
   /* ── PRINT QR (hidden on screen) ───────────────── */
   .print-qr {
@@ -783,14 +817,25 @@
     }
   }
 
+  /* Bottom bar: token on its own row once the whole thing gets tight */
+  @media (max-width: 900px) {
+    .bottom-bar { flex-wrap: wrap; }
+    .bottom-bar-token {
+      flex: 1 0 100%;
+      border-right: none;
+      border-bottom: 0.5px solid var(--border);
+      padding: 10px 16px;
+    }
+    .bottom-bar-btn { flex: 1; padding: 13px 10px; text-align: center; }
+    .bottom-bar-btn:first-of-type { border-left: none; }
+  }
+
   @media (max-width: 700px) {
     body { padding: 16px 10px; }
     .headline { font-size: 2.5em; }
     .body { padding: 28px 20px 24px; margin: 8px; }
     .stats { grid-template-columns: repeat(2, 1fr); }
     .cfg-themes { grid-template-columns: repeat(3, 1fr); }
-    .bottom-bar { flex-wrap: wrap; }
-    .bottom-bar-token { min-width: 0; }
     .meta-bar { font-size: 0.6875em; letter-spacing: 0.02em; }
   }
 
@@ -798,7 +843,7 @@
     .headline { font-size: 2em; }
     .body { padding: 18px 12px 18px; margin: 4px; }
     .stat-value { font-size: 1.5em; }
-    .bottom-bar-btn { padding: 11px 12px; font-size: 0.6875rem; }
+    .bottom-bar-btn { padding: 11px 12px; font-size: var(--fs-micro); }
   }
 
   /* ── PRINT ─────────────────────────────────────── */
@@ -818,7 +863,7 @@
     .body { padding: 24px 36px 20px !important; }
 
     /* scale down headline */
-    .headline { font-size: 2.375rem !important; margin-bottom: 4px !important; }
+    .headline { font-size: 2.5em !important; margin-bottom: 4px !important; }
 
     /* tighter dividers */
     hr.divider { margin: 10px 0 !important; }
@@ -826,9 +871,9 @@
     /* compact stats */
     .stats { margin-bottom: 14px !important; }
     .stat { padding: 8px 12px !important; }
-    .stat-value { font-size: 0.9375rem !important; }
-    .stat-label { font-size: 0.5625rem !important; }
-    .stat-sub { font-size: 0.5625rem !important; margin-top: 2px !important; }
+    .stat-value { font-size: 1em !important; }
+    .stat-label { font-size: 0.625em !important; }
+    .stat-sub { font-size: 0.625em !important; margin-top: 2px !important; }
 
     /* smaller meme */
     .meme-container { min-height: 0 !important; margin-bottom: 10px !important; max-height: 180px !important; }
@@ -837,7 +882,7 @@
     /* compact message + fridge */
     .message { margin-bottom: 10px !important; line-height: 1.6 !important; }
     .fridge-block { margin: 10px 0 !important; padding: 10px 16px !important; }
-    .fridge-block .big-num { font-size: 2.25rem !important; margin: 4px 0 2px !important; }
+    .fridge-block .big-num { font-size: 2.25em !important; margin: 4px 0 2px !important; }
 
     /* binary + comment lines */
     .binary { margin-bottom: 2px !important; }
@@ -861,7 +906,7 @@
     .print-qr-text {
       text-align: right;
       font-family: 'Courier New', Courier, monospace;
-      font-size: 0.5625rem;
+      font-size: var(--fs-micro);
       color: var(--text-mid);
       line-height: 1.7;
       letter-spacing: 0.06em;
@@ -955,7 +1000,7 @@
       für ungefähr
       <span class="big-num cursor" id="days-display">—</span>
       mit Strom versorgt ist.<br>
-      <span style="font-size: 0.6875rem; color: var(--text-dim);">// timestamp: <span id="ts-display">—</span> UTC — danke für deine Existenz.</span>
+      <span style="font-size:var(--fs-micro);color:var(--text-dim);">// timestamp: <span id="ts-display">—</span> UTC — danke für deine Existenz.</span>
     </div>
 
     <div class="print-qr" id="print-qr">
@@ -1067,6 +1112,7 @@
   &nbsp;·&nbsp; <a href="https://bitcircus101.de/donations" target="_blank">plzzz donate kkthx</a>
   &nbsp;·&nbsp; <a href="https://github.com/bmmmm/mika-birthday" target="_blank">github</a>
   &nbsp;·&nbsp; <a href="https://bmmmm.github.io/mika-birthday/start.html" target="_blank">build a card</a>
+  &nbsp;·&nbsp; <span class="site-version">v0.0.0-dev</span>
 </div>
 
 <!-- meme picker modal -->
@@ -1118,7 +1164,7 @@
       <div id="tab-giphy" style="display:none">
         <div style="display:flex;gap:8px;margin-bottom:8px;align-items:center;">
           <input class="meme-input" id="giphy-key-input" type="text" placeholder="Giphy API key" style="max-width:260px">
-          <span style="font-family:var(--mono);font-size: 0.5625rem;color:var(--text-dim);flex-shrink:0;">free → <a href="https://developers.giphy.com" target="_blank" style="color:var(--text-mid)">developers.giphy.com</a></span>
+          <span style="font-family:var(--mono);font-size:var(--fs-micro);color:var(--text-dim);flex-shrink:0;">free → <a href="https://developers.giphy.com" target="_blank" style="color:var(--text-mid)">developers.giphy.com</a></span>
         </div>
         <div class="giphy-search-row">
           <input class="meme-input" id="giphy-search-input" type="text" placeholder="birthday meme...">
@@ -1132,29 +1178,8 @@
 
 <script src="config.js"></script>
 <script>
-const THEMES = {
-  simple:    { label: 'Simple',    vars: { '--bg': '#ffffff', '--surface': '#f7f7f7', '--border': '#e2e2e2', '--border-dim': '#ebebeb', '--text': '#1a1a1a', '--text-dim': '#888888', '--text-mid': '#555555' }, display: "system-ui, -apple-system, 'Segoe UI', sans-serif", mono: "'Courier New', Courier, monospace"             },
-  dark:      { label: 'Dark',      vars: { '--bg': '#0d0d0d', '--surface': '#141414', '--border': '#2a2a2a', '--border-dim': '#1e1e1e', '--text': '#e8e8e6', '--text-dim': '#606060', '--text-mid': '#999999' }, display: "system-ui, -apple-system, 'Segoe UI', sans-serif", mono: "'Courier New', Courier, monospace"             },
-  light:     { label: 'Light',     vars: { '--bg': '#f8f8f6', '--surface': '#f0f0ee', '--border': '#d8d8d6', '--border-dim': '#e4e4e2', '--text': '#111110', '--text-dim': '#777777', '--text-mid': '#555555' }, display: "system-ui, -apple-system, 'Segoe UI', sans-serif", mono: "'Courier New', Courier, monospace"             },
-  amber:     { label: 'Amber',     vars: { '--bg': '#0c0700', '--surface': '#150d00', '--border': '#2a1e00', '--border-dim': '#1e1400', '--text': '#d4870a', '--text-dim': '#a06010', '--text-mid': '#c88020' }, display: "system-ui, -apple-system, 'Segoe UI', sans-serif", mono: "'Courier New', Courier, monospace"             },
-  matrix:    { label: 'Matrix',    vars: { '--bg': '#000000', '--surface': '#001200', '--border': '#003800', '--border-dim': '#002000', '--text': '#00e840', '--text-dim': '#008830', '--text-mid': '#00b840' }, display: "monospace",                                         mono: "monospace"                                     },
-  blueprint: { label: 'Blueprint', vars: { '--bg': '#001830', '--surface': '#00203e', '--border': '#1a3a5c', '--border-dim': '#0e2840', '--text': '#a8d4f0', '--text-dim': '#3a70a0', '--text-mid': '#5a9aca' }, display: "system-ui, -apple-system, 'Segoe UI', sans-serif", mono: "'Courier New', Courier, monospace"             },
-  paper:     { label: 'Paper',     vars: { '--bg': '#f5f0e8', '--surface': '#ede8de', '--border': '#c8bfaa', '--border-dim': '#d8d0be', '--text': '#2c2418', '--text-dim': '#7a6a50', '--text-mid': '#5a4a38' }, display: "Georgia, 'Times New Roman', serif",                mono: "'Courier New', Courier, monospace"             },
-  neon:      { label: 'Neon',      vars: { '--bg': '#07000f', '--surface': '#0e0018', '--border': '#2d0045', '--border-dim': '#1a0028', '--text': '#ff2d78', '--text-dim': '#b03070', '--text-mid': '#ff85b0' }, display: "system-ui, -apple-system, 'Segoe UI', sans-serif", mono: "'Courier New', Courier, monospace"             },
-  dos:       { label: 'DOS',       vars: { '--bg': '#000080', '--surface': '#0000aa', '--border': '#5555ff', '--border-dim': '#2222cc', '--text': '#ffffff', '--text-dim': '#8888ff', '--text-mid': '#cccccc' }, display: "monospace",                                         mono: "monospace"                                     },
-  brutalist: { label: 'Brutalist', vars: { '--bg': '#ffffff', '--surface': '#f0f0f0', '--border': '#000000', '--border-dim': '#444444', '--text': '#000000', '--text-dim': '#666666', '--text-mid': '#333333' }, display: "'Arial Black', Impact, sans-serif",                mono: "'Courier New', Courier, monospace"             },
-  ink:       { label: 'Ink',       vars: { '--bg': '#1a1410', '--surface': '#221c16', '--border': '#3a3028', '--border-dim': '#2a2420', '--text': '#e8d5b0', '--text-dim': '#9a8060', '--text-mid': '#c0a070' }, display: "'Arial Black', Impact, sans-serif",                mono: "'Courier New', Courier, monospace"             },
-  // ✨ easter egg — hidden from builder theme grid. try ?theme=uwu OwO
-  uwu:       { label: 'uwu ✨',    vars: { '--bg': '#fff0f8', '--surface': '#ffe4f2', '--border': '#ffb3d9', '--border-dim': '#ffc8e8', '--text': '#8b1a6b', '--text-dim': '#a04080', '--text-mid': '#9e3880' }, display: "system-ui, -apple-system, sans-serif",              mono: "'Courier New', Courier, monospace"             },
-};
-
-function applyTheme(name) {
-  var theme = THEMES[name] || THEMES.dark;
-  var root  = document.documentElement;
-  Object.keys(theme.vars).forEach(function (k) { root.style.setProperty(k, theme.vars[k]); });
-  root.style.setProperty('--display', theme.display);
-  root.style.setProperty('--mono',    theme.mono);
-}
+// THEMES and applyTheme are defined in the head bootstrap (above <style>)
+// to avoid FOUC on light-theme reloads. Don't redeclare here.
 
 var PRICE_PER_KWH = SETTINGS.pricePerKwh;
 var DEVICES   = [];
@@ -1354,7 +1379,7 @@ function render() {
   // fridge block
   if (amount === null) {
     document.getElementById('fridge-block').innerHTML =
-      '<span style="font-size: 0.6875rem;color:var(--text-dim);">' +
+      '<span style="font-size:var(--fs-micro);color:var(--text-dim);">' +
       '// kein Betrag angegeben \u2014 f\u00fcge <strong>?amount=XX</strong> zur URL hinzu, um die Ger\u00e4telaufzeit zu berechnen.<br>' +
       '// timestamp: ' + ts + ' UTC \u2014 danke f\u00fcr deine Existenz.</span>';
   } else {
@@ -1409,11 +1434,10 @@ function buildShareUrl() {
   return url.toString();
 }
 
-var TOKEN_THEME = { simple:'s', light:'l', amber:'a', matrix:'m', blueprint:'b', paper:'p', neon:'n', dos:'o', brutalist:'r', ink:'i' };
+var TOKEN_THEME = { light:'l', amber:'a', matrix:'m', blueprint:'b', paper:'p', neon:'n', dos:'o', brutalist:'r', ink:'i' };
 
 var THEME_PLACEHOLDERS = {
   dark:      { icon: '⊕', line1: 'INSERT MEME HERE',    line2: 'click to select file' },
-  simple:    { icon: '⊕', line1: 'INSERT MEME HERE',    line2: 'click to select file' },
   light:     { icon: '⊕', line1: 'INSERT MEME HERE',    line2: 'click to select file' },
   amber:     { icon: '█', line1: 'LOAD IMAGE.exe',       line2: 'press any key to continue' },
   matrix:    { icon: '>_', line1: 'awaiting upload...',  line2: '> paste url or drop file' },
