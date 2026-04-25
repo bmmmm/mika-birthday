@@ -189,7 +189,8 @@ try {
   .stat-sub { font-family: var(--mono); font-size: 0.8125em; color: var(--text-dim); margin-top: 4px; }
 
   .device-badge {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
     font-family: var(--mono);
     font-size: 0.875em;
     color: var(--text-mid);
@@ -200,6 +201,15 @@ try {
     max-width: 100%;
     overflow-wrap: break-word;
     word-break: break-all;
+  }
+  .device-badge.has-thumb { padding: 0 10px 0 0; gap: 10px; }
+  .device-badge .device-thumb {
+    width: 28px;
+    height: 28px;
+    object-fit: cover;
+    border-right: 0.5px solid var(--border);
+    display: block;
+    flex-shrink: 0;
   }
 
   .meme-container {
@@ -1401,9 +1411,26 @@ function render() {
     }
   }
 
-  // device badge
-  document.getElementById('device-badge').textContent =
-    amount !== null ? 'device: ' + device.shortName : 'device: \u2014';
+  // device badge — square thumb flush with the border when device.img exists
+  var _badge = document.getElementById('device-badge');
+  _badge.classList.remove('has-thumb');
+  _badge.innerHTML = '';
+  var _hasDevice = amount !== null;
+  if (_hasDevice && device.img) {
+    _badge.classList.add('has-thumb');
+    var _thumb = document.createElement('img');
+    _thumb.className = 'device-thumb';
+    _thumb.src = device.img;
+    _thumb.alt = device.name;
+    _thumb.onerror = function () {
+      _thumb.remove();
+      _badge.classList.remove('has-thumb');
+    };
+    _badge.appendChild(_thumb);
+  }
+  var _label = document.createElement('span');
+  _label.textContent = _hasDevice ? 'device: ' + device.shortName : 'device: \u2014';
+  _badge.appendChild(_label);
 
   // fridge block
   if (amount === null) {
