@@ -29,6 +29,14 @@ function applyTheme(name) {
   root.setAttribute('data-theme', THEMES[name] ? name : 'dark');
 }
 applyTheme(new URLSearchParams(window.location.search).get('theme') || 'dark');
+// Restore UI scale before first paint to prevent a font-size flash where
+// the page renders at 16px then jumps to the saved scale.
+try {
+  var _bootScale = parseInt(localStorage.getItem('idxUiScale') || '100', 10);
+  if (_bootScale && _bootScale !== 100) {
+    document.documentElement.style.fontSize = (16 * _bootScale / 100) + 'px';
+  }
+} catch (e) {}
 </script>
 <style>
   :root {
@@ -2092,11 +2100,7 @@ function setupMemeUpload() {
   } catch (e) {
     console.warn('messages load failed:', e);
   }
-  // restore UI scale from localStorage
-  var _savedUiScale = parseInt(localStorage.getItem('idxUiScale') || '100', 10);
-  if (_savedUiScale !== 100) {
-    document.documentElement.style.fontSize = (16 * _savedUiScale / 100) + 'px';
-  }
+  // UI scale is restored pre-paint by the head bootstrap to avoid a flash.
   render();
   setupMemeUpload();
   setupSidePanel();
