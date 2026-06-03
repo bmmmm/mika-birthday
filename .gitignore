@@ -1,0 +1,8 @@
+# Claude Code runtime state (local settings, worktrees, scratch)
+.claude/
+
+# Local scratch / verification artifacts
+tmp/
+
+# macOS metadata
+.DS_Store
