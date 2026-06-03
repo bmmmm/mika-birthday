@@ -39,9 +39,13 @@ pre {
 var p      = new URLSearchParams(location.search);
 var name   = p.get('name')   || 'Mika';
 var rawAge = p.get('age');
-var age    = rawAge && !isNaN(parseInt(rawAge, 10)) ? parseInt(rawAge, 10) : 30;
+// Mirror index.html getParams: clamp age to 1-120 and reject non-positive
+// amounts, so the plain/print twin matches the card for the same URL.
+var parsedAge = parseInt(rawAge, 10);
+var age    = !isNaN(parsedAge) ? Math.max(1, Math.min(120, parsedAge)) : 30;
 var rawAmt = p.get('amount');
-var amount = rawAmt && rawAmt.trim() !== '' && !isNaN(parseFloat(rawAmt)) ? parseFloat(rawAmt) : null;
+var parsedAmt = rawAmt !== null && rawAmt.trim() !== '' ? parseFloat(rawAmt) : NaN;
+var amount = !isNaN(parsedAmt) && parsedAmt > 0 ? parsedAmt : null;
 var from   = p.get('from')  || null;
 var meme   = p.get('meme')  || null;
 var device = p.get('device') || null;
@@ -64,6 +68,7 @@ function pickDevice(eur, override) {
 }
 
 function fmtDays(n) {
+  if (!isFinite(n) || n <= 0) return '—';
   if (n >= 365) return (n / 365).toFixed(1) + ' years';
   return Math.round(n) + ' days';
 }

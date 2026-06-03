@@ -1231,9 +1231,10 @@ function getParams() {
   const rawAge    = p.get('age');
   const parsedAmount = rawAmount !== null && rawAmount.trim() !== '' ? parseFloat(rawAmount) : NaN;
   const parsedAge    = rawAge !== null ? parseInt(rawAge, 10) : NaN;
+  const parsedScale  = parseFloat(p.get('scale'));
   return {
     name:   p.get('name')  || 'Mika',
-    amount: !isNaN(parsedAmount) && parsedAmount >= 0 ? parsedAmount : null,
+    amount: !isNaN(parsedAmount) && parsedAmount > 0 ? parsedAmount : null,
     meme:   p.get('meme')  || null,
     from:   p.get('from')  || null,
     age:    !isNaN(parsedAge) ? Math.max(1, Math.min(120, parsedAge)) : 30,
@@ -1242,18 +1243,21 @@ function getParams() {
     device:     p.get('device') || null,
     quote:      p.get('quote')  || 'classic',
     customText: p.get('text')   || null,
-    scale:      Math.max(0.5, Math.min(2, parseFloat(p.get('scale')) || 1)),
+    scale:      isNaN(parsedScale) ? 1 : Math.max(0.5, Math.min(2, parsedScale)),
   };
 }
 
 function interpolateMessage(text, name, age) {
   var binary = age.toString(2);
   var hex    = toHex(age);
+  // Function-form replacements: a literal replacement string would let a name
+  // like "$&" or "$`" trigger String.replace's special $-sequences (esc() does
+  // not neutralize '$'), corrupting or re-injecting the already-built HTML.
   return esc(text)
-    .replace(/\{name\}/g,   '<strong>' + esc(name) + '</strong>')
-    .replace(/\{age\}/g,    '<strong>' + age + '</strong>')
-    .replace(/\{binary\}/g, '<strong>' + binary + '</strong>')
-    .replace(/\{hex\}/g,    '<strong>' + hex + '</strong>')
+    .replace(/\{name\}/g,   function () { return '<strong>' + esc(name) + '</strong>'; })
+    .replace(/\{age\}/g,    function () { return '<strong>' + age + '</strong>'; })
+    .replace(/\{binary\}/g, function () { return '<strong>' + binary + '</strong>'; })
+    .replace(/\{hex\}/g,    function () { return '<strong>' + hex + '</strong>'; })
     .replace(/\n/g, '<br>');
 }
 
@@ -1342,6 +1346,9 @@ function render() {
   if (from) {
     metaFrom.textContent    = 'from: ' + from;
     metaFrom.style.display  = '';
+  } else {
+    metaFrom.textContent    = '';
+    metaFrom.style.display   = 'none';
   }
 
   // headline + badge
@@ -1374,18 +1381,20 @@ function render() {
     + '<p class="upload-hint">' + esc(_phd.line2) + '</p>';
   _ph.style.display = '';
 
-  // meme / device photo
-  const memeOrDevice = meme || (device.img ? device.img : null);
-  const memeLabel    = meme
-    ? (meme.startsWith('data:') ? 'data: (compressed image, embedded)'
-      : meme.startsWith('blob:') ? 'blob: (local file, print only)'
-      : meme)
+  // meme / device photo \u2014 effMeme includes a persisted print-only blob so it
+  // survives re-renders triggered by unrelated side-panel edits.
+  const effMeme      = meme || _blobMeme;
+  const memeOrDevice = effMeme || (device.img ? device.img : null);
+  const memeLabel    = effMeme
+    ? (effMeme.startsWith('data:') ? 'data: (compressed image, embedded)'
+      : effMeme.startsWith('blob:') ? 'blob: (local file, print only)'
+      : effMeme)
     : (device.img ? '// device: ' + device.shortName : '\u2014');
   document.getElementById('meme-label').textContent = '[ img_src: ' + memeLabel + ' ]';
   if (memeOrDevice) {
     const img     = document.createElement('img');
     img.className = 'meme-img';
-    img.alt       = meme ? 'meme' : device.name;
+    img.alt       = effMeme ? 'meme' : device.name;
     img.onerror   = function () {
       _ph.style.display = '';
       img.remove();
@@ -1401,7 +1410,7 @@ function render() {
       hint.addEventListener('click', openMemePicker);
       container.appendChild(hint);
 
-      if (meme) {
+      if (effMeme) {
         const rmBtn     = document.createElement('button');
         rmBtn.className = 'meme-remove-btn';
         rmBtn.textContent = '[ ✕ remove ]';
@@ -1439,9 +1448,17 @@ function render() {
       '// kein Betrag angegeben \u2014 f\u00fcge <strong>?amount=XX</strong> zur URL hinzu, um die Ger\u00e4telaufzeit zu berechnen.<br>' +
       '// timestamp: ' + ts + ' UTC \u2014 danke f\u00fcr deine Existenz.</span>';
   } else {
-    document.getElementById('device-name-inline').innerHTML = '<strong>' + esc(device.name) + '</strong>';
-    document.getElementById('days-display').textContent     = formatDays(days);
-    document.getElementById('ts-display').textContent       = ts;
+    // Rebuild the full structure each time — the amount===null branch above
+    // replaces the whole innerHTML, destroying these child spans. Relying on
+    // them still existing would throw the moment a card goes no-amount -> amount.
+    document.getElementById('fridge-block').innerHTML =
+      'Hast du ermöglicht, dass ' +
+      '<span id="device-name-inline"><strong>' + esc(device.name) + '</strong></span> ' +
+      'für ungefähr ' +
+      '<span class="big-num cursor" id="days-display">' + esc(formatDays(days)) + '</span> ' +
+      'mit Strom versorgt ist.<br>' +
+      '<span style="font-size:var(--fs-micro);color:var(--text-dim);">// timestamp: ' +
+      '<span id="ts-display">' + esc(ts) + '</span> UTC — danke für deine Existenz.</span>';
   }
 
   // message
@@ -1467,6 +1484,14 @@ function render() {
   var qrImg = document.getElementById('qr-img');
   if (qrImg) {
     var shareUrl = buildShareUrl();
+    // A data: (embedded) meme is tens of KB — beyond QR capacity and the
+    // qrserver URL limit, so the QR would fail to render. Drop it; the QR
+    // still encodes the card link (the embedded image can't travel via QR).
+    if (meme && meme.startsWith('data:')) {
+      var _qu = new URL(shareUrl);
+      _qu.searchParams.delete('meme');
+      shareUrl = _qu.toString();
+    }
     qrImg.src = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + encodeURIComponent(shareUrl);
   }
 
@@ -1486,11 +1511,12 @@ function buildShareUrl() {
   if (p.device)                      url.searchParams.set('device', p.device);
   if (p.quote && p.quote !== 'classic') url.searchParams.set('quote', p.quote);
   if (p.quote === 'custom' && p.customText) url.searchParams.set('text', p.customText);
+  if (p.scale && p.scale !== 1) url.searchParams.set('scale', p.scale.toFixed(2));
   url.searchParams.set('locked', '1');
   return url.toString();
 }
 
-var TOKEN_THEME = { light:'l', amber:'a', matrix:'m', blueprint:'b', paper:'p', neon:'n', dos:'o', brutalist:'r', ink:'i' };
+var TOKEN_THEME = { light:'l', amber:'a', matrix:'m', blueprint:'b', paper:'p', neon:'n', dos:'o', brutalist:'r', ink:'i', uwu:'u' };
 
 var THEME_PLACEHOLDERS = {
   dark:      { icon: '⊕', line1: 'INSERT MEME HERE',    line2: 'click to select file' },
@@ -1593,10 +1619,17 @@ function setupSidePanel() {
   _cfgCustomize = p.quote === 'custom';
   _cfgQuote     = (_cfgCustomize || !p.quote) ? (_cfgQuote || 'classic') : p.quote;
 
-  document.getElementById('cfg-name').value   = p.name;
-  document.getElementById('cfg-age').value    = p.age;
-  document.getElementById('cfg-amount').value = p.amount !== null ? p.amount : '';
-  document.getElementById('cfg-from').value   = p.from || '';
+  // Only re-sync a field's value when it is NOT focused — otherwise the
+  // debounced applyConfig() re-render clobbers the user's caret mid-edit and
+  // refills a just-cleared name with the 'Mika' default.
+  var _nameEl = document.getElementById('cfg-name');
+  var _ageEl  = document.getElementById('cfg-age');
+  var _amtEl  = document.getElementById('cfg-amount');
+  var _fromEl = document.getElementById('cfg-from');
+  if (document.activeElement !== _nameEl) _nameEl.value = p.name;
+  if (document.activeElement !== _ageEl)  _ageEl.value  = p.age;
+  if (document.activeElement !== _amtEl)  _amtEl.value  = p.amount !== null ? p.amount : '';
+  if (document.activeElement !== _fromEl) _fromEl.value = p.from || '';
 
   var grid = document.getElementById('cfg-themes');
   grid.innerHTML = '';
@@ -1645,7 +1678,7 @@ function setupSidePanel() {
   var _memeRemEl  = document.getElementById('cfg-meme-remove');
   var _memeBrwEl  = document.getElementById('cfg-meme-browse');
   if (_memeUrlEl && document.activeElement !== _memeUrlEl) {
-    var _m = p.meme || '';
+    var _m = p.meme || _blobMeme || '';
     if (_m.startsWith('data:')) {
       _memeUrlEl.value = ''; _memeUrlEl.placeholder = '(embedded image — use share link)'; _memeUrlEl.disabled = true;
     } else if (_m.startsWith('blob:')) {
@@ -1654,7 +1687,7 @@ function setupSidePanel() {
       _memeUrlEl.value = _m; _memeUrlEl.placeholder = 'https://example.com/image.jpg'; _memeUrlEl.disabled = false;
     }
   }
-  if (_memeRemEl) _memeRemEl.style.display = p.meme ? '' : 'none';
+  if (_memeRemEl) _memeRemEl.style.display = (p.meme || _blobMeme) ? '' : 'none';
   // scale sliders — sync values every render
   var _cardScaleEl   = document.getElementById('idx-card-scale');
   var _cardScaleVal  = document.getElementById('idx-card-scale-val');
@@ -1677,6 +1710,7 @@ function setupSidePanel() {
         clearTimeout(_applyTimer);
         _applyTimer = setTimeout(function () {
           var val = _memeUrlEl.value.trim();
+          if (_blobMeme) { URL.revokeObjectURL(_blobMeme); _blobMeme = null; }
           var u = new URL(window.location.href);
           if (val) u.searchParams.set('meme', val);
           else     u.searchParams.delete('meme');
@@ -1741,7 +1775,7 @@ function setupSidePanel() {
   if (customizeEl && customTextEl) {
     customizeEl.checked             = _cfgCustomize;
     customTextEl.style.display      = _cfgCustomize ? '' : 'none';
-    if (_cfgCustomize && p.customText) customTextEl.value = p.customText;
+    if (_cfgCustomize && p.customText && document.activeElement !== customTextEl) customTextEl.value = p.customText;
     customizeEl.onchange = function () {
       _cfgCustomize = this.checked;
       customTextEl.style.display = _cfgCustomize ? '' : 'none';
@@ -1755,9 +1789,9 @@ function renderDeviceTiles(amount) {
   if (!grid) return;
   grid.innerHTML = '';
 
-  var autoDevice = _cfgDevice === null ? pickDevice(amount) : null;
+  var autoDevice = (_cfgDevice === null && amount !== null && amount > 0) ? pickDevice(amount) : null;
   DEVICES.forEach(function (d) {
-    var days    = amount !== null && amount >= 0 ? computeDays(amount, d) : null;
+    var days    = amount !== null && amount > 0 ? computeDays(amount, d) : null;
     var daysStr = days === null ? '—' : days >= 365 ? (days / 365).toFixed(1) + 'y' : Math.round(days) + 'd';
     var isActive = _cfgDevice === d.id || (_cfgDevice === null && d === autoDevice);
     var btn = document.createElement('button');
@@ -1813,7 +1847,13 @@ function applyConfig() {
 }
 
 // ── meme picker ─────────────────────────────────────────────────────────────
+// Print-only local uploads use a blob: URL that is intentionally never written
+// to the page URL (it can't be shared). Hold it here so re-renders can re-inject
+// it instead of wiping it; keep the object URL alive for the page lifetime.
+var _blobMeme = null;
+
 function removeMeme() {
+  if (_blobMeme) { URL.revokeObjectURL(_blobMeme); _blobMeme = null; }
   var url = new URL(window.location.href);
   url.searchParams.delete('meme');
   history.replaceState(null, '', url.toString());
@@ -1873,9 +1913,16 @@ function selectMeme(src, label) {
   document.getElementById('meme-label').textContent = '[ img_src: ' + (label || src) + ' ]';
 
   if (!src.startsWith('blob:')) {
+    if (_blobMeme) { URL.revokeObjectURL(_blobMeme); _blobMeme = null; }
     var u = new URL(window.location.href);
     u.searchParams.set('meme', src);
     history.replaceState(null, '', u.toString());
+  } else {
+    // Keep this blob alive across re-renders. Transfer ownership off the staging
+    // URL so closeMemePicker() -> resetUploadStage() below doesn't revoke it.
+    if (_blobMeme && _blobMeme !== src) URL.revokeObjectURL(_blobMeme);
+    _blobMeme = src;
+    if (_stageBlobUrl === src) _stageBlobUrl = null;
   }
 
   closeMemePicker();
@@ -1918,6 +1965,7 @@ function embedDirectly(file) {
   var reader = new FileReader();
   reader.onload = function (e) {
     var dataUrl = e.target.result;
+    if (_blobMeme) { URL.revokeObjectURL(_blobMeme); _blobMeme = null; }
     var u = new URL(window.location.href);
     u.searchParams.set('meme', dataUrl);
     history.replaceState(null, '', u.toString());
@@ -2015,6 +2063,7 @@ function compressAndShow() {
         acceptBtn.className   = 'upload-action-btn primary';
         acceptBtn.textContent = '[ ↗ use compressed (embed in link) ]';
         acceptBtn.addEventListener('click', function () {
+          if (_blobMeme) { URL.revokeObjectURL(_blobMeme); _blobMeme = null; }
           var u = new URL(window.location.href);
           u.searchParams.set('meme', dataUrl);
           history.replaceState(null, '', u.toString());

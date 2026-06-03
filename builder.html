@@ -487,7 +487,7 @@
       </div>
       <div class="field">
         <div class="field-label">?age <span>integer, default: 30</span></div>
-        <input class="field-input" id="f-age" type="number" placeholder="30" min="1" max="150" value="">
+        <input class="field-input" id="f-age" type="number" placeholder="30" min="1" max="120" value="">
       </div>
     </div>
     <div id="age-preview" class="age-strip" style="padding: 0 16px 16px; display:none"></div>
@@ -617,7 +617,7 @@ var MESSAGES = [];
 
 // token encoding: compact positional format  name|age|amount|from|themeCode|quoteCode|device
 // images are excluded — tokens are for text-only cards
-var TOKEN_THEME  = { light:'l', amber:'a', matrix:'m', blueprint:'b', paper:'p', neon:'n', dos:'o', brutalist:'r', ink:'i' };
+var TOKEN_THEME  = { light:'l', amber:'a', matrix:'m', blueprint:'b', paper:'p', neon:'n', dos:'o', brutalist:'r', ink:'i', uwu:'u' };
 var TOKEN_QUOTE  = { sachlich:'s', nerd:'n', cli:'v', existentiell:'e', langweilig:'w', birthday_run:'b', git_log:'g', kernel_panic:'k', uptime:'u', '404':'4' };
 
 // ── message grid ─────────────────────────────────────────────────────────────
@@ -698,7 +698,7 @@ function buildDeviceStrip() {
     tile.innerHTML =
       '<div class="device-tile-name">' + d.shortName + '</div>' +
       '<div class="device-tile-days" id="dd-' + d.id + '">—</div>' +
-      '<div class="device-tile-unit">Tage · ' + d.watt + 'W</div>' +
+      '<div class="device-tile-unit">' + d.watt + 'W</div>' +
       '<div class="device-tile-pin" id="dp-' + d.id + '"></div>';
     tile.addEventListener('click', function () {
       currentDevice = currentDevice === d.id ? null : d.id;
@@ -740,7 +740,7 @@ function computeDays(amount, watt) {
 function formatDays(n) {
   if (!isFinite(n) || n <= 0) return '—';
   if (n >= 365) return (n / 365).toFixed(1) + 'y';
-  return Math.round(n) + '';
+  return Math.round(n) + 'd';
 }
 
 function toHex(n) { return '0x' + n.toString(16).toUpperCase().padStart(2, '0'); }
@@ -750,7 +750,9 @@ function toBin(n)  { return '0b' + n.toString(2).padStart(8, '0'); }
 function getValues() {
   return {
     name:   document.getElementById('f-name').value.trim(),
-    age:    parseInt(document.getElementById('f-age').value, 10) || null,
+    // Clamp to the card's representable range (index.html getParams caps 1–120)
+    // so the builder can't emit an age that round-trips to a different value.
+    age:    (function () { var a = parseInt(document.getElementById('f-age').value, 10); return isNaN(a) ? null : Math.max(1, Math.min(120, a)); })(),
     amount: document.getElementById('f-amount').value !== '' ? parseFloat(document.getElementById('f-amount').value) : null,
     from:   document.getElementById('f-from').value.trim(),
     meme:   document.getElementById('f-meme').value.trim(),
@@ -763,7 +765,7 @@ function buildUrl(vals) {
   var p = new URLSearchParams();
   if (vals.name)            p.set('name',   vals.name);
   if (vals.age)             p.set('age',    String(vals.age));
-  if (vals.amount !== null) p.set('amount', String(vals.amount));
+  if (vals.amount > 0)      p.set('amount', String(vals.amount));
   if (vals.meme)            p.set('meme',   vals.meme);
   if (vals.from)            p.set('from',   vals.from);
   if (currentTheme !== 'dark') p.set('theme', currentTheme);
@@ -782,16 +784,19 @@ function buildUrl(vals) {
 function buildToken(cardUrl) {
   var u  = new URL(cardUrl);
   var sp = u.searchParams;
-  var name = sp.get('name') || '';
+  // Pipe is the positional field separator — strip it from free-form strings so
+  // they can't shift later fields on decode (mirrors index.html buildToken).
+  var stripPipe = function (s) { return (s || '').replace(/\|/g, ''); };
+  var name = stripPipe(sp.get('name'));
   var age  = sp.get('age')  || '';
   if (!name && !age) return '';
 
   var amount = sp.get('amount') || '';
-  var from   = sp.get('from')   || '';
+  var from   = stripPipe(sp.get('from'));
   var theme  = TOKEN_THEME[sp.get('theme') || ''] || '';
   var rawQ   = sp.get('quote') || '';
   var quoteField = rawQ === 'custom'
-    ? '~' + (sp.get('text') || '')
+    ? '~' + stripPipe(sp.get('text'))
     : (TOKEN_QUOTE[rawQ] || '');
   var device = sp.get('device') || '';
   // blob:/data: URLs can't be encoded in tokens (local/embedded)
@@ -807,17 +812,23 @@ function buildToken(cardUrl) {
   return b64.match(/.{1,4}/g).join('.');
 }
 
+function escHtml(s) {
+  return String(s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
 function renderUrl(url) {
   var base = url.split('?')[0];
   var qs   = url.includes('?') ? url.split('?')[1] : '';
   if (!qs) { document.getElementById('output-url').textContent = base; return; }
-  var html = '<span style="color:var(--text-mid)">' + base + '?</span>';
+  var html = '<span style="color:var(--text-mid)">' + escHtml(base) + '?</span>';
   qs.split('&').forEach(function (pair, i) {
     var parts = pair.split('=');
     var key   = parts[0];
     var val   = decodeURIComponent(parts.slice(1).join('='));
     if (i > 0) html += '<span class="param-key">&amp;</span>';
-    html += '<span class="param-key">' + key + '=</span><span class="param-val">' + val + '</span>';
+    html += '<span class="param-key">' + escHtml(key) + '=</span><span class="param-val">' + escHtml(val) + '</span>';
   });
   document.getElementById('output-url').innerHTML = html;
 }
