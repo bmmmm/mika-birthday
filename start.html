@@ -203,8 +203,19 @@
 </div>
 
 <script>
-var THEME_DECODE = { l:'light', a:'amber', m:'matrix', b:'blueprint', p:'paper', n:'neon', o:'dos', r:'brutalist', i:'ink' };
+var THEME_DECODE = { l:'light', a:'amber', m:'matrix', b:'blueprint', p:'paper', n:'neon', o:'dos', r:'brutalist', i:'ink', u:'uwu' };
 var QUOTE_DECODE = { s:'sachlich', n:'nerd', v:'cli', e:'existentiell', w:'langweilig', b:'birthday_run', g:'git_log', k:'kernel_panic', u:'uptime', '4':'404' };
+
+// A legacy token is a raw query string: every &-separated part is a known
+// key=value. Anything else (incl. a single positional field that happens to
+// contain '=' or no separators at all) is the new compact positional format.
+var LEGACY_KEYS = /^(name|age|amount|from|theme|quote|text|device|meme|locked|scale)$/;
+function isLegacyQuery(s) {
+  if (s.indexOf('=') === -1) return false;
+  return s.split('&').every(function (pair) {
+    return LEGACY_KEYS.test(pair.split('=')[0]);
+  });
+}
 
 function decodePositional(str) {
   var f = str.split('|');
@@ -238,9 +249,9 @@ function openFromToken() {
     var padded = stripped.replace(/-/g, '+').replace(/_/g, '/');
     while (padded.length % 4) padded += '=';
     var decoded = decodeURIComponent(escape(atob(padded)));
-    var qs = decoded.includes('|')
-      ? decodePositional(decoded)      // new compact format
-      : decoded.includes('=') ? decoded : null; // old query-string format
+    var qs = isLegacyQuery(decoded)
+      ? decoded                        // legacy raw query-string token
+      : decodePositional(decoded);     // new compact format (incl. single-field)
     if (!qs) throw new Error('invalid');
     window.location.href = 'index.html?' + qs + '&locked=1';
   } catch (e) {
